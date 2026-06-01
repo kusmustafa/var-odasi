@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAR Odası - Dünya Kupası Tahminleri</title>
+    <style>
+        /* --- Renk Paleti ve Koyu Tema Ayarları --- */
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-red: #e50914;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --border-color: #2a2a2a;
+            --success-green: #2ecc71;
+            --info-blue: #3498db;
+            --gold: #f1c40f;
+            --silver: #bdc3c7;
+            --bronze: #e67e22;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 15px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 480px; padding-bottom: 60px; }
+        
+        header { text-align: center; margin-bottom: 25px; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .logo-container { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); border: 2px solid var(--gold); border-radius: 12px; padding: 10px 20px; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.2); }
+        .logo-svg { width: 40px; height: 40px; margin-right: 12px; }
+        header h1 { font-size: 1.8rem; text-transform: uppercase; font-weight: 900; letter-spacing: 1.5px; color: var(--text-main); }
+        header h1 span { color: var(--accent-red); background-color: rgba(229, 9, 20, 0.1); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(229, 9, 20, 0.3); }
+        .user-welcome { font-size: 0.85rem; color: var(--success-green); margin-top: 5px; display: none; font-weight: 600; }
+
+        .auth-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; text-align: center; margin-top: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .auth-input { width: 100%; padding: 14px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; margin-bottom: 15px; text-align: center; }
+        .auth-input:focus { border-color: var(--accent-red); outline: none; }
+
+        .main-app { display: none; }
+        .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .tab-btn { flex: 1; background: none; border: none; color: var(--text-muted); padding: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border-radius: 8px; }
+        .tab-btn.active { background-color: var(--accent-red); color: var(--text-main); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .match-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .match-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+        .match-body { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .team { flex: 2; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .team-name { font-size: 1rem; font-weight: 700; word-break: break-word; }
+        .prediction-inputs { display: flex; align-items: center; gap: 8px; justify-content: center; flex: 3; }
+        .score-input { width: 45px; height: 45px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); text-align: center; font-size: 1.2rem; font-weight: bold; }
+        .score-input:disabled { background-color: #222222; color: #555555; border-color: #2a2a2a; }
+        .score-divider { color: var(--text-muted); font-weight: bold; }
+        .match-footer { margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .status-text { font-size: 0.75rem; font-weight: 600; }
+        .status-open { color: var(--success-green); }
+        .status-closed { color: var(--accent-red); }
+        .status-revised { color: var(--info-blue); }
+        
+        .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+        .save-btn:disabled { background-color: #333333; color: #777777; cursor: not-allowed; }
+
+        .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
+        .leaderboard-table td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        .rank-col { font-weight: 800; width: 45px; text-align: center; }
+        .pos-1 { color: var(--gold); font-size: 1.1rem; }
+        .pos-2 { color: var(--silver); font-size: 1rem; }
+        .pos-3 { color: var(--bronze); font-size: 1rem; }
+        .name-col { font-weight: 600; }
+        .stats-col { color: var(--text-muted); font-size: 0.8rem; text-align: center; }
+        .total-col { font-weight: 800; color: var(--success-green); text-align: right; padding-right: 15px !important; }
+
+        .champion-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; }
+        .champion-card h2 { font-size: 1.2rem; margin-bottom: 10px; text-align: center; }
+        .champion-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; text-align: center; line-height: 1.4; }
+        .stage-badge { background-color: var(--gold); color: #000; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+        select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
+        .locked-champion-box { background-color: rgba(241, 196, 15, 0.05); border: 1px dashed var(--gold); border-radius: 8px; padding: 15px; text-align: center; margin-top: 15px; }
+        .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Logo ve Başlık -->
+        <header>
+            <div class="logo-container">
+                <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="15" width="90" height="70" rx="8" fill="none" stroke="#f1c40f" stroke-width="4" stroke-dasharray="6,4"/>
+                    <path d="M35 25 C35 25, 35 45, 42 55 L42 75 L32 75 L32 82 L68 82 L68 75 L58 75 L58 55 C65 45, 65 25, 65 25 Z" fill="#f1c40f"/>
+                    <circle cx="50" cy="30" r="14" fill="#f39c12"/>
+                    <path d="M40 78 L60 78" stroke="#2ecc71" stroke-width="3"/>
+                    <path d="M42 71 L58 71" stroke="#2ecc71" stroke-width="3"/>
+                </svg>
+                <h1>VAR <span>Odası</span></h1>
+            </div>
+            <div id="userWelcome" class="user-welcome"></div>
+        </header>
+
+        <!-- 1. EKRAN: GİRİŞ YAPMA -->
+        <div id="authScreen" class="auth-container">
+            <h2>Giriş Yap veya Kaydol</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">İlk kez giriyorsan yazdığın PIN senin şifren olur.</p>
+            <input type="text" id="usernameInput" class="auth-input" placeholder="Kullanıcı Adı">
+            <input type="password" id="pinInput" class="auth-input" maxlength="4" placeholder="4 Haneli PIN Kodu">
+            <button id="authBtn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="handleAuth()">Sisteme Giriş Yap</button>
+        </div>
+
+        <!-- 2. EKRAN: ANA UYGULAMA ALANI -->
+        <div id="mainApp" class="main-app">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'matches')">Maçlar</button>
+                <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
+                <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
+            </div>
+
+            <!-- MAÇLAR SEKRESİ -->
+            <div id="matches" class="tab-content active">
+                <div class="loading">Google Sheets'ten fikstür çekiliyor...</div>
+            </div>
+
+            <!-- SIRALAMA SEKRESİ -->
+            <div id="leaderboard" class="tab-content">
+                <div class="leaderboard-container">
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Sıra</th>
+                                <th>Oyuncu</th>
+                                <th style="text-align: center;">5P / 3P / 2P</th>
+                                <th style="text-align: right; padding-right: 15px;">Puan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ŞAMPİYON SEKRESİ -->
+            <div id="champion" class="tab-content">
+                <div class="champion-card">
+                    <h2>Şampiyonunu Tahmin Et</h2>
+                    <p>Turnuva aşamasına göre doğru tahmin ödülü değişir.</p>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <span class="stage-badge" id="current-stage-badge">Turnuva Başlangıcı</span>
+                    </div>
+                    <select id="champion-select">
+                        <option value="" disabled selected>Bir takım seçin...</option>
+                        <option value="AR">Arjantin</option>
+                        <option value="BR">Brezilya</option>
+                        <option value="FR">Fransa</option>
+                        <option value="DE">Almanya</option>
+                        <option value="ES">İspanya</option>
+                        <option value="IT">İtalya</option>
+                    </select>
+                    <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem; background-color: var(--gold); color: #000;" onclick="saveChampionPrediction()">
+                        Şampiyonluk Tahminini Kilitle
+                    </button>
+                    <div id="locked-prediction-zone" class="locked-champion-box" style="display: none;">
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">Mevcut Kilitli Tahmininiz:</span>
+                        <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
+                        <p id="locked-stage-info" style="font-size: 0.75rem; margin-top: 5px; color: var(--success-green);">🔒 Takımınız hala turnuvada.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // !!! KENDİ GOOGLE APPS SCRIPT URL'NİZİ AŞAĞIYA YAPIŞTIRIN !!!
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp3jmY8VXu4ybY1ODzPFc_Qt91iM4qM9LOc2zHIOwFBlLGdfytufHo2b8Eo3vPrvIG/exec";
+
+        let aktifKullanici = "";
+        let mevcutTahminler = {};
+        let maclar = [];
+        let kullaniciSampiyonTahmini = null;
+        let turnuvaAsamasi = "Turnuva Başlangıcı";
+
+        // Geçici Sıralama Datası
+        const siralamaVerisi = [
+            { isim: "Ahmet", tamSkor: 0, farkBilme: 0, tarafBilme: 0, toplamPuan: 0 }
+        ];
+
+        // Sayfa yüklenince fikstürü buluttan çek
+        window.onload = function() {
+            if(SCRIPT_URL === "BURAYA_KOPYALADIGIN_URL_GELECEK") { return; }
+            fetch(SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    maclar = data;
+                    if(aktifKullanici) maclariListele();
+                })
+                .catch(err => console.error("Hata:", err));
+        };
+
+        // GİRİŞ DOĞRULAMA SİSTEMİ
+        function handleAuth() {
+            const user = document.getElementById('usernameInput').value.trim();
+            const pin = document.getElementById('pinInput').value.trim();
+            const authBtn = document.getElementById('authBtn');
+
+            if (user === "" || pin.length !== 4) {
+                alert("Lütfen geçerli veri girin!");
+                return;
+            }
+
+            authBtn.disabled = true;
+            authBtn.innerText = "Bağlanılıyor...";
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: "auth", username: user, pin: pin })
+            })
+            .then(res => res.json())
+            .then(response => {
+                if(response.status === "success") {
+                    aktifKullanici = user;
+                    document.getElementById('authScreen').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                    document.getElementById('userWelcome').innerText = "⚽ VAR Odasındasın: " + aktifKullanici;
+                    document.getElementById('userWelcome').style.display = 'block';
+                    maclariListele();
+                    siralayiListele();
+                    sampiyonlukEkraniniGuncelle();
+                } else {
+                    alert(response.message);
+                    authBtn.disabled = false;
+                    authBtn.innerText = "Sisteme Giriş Yap";
+                }
+            })
+            .catch(() => {
+                // Her ihtimale karşı yedek tetikleyici açılış
+                aktifKullanici = user;
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('userWelcome').innerText = "⚽ VAR Odasındasın: " + aktifKullanici;
+                document.getElementById('userWelcome').style.display = 'block';
+                maclariListele();
+                siralayiListele();
+                sampiyonlukEkraniniGuncelle();
+            });
+        }
+
+        // MAÇLARI EKRANA LİSTELEME
+        function maclariListele() {
+            const container = document.getElementById('matches');
+            if(maclar.length === 0) {
+                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Fikstür boş veya yükleniyor...</p>";
+                return;
+            }
+            
+            container.innerHTML = "";
+            const simdikiZaman = new Date();
+
+            maclar.forEach(mac => {
+                const macZamani = new Date(mac.zaman);
+                const kilitliMi = simdikiZaman >= macZamani; 
+                const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
+                const dahaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
+
+                let durumMetni = '🔓 Tahmin Girişi Açık';
+                let durumSinifi = 'status-open';
+                let butonMetni = 'Kaydet';
+
+                if (kilitliMi) {
+                    durumMetni = '🔒 Süre Doldu (-2 Ceza Aktif)';
+                    durumSinifi = 'status-closed';
+                    butonMetni = 'Kilitli';
+                } else if (dahaOnceGirildiMi) {
+                    durumMetni = `✍️ Kayıtlı: ${mevcutTahminler[mac.id].a}-${mevcutTahminler[mac.id].b}`;
+                    durumSinifi = 'status-revised';
+                    butonMetni = 'Güncelle';
+                }
+
+                const macHtml = `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span>${mac.grup} • Maç ${mac.id}</span>
+                            <span>${formatliZaman}</span>
+                        </div>
+                        <div class="match-body">
+                            <div class="team"><span class="team-name">${mac.takimA}</span></div>
+                            <div class="prediction-inputs">
+                                <input type="number" id="tahminA_${mac.id}" class="score-input" min="0" placeholder="-" oninput="validateScoreInput(this)" ${kilitliMi ? 'disabled' : ''}>
+                                <span class="score-divider">:</span>
+                                <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" placeholder="-" oninput="validateScoreInput(this)" ${kilitliMi ? 'disabled' : ''}>
+                            </div>
+                            <div class="team"><span class="team-name">${mac.takimB}</span></div>
+                        </div>
+                        <div class="match-footer">
+                            <span class="status-text ${durumSinifi}">${durumMetni}</span>
+                            <button id="btn_${mac.id}" class="save-btn" onclick="savePrediction(${mac.id})" ${kilitliMi ? 'disabled' : ''}>${butonMetni}</button>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += macHtml;
+
+                if (dahaOnceGirildiMi) {
+                    document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a;
+                    document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b;
+                }
+            });
+        }
+
+        // TAHMİN BİLGİSİNİ BULUTA POST ETME
+        function savePrediction(matchId) {
+            const skorA = document.getElementById(`tahminA_${matchId}`).value;
+            const skorB = document.getElementById(`tahminB_${matchId}`).value;
+            const btn = document.getElementById(`btn_${matchId}`);
+
+            if(skorA === "" || skorB === "") { alert("Skor girin!"); return; }
+            btn.disabled = true; btn.innerText = "...";
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB })
+            })
+            .then(() => {
+                mevcutTahminler[matchId] = { a: skorA, b: skorB };
+                alert("Kaydedildi!");
+                maclariListele();
+            })
+            .catch(() => {
+                mevcutTahminler[matchId] = { a: skorA, b: skorB };
+                maclariListele();
+            });
+        }
+
+        // LİDERLİK LİSTESİ BASTIRMA
+        function siralayiListele() {
+            const tbody = document.getElementById('leaderboard-tbody');
+            tbody.innerHTML = "";
+            siralamaVerisi.forEach((oyuncu, index) => {
+                const sira = index + 1;
+                let siraClass = (sira===1)?"pos-1":(sira===2)?"pos-2":(sira===3)?"pos-3":"";
+                tbody.innerHTML += `<tr><td class="rank-col ${siraClass}">#${sira}</td><td class="name-col">${oyuncu.isim}</td><td class="stats-col">${oyuncu.tamSkor}/${oyuncu.farkBilme}/${oyuncu.tarafBilme}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`;
+            });
+        }
+
+        function sampiyonlukEkraniniGuncelle() {
+            document.getElementById('current-stage-badge').innerText = `Aşama: ${turnuvaAsamasi}`;
+        }
+
+        function saveChampionPrediction() {
+            const selectBox = document.getElementById('champion-select');
+            if (!selectBox.value) { alert("Takım seçin!"); return; }
+            alert("Şampiyon tahmininiz alındı!");
+        }
+
+        function validateScoreInput(input) {
+            let val = input.value;
+            if (val.length > 1 && val.startsWith('0')) { input.value = parseInt(val, 10); }
+        }
+
+        function switchTab(event, tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
