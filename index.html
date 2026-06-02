@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VAR Odası - Dünya Kupası Tahminleri</title>
+    
+    <!-- TARAYICI SEKMESİ LOGOSU (FAVICON) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+
     <style>
         /* --- Renk Paleti ve Koyu Tema Ayarları --- */
         :root {
@@ -41,6 +45,11 @@
         .tab-btn.active { background-color: var(--accent-red); color: var(--text-main); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
+        /* --- Maç Filtre Butonları Tasarımı --- */
+        .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        .filter-btn { flex: 1; background-color: #252525; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active { background-color: var(--info-blue); color: #fff; border-color: var(--info-blue); }
 
         .match-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .match-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
@@ -118,7 +127,14 @@
 
             <!-- MAÇLAR SEKRESİ -->
             <div id="matches" class="tab-content active">
-                <div class="loading">Google Sheets'ten fikstür çekiliyor...</div>
+                <!-- Canlı Akıllı Filtreleme Butonları -->
+                <div class="filter-container">
+                    <button id="filter-open-btn" class="filter-btn active" onclick="setMatchFilter('open')">Girişi Açık Maçlar</button>
+                    <button id="filter-all-btn" class="filter-btn" onclick="setMatchFilter('all')">Tüm Fikstür</button>
+                </div>
+                <div id="matches-list-container">
+                    <div class="loading">Google Sheets'ten fikstür çekiliyor...</div>
+                </div>
             </div>
 
             <!-- SIRALAMA SEKRESİ -->
@@ -170,20 +186,20 @@
 
     <script>
         // !!! KENDİ GOOGLE APPS SCRIPT URL'NİZİ AŞAĞIYA YAPIŞTIRIN !!!
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp3jmY8VXu4ybY1ODzPFc_Qt91iM4qM9LOc2zHIOwFBlLGdfytufHo2b8Eo3vPrvIG/exec";
+        const SCRIPT_URL = "BURAYA_KOPYALADIGIN_URL_GELECEK";
 
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
         let kullaniciSampiyonTahmini = null;
         let turnuvaAsamasi = "Turnuva Başlangıcı";
+        let aktifFiltre = "open"; // 'open' veya 'all'
 
         // Geçici Sıralama Datası
         const siralamaVerisi = [
             { isim: "Ahmet", tamSkor: 0, farkBilme: 0, tarafBilme: 0, toplamPuan: 0 }
         ];
 
-        // Sayfa yüklenince fikstürü buluttan çek
         window.onload = function() {
             if(SCRIPT_URL === "BURAYA_KOPYALADIGIN_URL_GELECEK") { return; }
             fetch(SCRIPT_URL)
@@ -195,7 +211,6 @@
                 .catch(err => console.error("Hata:", err));
         };
 
-        // GİRİŞ DOĞRULAMA SİSTEMİ
         function handleAuth() {
             const user = document.getElementById('usernameInput').value.trim();
             const pin = document.getElementById('pinInput').value.trim();
@@ -232,7 +247,6 @@
                 }
             })
             .catch(() => {
-                // Her ihtimale karşı yedek tetikleyici açılış
                 aktifKullanici = user;
                 document.getElementById('authScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
@@ -244,9 +258,16 @@
             });
         }
 
-        // MAÇLARI EKRANA LİSTELEME
+        // Akıllı Filtre Seçimi
+        function setMatchFilter(filterType) {
+            aktifFiltre = filterType;
+            document.getElementById('filter-open-btn').classList.toggle('active', filterType === 'open');
+            document.getElementById('filter-all-btn').classList.toggle('active', filterType === 'all');
+            maclariListele();
+        }
+
         function maclariListele() {
-            const container = document.getElementById('matches');
+            const container = document.getElementById('matches-list-container');
             if(maclar.length === 0) {
                 container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Fikstür boş veya yükleniyor...</p>";
                 return;
@@ -254,10 +275,18 @@
             
             container.innerHTML = "";
             const simdikiZaman = new Date();
+            let gosterilenMacSayisi = 0;
 
             maclar.forEach(mac => {
                 const macZamani = new Date(mac.zaman);
                 const kilitliMi = simdikiZaman >= macZamani; 
+
+                // Eğer 'open' filtresi aktifse ve maç kilitliyse bu maçı listede atla
+                if (aktifFiltre === "open" && kilitliMi) {
+                    return;
+                }
+
+                gosterilenMacSayisi++;
                 const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
                 const dahaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
 
@@ -303,9 +332,12 @@
                     document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b;
                 }
             });
+
+            if (gosterilenMacSayisi === 0 && aktifFiltre === "open") {
+                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Girişi açık aktif maç bulunmuyor. Tüm fikstüre tıklayarak geçmiş maçlara bakabilirsiniz.</p>";
+            }
         }
 
-        // TAHMİN BİLGİSİNİ BULUTA POST ETME
         function savePrediction(matchId) {
             const skorA = document.getElementById(`tahminA_${matchId}`).value;
             const skorB = document.getElementById(`tahminB_${matchId}`).value;
@@ -330,7 +362,6 @@
             });
         }
 
-        // LİDERLİK LİSTESİ BASTIRMA
         function siralayiListele() {
             const tbody = document.getElementById('leaderboard-tbody');
             tbody.innerHTML = "";
