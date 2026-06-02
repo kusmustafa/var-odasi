@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VAR Odası - Dünya Kupası Tahminleri</title>
     
-    <!-- TARAYICI SEKMESİ LOGOSU (FAVICON) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
 
     <style>
-        /* --- Renk Paleti ve Koyu Tema Ayarları --- */
         :root {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
@@ -46,9 +44,8 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* --- Maç Filtre Butonları Tasarımı --- */
         .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
-        .filter-btn { flex: 1; background-color: #252525; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .filter-btn { flex: 1; background-color: #252525; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
         .filter-btn.active { background-color: var(--info-blue); color: #fff; border-color: var(--info-blue); }
 
         .match-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
@@ -87,13 +84,16 @@
         .stage-badge { background-color: var(--gold); color: #000; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .locked-champion-box { background-color: rgba(241, 196, 15, 0.05); border: 1px dashed var(--gold); border-radius: 8px; padding: 15px; text-align: center; margin-top: 15px; }
+        
+        /* Admin Onay Listesi Elemanları */
+        .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
+        .approve-btn { background-color: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- Logo ve Başlık -->
         <header>
             <div class="logo-container">
                 <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -108,7 +108,6 @@
             <div id="userWelcome" class="user-welcome"></div>
         </header>
 
-        <!-- 1. EKRAN: GİRİŞ YAPMA -->
         <div id="authScreen" class="auth-container">
             <h2>Giriş Yap veya Kaydol</h2>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">İlk kez giriyorsan yazdığın PIN senin şifren olur.</p>
@@ -117,17 +116,15 @@
             <button id="authBtn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="handleAuth()">Sisteme Giriş Yap</button>
         </div>
 
-        <!-- 2. EKRAN: ANA UYGULAMA ALANI -->
         <div id="mainApp" class="main-app">
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'matches')">Maçlar</button>
                 <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
                 <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
+                <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Onay Odası</button>
             </div>
 
-            <!-- MAÇLAR SEKRESİ -->
             <div id="matches" class="tab-content active">
-                <!-- Canlı Akıllı Filtreleme Butonları -->
                 <div class="filter-container">
                     <button id="filter-open-btn" class="filter-btn active" onclick="setMatchFilter('open')">Girişi Açık Maçlar</button>
                     <button id="filter-all-btn" class="filter-btn" onclick="setMatchFilter('all')">Tüm Fikstür</button>
@@ -137,7 +134,6 @@
                 </div>
             </div>
 
-            <!-- SIRALAMA SEKRESİ -->
             <div id="leaderboard" class="tab-content">
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
@@ -154,7 +150,6 @@
                 </div>
             </div>
 
-            <!-- ŞAMPİYON SEKRESİ -->
             <div id="champion" class="tab-content">
                 <div class="champion-card">
                     <h2>Şampiyonunu Tahmin Et</h2>
@@ -181,27 +176,36 @@
                     </div>
                 </div>
             </div>
+
+            <!-- GİZLİ YÖNETİCİ ONAY PANELİ SEKRESİ -->
+            <div id="adminPanel" class="tab-content">
+                <div class="champion-card">
+                    <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
+                    <p style="margin-bottom:20px;">Sisteme kaydolan yeni arkadaşların listesi aşağıdadır. Onayla butonuna basarak lige dahil edebilirsin.</p>
+                    <div id="pendingUsersList">
+                        <div class="loading">Bekleyen başvurular aranıyor...</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // !!! KENDİ GOOGLE APPS SCRIPT URL'NİZİ AŞAĞIYA YAPIŞTIRIN !!!
-        const SCRIPT_URL = "BURAYA_KOPYALADIGIN_URL_GELECEK";
+        // SCRIPT_URL KALICI OLARAK GÖMÜLDÜ
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQp1rG_XyD3H3iN4T76K1A8bS3_vAr_Oda_Bridge/exec";
 
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
         let kullaniciSampiyonTahmini = null;
         let turnuvaAsamasi = "Turnuva Başlangıcı";
-        let aktifFiltre = "open"; // 'open' veya 'all'
+        let aktifFiltre = "open";
 
-        // Geçici Sıralama Datası
         const siralamaVerisi = [
             { isim: "Ahmet", tamSkor: 0, farkBilme: 0, tarafBilme: 0, toplamPuan: 0 }
         ];
 
         window.onload = function() {
-            if(SCRIPT_URL === "BURAYA_KOPYALADIGIN_URL_GELECEK") { return; }
             fetch(SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
@@ -231,7 +235,23 @@
             })
             .then(res => res.json())
             .then(response => {
-                if(response.status === "success") {
+                authBtn.disabled = false;
+                authBtn.innerText = "Sisteme Giriş Yap";
+
+                if (response.status === "admin") {
+                    // SİSTEME ADMİN OLARAK GİRİŞ YAPILDI
+                    aktifKullanici = user;
+                    document.getElementById('authScreen').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                    document.getElementById('adminTabBtn').style.display = 'block'; // Admin sekmesini aç
+                    document.getElementById('userWelcome').innerText = "👑 VAR Odası Yöneticisi: " + aktifKullanici;
+                    document.getElementById('userWelcome').style.display = 'block';
+                    maclariListele();
+                    siralayiListele();
+                    sampiyonlukEkraniniGuncelle();
+                    getPendingUsers(); // Bekleyen listeyi yükle
+                } else if (response.status === "success") {
+                    // ONAYLI STANDART KULLANICI GİRİŞİ
                     aktifKullanici = user;
                     document.getElementById('authScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'block';
@@ -240,25 +260,73 @@
                     maclariListele();
                     siralayiListele();
                     sampiyonlukEkraniniGuncelle();
+                } else if (response.status === "pending") {
+                    alert("Kayıt başvurunuz başarıyla alındı!\n\nVAR Odası yöneticisi onay verdikten sonra lig ekranınız açılacaktır. Lütfen bekleyin.");
+                } else if (response.status === "unauthorized") {
+                    alert("Giriş Engellendi!\n\nHesabınız henüz yönetici tarafından onaylanmamıştır. Lütfen yöneticinizle iletişime geçin.");
                 } else {
                     alert(response.message);
-                    authBtn.disabled = false;
-                    authBtn.innerText = "Sisteme Giriş Yap";
                 }
             })
             .catch(() => {
-                aktifKullanici = user;
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                document.getElementById('userWelcome').innerText = "⚽ VAR Odasındasın: " + aktifKullanici;
-                document.getElementById('userWelcome').style.display = 'block';
-                maclariListele();
-                siralayiListele();
-                sampiyonlukEkraniniGuncelle();
+                alert("Bağlantı hatası!");
+                authBtn.disabled = false;
+                authBtn.innerText = "Sisteme Giriş Yap";
             });
         }
 
-        // Akıllı Filtre Seçimi
+        // ADMİN PANELİ: BEKLEYEN KULLANICILARI BULUTTAN ÇEKME
+        function getPendingUsers() {
+            const listContainer = document.getElementById('pendingUsersList');
+            fetch(`${SCRIPT_URL}?action=getPendingUsers`)
+                .then(res => res.json())
+                .then(users => {
+                    if (users.length === 0) {
+                        listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Şu an onay bekleyen yeni bir başvuru yok.</p>";
+                        return;
+                    }
+                    listContainer.innerHTML = "";
+                    users.forEach(username => {
+                        listContainer.innerHTML += `
+                            <div class="admin-user-row">
+                                <span style="font-weight:bold;">⚽ ${username}</span>
+                                <button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button>
+                            </div>
+                        `;
+                    });
+                })
+                .catch(() => {
+                    listContainer.innerHTML = "<p style='text-align:center;color:var(--accent-red);'>Liste yüklenemedi.</p>";
+                });
+        }
+
+        // ADMİN PANELİ: KULLANICIYA SİSTEM İÇİNDEN ONAY VERME
+        function approveUser(username, buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.innerText = "...";
+            
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: "approveUser", targetUsername: username })
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === "success") {
+                    alert(`${username} başarıyla onaylandı ve lige dahil edildi!`);
+                    getPendingUsers(); // Listeyi yenile
+                } else {
+                    alert("Onaylanırken bir hata oluştu.");
+                    buttonElement.disabled = false;
+                    buttonElement.innerText = "Onayla";
+                }
+            })
+            .catch(() => {
+                alert(`${username} onaylandı!`);
+                getPendingUsers();
+            });
+        }
+
         function setMatchFilter(filterType) {
             aktifFiltre = filterType;
             document.getElementById('filter-open-btn').classList.toggle('active', filterType === 'open');
@@ -272,7 +340,6 @@
                 container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Fikstür boş veya yükleniyor...</p>";
                 return;
             }
-            
             container.innerHTML = "";
             const simdikiZaman = new Date();
             let gosterilenMacSayisi = 0;
@@ -281,10 +348,7 @@
                 const macZamani = new Date(mac.zaman);
                 const kilitliMi = simdikiZaman >= macZamani; 
 
-                // Eğer 'open' filtresi aktifse ve maç kilitliyse bu maçı listede atla
-                if (aktifFiltre === "open" && kilitliMi) {
-                    return;
-                }
+                if (aktifFiltre === "open" && kilitliMi) { return; }
 
                 gosterilenMacSayisi++;
                 const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
@@ -334,7 +398,7 @@
             });
 
             if (gosterilenMacSayisi === 0 && aktifFiltre === "open") {
-                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Girişi açık aktif maç bulunmuyor. Tüm fikstüre tıklayarak geçmiş maçlara bakabilirsiniz.</p>";
+                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Girişi açık aktif maç bulunmuyor.</p>";
             }
         }
 
