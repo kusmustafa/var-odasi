@@ -38,8 +38,8 @@
         .auth-input:focus { border-color: var(--accent-red); outline: none; }
 
         .main-app { display: none; }
-        .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); }
-        .tab-btn { flex: 1; background: none; border: none; color: var(--text-muted); padding: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border-radius: 8px; }
+        .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 5px; }
+        .tab-btn { flex: 1; background: none; border: none; color: var(--text-muted); padding: 12px 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 8px; white-space: nowrap; }
         .tab-btn.active { background-color: var(--accent-red); color: var(--text-main); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -85,6 +85,16 @@
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .locked-champion-box { background-color: rgba(241, 196, 15, 0.05); border: 1px dashed var(--gold); border-radius: 8px; padding: 15px; text-align: center; margin-top: 15px; }
         
+        /* Tutorial / Kurallar Stilleri */
+        .tutorial-section { text-align: left; margin-bottom: 20px; }
+        .tutorial-title { font-size: 1rem; font-weight: bold; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .tutorial-text { font-size: 0.85rem; color: #dddddd; line-height: 1.5; margin-bottom: 10px; padding-left: 5px; }
+        .rule-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 5px; }
+        .badge-5p { background-color: rgba(46, 204, 113, 0.2); color: var(--success-green); border: 1px solid var(--success-green); }
+        .badge-3p { background-color: rgba(52, 152, 219, 0.2); color: var(--info-blue); border: 1px solid var(--info-blue); }
+        .badge-2p { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+        .badge-neg { background-color: rgba(229, 9, 20, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
         .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
         .approve-btn { background-color: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
@@ -107,6 +117,7 @@
             <div id="userWelcome" class="user-welcome"></div>
         </header>
 
+        <!-- GİRİŞ EKRANI -->
         <div id="authScreen" class="auth-container">
             <h2>Giriş Yap veya Kaydol</h2>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">İlk kez giriyorsan yazdığın PIN senin şifren olur.</p>
@@ -115,14 +126,17 @@
             <button id="authBtn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="handleAuth()">Sisteme Giriş Yap</button>
         </div>
 
+        <!-- ANA UYGULAMA ALANI -->
         <div id="mainApp" class="main-app">
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'matches')">Maçlar</button>
                 <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
                 <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
+                <button class="tab-btn" style="color:var(--info-blue);" onclick="switchTab(event, 'rulesTab')">📋 Kurallar</button>
                 <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Onay Odası</button>
             </div>
 
+            <!-- MAÇLAR SEKRESİ -->
             <div id="matches" class="tab-content active">
                 <div class="filter-container">
                     <button id="filter-open-btn" class="filter-btn active" onclick="setMatchFilter('open')">Girişi Açık Maçlar</button>
@@ -133,6 +147,7 @@
                 </div>
             </div>
 
+            <!-- SIRALAMA SEKRESİ -->
             <div id="leaderboard" class="tab-content">
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
@@ -149,6 +164,7 @@
                 </div>
             </div>
 
+            <!-- ŞAMPİYON SEKRESİ -->
             <div id="champion" class="tab-content">
                 <div class="champion-card">
                     <h2>Şampiyonunu Tahmin Et</h2>
@@ -158,53 +174,7 @@
                     </div>
                     <select id="champion-select">
                         <option value="" disabled selected>Bir takım seçin...</option>
-                        <option value="ABD">ABD</option>
-                        <option value="Almanya">Almanya</option>
-                        <option value="Arjantin">Arjantin</option>
-                        <option value="Avustralya">Avustralya</option>
-                        <option value="Avusturya">Avusturya</option>
-                        <option value="Belçika">Belçika</option>
-                        <option value="Bosna Hersek">Bosna Hersek</option>
-                        <option value="Brezilya">Brezilya</option>
-                        <option value="Cezayir">Cezayir</option>
-                        <option value="Curaçao">Curaçao</option>
-                        <option value="Çekya">Çekya</option>
-                        <option value="Demokratik Kongo">Demokratik Kongo</option>
-                        <option value="Ekvador">Ekvador</option>
-                        <option value="Fas">Fas</option>
-                        <option value="Fildişi Sahili">Fildişi Sahili</option>
-                        <option value="Fransa">Fransa</option>
-                        <option value="Gana">Gana</option>
-                        <option value="Güney Afrika">Güney Afrika</option>
-                        <option value="Güney Kore">Güney Kore</option>
-                        <option value="Haiti">Haiti</option>
-                        <option value="Hırvatistan">Hırvatistan</option>
-                        <option value="Hollanda">Hollanda</option>
-                        <option value="Irak">Irak</option>
-                        <option value="İngiltere">İngiltere</option>
-                        <option value="İran">İran</option>
-                        <option value="İskoçya">İskoçya</option>
-                        <option value="İspanya">İspanya</option>
-                        <option value="İsviçre">İsviçre</option>
-                        <option value="Japonya">Japonya</option>
-                        <option value="Kanada">Kanada</option>
-                        <option value="Katar">Katar</option>
-                        <option value="Kolombiya">Kolombiya</option>
-                        <option value="Meksika">Meksika</option>
-                        <option value="Mısır">Mısır</option>
-                        <option value="Norveç">Norveç</option>
-                        <option value="Özbekistan">Özbekistan</option>
-                        <option value="Panama">Panama</option>
-                        <option value="Paraguay">Paraguay</option>
-                        <option value="Portekiz">Portekiz</option>
-                        <option value="Senegal">Senegal</option>
-                        <option value="Suudi Arabistan">Suudi Arabistan</option>
-                        <option value="Tunus">Tunus</option>
-                        <option value="Türkiye">Türkiye</option>
-                        <option value="Uruguay">Uruguay</option>
-                        <option value="Ürdün">Ürdün</option>
-                        <option value="Yeni Zelanda">Yeni Zelanda</option>
-                        <option value="Yeşil Burun Adaları">Yeşil Burun Adaları</option>
+                        <option value="ABD">ABD</option><option value="Almanya">Almanya</option><option value="Arjantin">Arjantin</option><option value="Avustralya">Avustralya</option><option value="Avusturya">Avusturya</option><option value="Belçika">Belçika</option><option value="Bosna Hersek">Bosna Hersek</option><option value="Brezilya">Brezilya</option><option value="Cezayir">Cezayir</option><option value="Curaçao">Curaçao</option><option value="Çekya">Çekya</option><option value="Demokratik Kongo">Demokratik Kongo</option><option value="Ekvador">Ekvador</option><option value="Fas">Fas</option><option value="Fildişi Sahili">Fildişi Sahili</option><option value="Fransa">Fransa</option><option value="Gana">Gana</option><option value="Güney Afrika">Güney Afrika</option><option value="Güney Kore">Güney Kore</option><option value="Haiti">Haiti</option><option value="Hırvatistan">Hırvatistan</option><option value="Hollanda">Hollanda</option><option value="Irak">Irak</option><option value="İngiltere">İngiltere</option><option value="İran">İran</option><option value="İskoçya">İskoçya</option><option value="İspanya">İspanya</option><option value="İsviçre">İsviçre</option><option value="Japonya">Japonya</option><option value="Kanada">Kanada</option><option value="Katar">Katar</option><option value="Kolombiya">Kolombiya</option><option value="Meksika">Meksika</option><option value="Mısır">Mısır</option><option value="Norveç">Norveç</option><option value="Özbekistan">Özbekistan</option><option value="Panama">Panama</option><option value="Paraguay">Paraguay</option><option value="Portekiz">Portekiz</option><option value="Senegal">Senegal</option><option value="Suudi Arabistan">Suudi Arabistan</option><option value="Tunus">Tunus</option><option value="Türkiye">Türkiye</option><option value="Uruguay">Uruguay</option><option value="Ürdün">Ürdün</option><option value="Yeni Zelanda">Yeni Zelanda</option><option value="Yeşil Burun Adaları">Yeşil Burun Adaları</option>
                     </select>
                     <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem; background-color: var(--gold); color: #000;" onclick="saveChampionPrediction()">
                         Şampiyonluk Tahminini Kilitle
@@ -217,6 +187,47 @@
                 </div>
             </div>
 
+            <!-- KULLANICI TUTORIAL / KURALLAR SEKRESİ -->
+            <div id="rulesTab" class="tab-content">
+                <div class="champion-card">
+                    <h2 style="color:var(--info-blue); margin-bottom:15px;">🏆 VAR Odası Kullanım Kılavuzu</h2>
+                    
+                    <div class="tutorial-section">
+                        <div class="tutorial-title">📱 1. Skor Tahmini Nasıl Yapılır?</div>
+                        <div class="tutorial-text">
+                            <strong>Maçlar</strong> sekmesinde girişi açık olan maçların skor kutularına tahminlerinizi yazıp sağ alttaki <strong>Kaydet</strong> butonuna basın. Başarıyla kaydedildiğinde kutunun altında <em>"✍️ Kayıtlı: X-Y"</em> yazısını göreceksiniz. Maç saati başlayana kadar skorlarınızı istediğiniz kadar güncelleyebilirsiniz.
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <div class="tutorial-title">📊 2. Puanlama Kuralları</div>
+                        <div class="tutorial-text">
+                            Biten her maçın ardından sistem tahminlerinizi analiz eder ve otomatik olarak şu puanları dağıtır:
+                            <br><br>
+                            <span class="rule-badge badge-5p">+5 Puan</span> <strong>Tam Skor:</strong> Maçın skorunu saniyesi saniyesine tam bildiğinizde (Örn: Tahmin: 2-1, Maç Sonucu: 2-1).<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve gol farkını doğru bildiğinizde (Örn: Tahmin: 2-0, Maç Sonucu: 3-1. İkisinde de 2 fark var).<br>
+                            <span class="rule-badge badge-2p">+2 Puan</span> <strong>Maç Sonucu:</strong> Sadece kazanan tarafı veya beraberliği bildiğinizde (Örn: Tahmin: 1-0, Maç Sonucu: 3-2).<br>
+                            <span class="rule-badge badge-neg">-2 Puan</span> <strong>Unutma Cezası:</strong> Eğer bir maça süre dolana kadar hiçbir skor girmediyseniz hanenize ceza puanı yazılır!
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <div class="tutorial-title">🥇 3. Sıralama Tablosu</div>
+                        <div class="tutorial-text">
+                            <strong>Sıralama</strong> sekmesinde kimin kaç puanı olduğunu görebilirsiniz. Ortadaki sütun sırasıyla oyuncunun turnuva boyunca kaç tane <strong>Tam Skor / Fark / Taraf</strong> bildiğini özetler (Örn: 2/4/1).
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <div class="tutorial-title">👑 4. Büyük Şampiyonluk Bonusu</div>
+                        <div class="tutorial-text">
+                            <strong>Şampiyon</strong> sekmesinden turnuva kupasını kaldıracak ülkeyi seçip kilitleyebilirsiniz. Turnuva sonunda şampiyonu doğru bilenler dev bir bonus puan kazanarak sıralamayı altüst edebilir!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YÖNETİCİ KONTROL ODASI -->
             <div id="adminPanel" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
@@ -340,7 +351,6 @@
             }).then(() => { alert(`${username} onaylandı!`); getPendingUsers(); });
         }
 
-        // ADMİN MAÇ SKORU KAYDETME FONKSİYONU
         function saveRealMatchResult() {
             const mId = document.getElementById('adminMatchId').value.trim();
             const scA = document.getElementById('adminScoreA').value.trim();
@@ -359,7 +369,6 @@
                 document.getElementById('adminMatchId').value = "";
                 document.getElementById('adminScoreA').value = "";
                 document.getElementById('adminScoreB').value = "";
-                // Fikstürü tazelemek için sayfayı yeniden tetikleyebilirsin
             }).catch(() => { alert("Skor başarıyla işlendi!"); });
         }
 
