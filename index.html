@@ -43,10 +43,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
-        .filter-btn { flex: 1; background-color: #252525; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-        .filter-btn.active { background-color: var(--info-blue); color: #fff; border-color: var(--info-blue); }
-
         .match-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .match-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
         .match-body { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -136,13 +132,10 @@
                 <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Onay Odası</button>
             </div>
 
+            <!-- TAHMİN GİRİŞ ALANI (FİLTRE BUTONLARI TAMAMEN KALDIRILDI) -->
             <div id="matches" class="tab-content active">
-                <div class="filter-container">
-                    <button id="filter-open-btn" class="filter-btn active" onclick="setMatchFilter('open')">Girişi Açık Maçlar</button>
-                    <button id="filter-all-btn" class="filter-btn" onclick="setMatchFilter('all')">Tüm Fikstür</button>
-                </div>
                 <div id="matches-list-container">
-                    <div class="loading">Fikstür yükleniyor...</div>
+                    <div class="loading">Aktif maçlar yükleniyor...</div>
                 </div>
             </div>
 
@@ -173,7 +166,6 @@
                 </div>
             </div>
 
-            <!-- KADEMELİ ŞAMPİYONLUK PANELİ -->
             <div id="champion" class="tab-content">
                 <div class="champion-card">
                     <h2>Şampiyonunu Tahmin Et</h2>
@@ -200,7 +192,7 @@
 
             <div id="rulesTab" class="tab-content">
                 <div class="champion-card">
-                    <h2 style="color:var(--info-blue); margin-bottom:15px;">🏆 VAR Odası Kullanım Kılavuzu</h2>
+                    <h2>🏆 VAR Odası Kullanım Kılavuzu</h2>
                     <div class="tutorial-section">
                         <div class="tutorial-title">📊 Puanlama Dağılımı</div>
                         <div class="tutorial-text">
@@ -236,14 +228,17 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp3jmY8VXu4ybY1ODzPFc_Qt91iM4qM9LOc2zHIOwFBlLGdfytufHo2b8Eo3vPrvIG/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp3jmY8VXu4ybY1ODzPFc_Qt91iM4qM9LOzHIOwFBlLGdfytufHo2b8Eo3vPrvIG/exec";
 
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
-        let aktifFiltre = "open";
 
-        window.onload = function() { fetch(SCRIPT_URL).then(res => res.json()).then(data => { maclar = data; maclariListele(); }); };
+        window.onload = function() { tazeFiksturCek(); };
+
+        function tazeFiksturCek() {
+            return fetch(SCRIPT_URL).then(res => res.json()).then(data => { maclar = data; if(aktifKullanici) maclariListele(); });
+        }
 
         function handleAuth() {
             const user = document.getElementById('usernameInput').value.trim();
@@ -286,14 +281,12 @@
                 .then(preds => { mevcutTahminler = preds; maclariListele(); getLeaderboardData(); getUserHistoryData(); checkChampStatus(); });
         }
 
-        // ŞAMPİYONLUK DURUMUNU VE GİRİŞ KİLİTLERİNİ BULUTTAN SORGULAR
         function checkChampStatus() {
             if(!aktifKullanici) return;
             fetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`)
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('current-stage-badge').innerText = "Mevcut Aşama: " + data.asama;
-                    
                     if (data.currentPrediction && data.currentPrediction !== "-") {
                         document.getElementById('locked-prediction-zone').style.display = "block";
                         document.getElementById('locked-team-name').innerText = "🔒 " + data.currentPrediction;
@@ -320,7 +313,6 @@
         function lockChampionPrediction() {
             const selectBox = document.getElementById('champion-select');
             if(!selectBox.value) { alert("Lütfen listeden bir ülke seçin!"); return; }
-            
             if(!confirm(`${selectBox.value} ülkesini şampiyon olarak kilitlemek istediğinize emin misiniz?`)) return;
             
             fetch(SCRIPT_URL, {
@@ -329,11 +321,7 @@
                 body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value })
             })
             .then(res => res.json())
-            .then(res => {
-                alert(res.message);
-                checkChampStatus();
-                getLeaderboardData();
-            });
+            .then(res => { alert(res.message); checkChampStatus(); getLeaderboardData(); });
         }
 
         function getUserHistoryData() {
@@ -393,34 +381,93 @@
         function triggerMatchReset() {
             const mId = document.getElementById('resetMatchIdInput').value.trim();
             if(mId === "") { alert("Lütfen Maç ID girin!"); return; }
-            if(!confirm("Bu maç sonucuyla birlikte, tüm tahminler silinecektir. Onaylıyor musunuz?")) return;
+            if(!confirm("DİKKAT!\n\nBu maç sonucuyla birlikte, tüm oyuncuların bu maça girdiği tahminler ve ceza geçmişi tamamen silinecektir.\n\nOnaylıyor musunuz?")) return;
             fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "resetMatchData", matchId: mId }) }).then(res => res.json()).then(res => { alert(res.message); document.getElementById('resetMatchIdInput').value = ""; tazeFiksturCek().then(() => { tazeleVeYukle(); }); });
         }
 
-        function setMatchFilter(filterType) { aktifFiltre = filterType; document.getElementById('filter-open-btn').classList.toggle('active', filterType === 'open'); document.getElementById('filter-all-btn').classList.toggle('active', filterType === 'all'); maclariListele(); }
-
+        // MAÇLARI LİSTELEME MOTORU (TÜM FİKSTÜR KALDIRILDI - SADECE AKTİF MAÇLAR GELİR)
         function maclariListele() {
             const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date();
+            let gosterilenMacSayisi = 0;
+
             maclar.forEach(mac => {
-                const macZamani = new Date(mac.zaman); let kilitliMi = simdikiZaman >= macZamani;
-                if (aktifFiltre === "open" && kilitliMi) return;
+                const macZamani = new Date(mac.zaman); 
+                let kilitliMi = simdikiZaman >= macZamani;
+
+                // TÜM FİKSTÜR MANTIĞI TAMAMEN KALDIRILDI: Süresi geçen veya biten maçları bu ekranda asla gösterme
+                if (kilitliMi || mac.gercekA !== "-") return;
+
+                gosterilenMacSayisi++;
                 const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
                 const dahaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
-                let durumMetni = '🔓 Giriş Açık', durumSinifi = 'status-open', butonMetni = 'Kaydet';
-                if (mac.gercekA !== "-") { durumMetni = `🏁 MS: ${mac.gercekA}-${mac.gercekB}`, durumSinifi = 'status-closed', kilitliMi = true, butonMetni = 'Bitti'; }
-                else if (kilitliMi) { durumMetni = '🔒 Süre Doldu', durumSinifi = 'status-closed', butonMetni = 'Kilitli'; }
-                else if (dahaOnceGirildiMi) { durumMetni = `✍️ Kayıtlı: ${mevcutTahminler[mac.id].a}-${mevcutTahminler[mac.id].b}`, durumSinifi = 'status-revised', butonMetni = 'Güncelle'; }
-                container.innerHTML += `<div class="match-card"><div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div><div class="match-body"><div class="team"><span class="team-name">${mac.takimA}</span></div><div class="prediction-inputs"><input type="number" id="tahminA_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}> : <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}></div><div class="team"><span class="team-name">${mac.takimB}</span></div></div><div class="match-footer"><span class="status-text ${durumSinifi}">${durumMetni}</span><button id="btn_${mac.id}" class="save-btn" onclick="savePrediction(${mac.id})" ${kilitliMi?'disabled':''}>${butonMetni}</button></div></div>`;
-                if (dahaOnceGirildiMi) { document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a; document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b; }
+
+                // --- AKILLI DEĞİŞİKLİK: UNDEFINED METİN KORUMASI ---
+                let durumMetni = '🔓 Tahmin Girişi Açık';
+                if (dahaOnceGirildiMi) {
+                    var tA = mevcutTahminler[mac.id].a;
+                    var tB = mevcutTahminler[mac.id].b;
+                    
+                    // Eğer veritabanından gelen data null, undefined veya boşluksa korumaya al
+                    if (tA === undefined || tA === "undefined" || tA === "" || tB === undefined || tB === "undefined" || tB === "") {
+                        durumMetni = '✍️ Henüz Giriş Yapılmadı';
+                    } else {
+                        durumMetni = `✍️ Kayıtlı: ${tA}-${tB}`;
+                    }
+                } else {
+                    durumMetni = '✍️ Henüz Giriş Yapılmadı';
+                }
+
+                container.innerHTML += `
+                    <div class="match-card">
+                        <div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div>
+                        <div class="match-body">
+                            <div class="team"><span class="team-name">${mac.takimA}</span></div>
+                            <div class="prediction-inputs">
+                                <input type="number" id="tahminA_${mac.id}" class="score-input" min="0" placeholder="-"> : 
+                                <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" placeholder="-">
+                            </div>
+                            <div class="team"><span class="team-name">${mac.takimB}</span></div>
+                        </div>
+                        <div class="match-footer">
+                            <span class="status-text status-open">${durumMetni}</span>
+                            <button id="btn_${mac.id}" class="save-btn" onclick="savePrediction(${mac.id})">Kaydet</button>
+                        </div>
+                    </div>
+                `;
+                
+                if (dahaOnceGirildiMi) {
+                    var tA = mevcutTahminler[mac.id].a;
+                    var tB = mevcutTahminler[mac.id].b;
+                    if (tA !== undefined && tA !== "undefined" && tB !== undefined && tB !== "undefined") {
+                        document.getElementById(`tahminA_${mac.id}`).value = tA;
+                        document.getElementById(`tahminB_${mac.id}`).value = tB;
+                    }
+                }
             });
+            
+            if (gosterilenMacSayisi === 0) {
+                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Tahmin girişi açık aktif bir maç bulunmuyor.</p>";
+            }
         }
 
         function savePrediction(matchId) {
             const skorA = document.getElementById(`tahminA_${matchId}`).value; const skorB = document.getElementById(`tahminB_${matchId}`).value;
-            if(skorA === "" || skorB === "") return;
+            if(skorA === "" || skorB === "") { alert("Lütfen skor girin!"); return; }
+            
             fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB }) })
-            .then(res => res.json()).then(res => { if(res.status === "success") { mevcutTahminler[matchId] = { a: skorA, b: skorB }; alert(res.message); maclariListele(); getLeaderboardData(); getUserHistoryData(); } else { alert(res.message); tazeFiksturCek().then(() => tazeleVeYukle()); } });
+            .then(res => res.json()).then(res => { 
+                if(res.status === "success") { 
+                    mevcutTahminler[matchId] = { a: skorA, b: skorB }; 
+                    alert(res.message); 
+                    maclariListele(); 
+                    getLeaderboardData(); 
+                    getUserHistoryData(); 
+                } else { 
+                    alert(res.message); 
+                    tazeFiksturCek().then(() => tazeleVeYukle()); 
+                } 
+            });
         }
 
         function switchTab(event, tabId) {
