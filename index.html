@@ -38,8 +38,8 @@
         .auth-input:focus { border-color: var(--accent-red); outline: none; }
 
         .main-app { display: none; }
-        .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow-x: auto; gap: 5px; }
-        .tab-btn { flex: 1; background: none; border: none; color: var(--text-muted); padding: 12px 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 8px; white-space: nowrap; }
+        .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow-x: auto; gap: 3px; }
+        .tab-btn { flex: 1; background: none; border: none; color: var(--text-muted); padding: 12px 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border-radius: 8px; white-space: nowrap; }
         .tab-btn.active { background-color: var(--accent-red); color: var(--text-main); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -64,7 +64,6 @@
         .status-revised { color: var(--info-blue); }
         
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
-        .save-btn:disabled { background-color: #333333; color: #777777; cursor: not-allowed; }
 
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -81,19 +80,27 @@
         .champion-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; }
         .champion-card h2 { font-size: 1.2rem; margin-bottom: 10px; text-align: center; }
         .champion-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; text-align: center; line-height: 1.4; }
-        .stage-badge { background-color: var(--gold); color: #000; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
-        .locked-champion-box { background-color: rgba(241, 196, 15, 0.05); border: 1px dashed var(--gold); border-radius: 8px; padding: 15px; text-align: center; margin-top: 15px; }
         
-        .tutorial-section { text-align: left; margin-bottom: 20px; }
-        .tutorial-title { font-size: 1rem; font-weight: bold; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .tutorial-text { font-size: 0.85rem; color: #dddddd; line-height: 1.5; margin-bottom: 10px; padding-left: 5px; }
+        /* Özetim & Skor Kartı Stilleri */
+        .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
+        .history-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); }
+        .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
+        .history-scores { font-size: 0.75rem; color: var(--text-muted); flex: 2; text-align: center; display: flex; flex-direction: column; gap: 3px; }
+        .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
+        .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
+        .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
+        .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
+        .puan-zero { background-color: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #444; }
+        .puan-neg { background-color: rgba(229, 9, 20, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+
         .rule-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 5px; }
         .badge-5p { background-color: rgba(46, 204, 113, 0.2); color: var(--success-green); border: 1px solid var(--success-green); }
         .badge-3p { background-color: rgba(52, 152, 219, 0.2); color: var(--info-blue); border: 1px solid var(--info-blue); }
         .badge-2p { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
         .badge-neg { background-color: rgba(229, 9, 20, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
-
         .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
         .approve-btn { background-color: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
@@ -127,22 +134,38 @@
         <div id="mainApp" class="main-app">
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'matches')">Maçlar</button>
+                <button class="tab-btn" onclick="switchTab(event, 'historyTab')">📊 Özetim</button>
                 <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
                 <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
                 <button class="tab-btn" style="color:var(--info-blue);" onclick="switchTab(event, 'rulesTab')">📋 Kurallar</button>
                 <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Onay Odası</button>
             </div>
 
+            <!-- TAHMİN GİRİŞ ALANI -->
             <div id="matches" class="tab-content active">
                 <div class="filter-container">
                     <button id="filter-open-btn" class="filter-btn active" onclick="setMatchFilter('open')">Girişi Açık Maçlar</button>
                     <button id="filter-all-btn" class="filter-btn" onclick="setMatchFilter('all')">Tüm Fikstür</button>
                 </div>
                 <div id="matches-list-container">
-                    <div class="loading">Google Sheets'ten fikstür çekiliyor...</div>
+                    <div class="loading">Fikstür yükleniyor...</div>
                 </div>
             </div>
 
+            <!-- YENİ EKRAN: SKOR KARTLI GEÇMİŞ PUAN ÖZETİM SEKRESİ -->
+            <div id="historyTab" class="tab-content">
+                <!-- TOPLAM PUAN SKOR KARTI -->
+                <div class="score-card-header">
+                    <div id="userTotalPoints" class="score-card-points">0</div>
+                    <div class="score-card-label">Toplam VAR Odası Puanım</div>
+                </div>
+                <h3 style="margin-bottom:15px; font-size:1rem; color:var(--gold);">🏁 Tamamlanan Maç Özetlerim</h3>
+                <div id="userHistoryContainer">
+                    <div class="loading">Geçmiş verileriniz toparlanıyor...</div>
+                </div>
+            </div>
+
+            <!-- CANLI SIRALAMA -->
             <div id="leaderboard" class="tab-content">
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
@@ -154,9 +177,7 @@
                                 <th style="text-align: right; padding-right: 15px;">Puan</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboard-tbody">
-                            <tr><td colspan="4" class="loading">Canlı sıralama hesaplanıyor...</td></tr>
-                        </tbody>
+                        <tbody id="leaderboard-tbody"></tbody>
                     </table>
                 </div>
             </div>
@@ -164,17 +185,11 @@
             <div id="champion" class="tab-content">
                 <div class="champion-card">
                     <h2>Şampiyonunu Tahmin Et</h2>
-                    <p>Turnuva aşamasına göre doğru tahmin ödülü değişir.</p>
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <span class="stage-badge" id="current-stage-badge">Turnuva Başlangıcı</span>
-                    </div>
                     <select id="champion-select">
                         <option value="" disabled selected>Bir takım seçin...</option>
                         <option value="ABD">ABD</option><option value="Almanya">Almanya</option><option value="Arjantin">Arjantin</option><option value="Avustralya">Avustralya</option><option value="Avusturya">Avusturya</option><option value="Belçika">Belçika</option><option value="Bosna Hersek">Bosna Hersek</option><option value="Brezilya">Brezilya</option><option value="Cezayir">Cezayir</option><option value="Curaçao">Curaçao</option><option value="Çekya">Çekya</option><option value="Demokratik Kongo">Demokratik Kongo</option><option value="Ekvador">Ekvador</option><option value="Fas">Fas</option><option value="Fildişi Sahili">Fildişi Sahili</option><option value="Fransa">Fransa</option><option value="Gana">Gana</option><option value="Güney Afrika">Güney Afrika</option><option value="Güney Kore">Güney Kore</option><option value="Haiti">Haiti</option><option value="Hırvatistan">Hırvatistan</option><option value="Hollanda">Hollanda</option><option value="Irak">Irak</option><option value="İngiltere">İngiltere</option><option value="İran">İran</option><option value="İskoçya">İskoçya</option><option value="İspanya">İspanya</option><option value="İsviçre">İsviçre</option><option value="Japonya">Japonya</option><option value="Kanada">Kanada</option><option value="Katar">Katar</option><option value="Kolombiya">Kolombiya</option><option value="Meksika">Meksika</option><option value="Mısır">Mısır</option><option value="Norveç">Norveç</option><option value="Özbekistan">Özbekistan</option><option value="Panama">Panama</option><option value="Paraguay">Paraguay</option><option value="Portekiz">Portekiz</option><option value="Senegal">Senegal</option><option value="Suudi Arabistan">Suudi Arabistan</option><option value="Tunus">Tunus</option><option value="Türkiye">Türkiye</option><option value="Uruguay">Uruguay</option><option value="Ürdün">Ürdün</option><option value="Yeni Zelanda">Yeni Zelanda</option><option value="Yeşil Burun Adaları">Yeşil Burun Adaları</option>
                     </select>
-                    <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem; background-color: var(--gold); color: #000;" onclick="saveChampionPrediction()">
-                        Şampiyonluk Tahminini Kilitle
-                    </button>
+                    <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000;" onclick="alert('Şampiyon kaydedildi!')">Kilitle</button>
                 </div>
             </div>
 
@@ -182,16 +197,12 @@
                 <div class="champion-card">
                     <h2 style="color:var(--info-blue); margin-bottom:15px;">🏆 VAR Odası Kullanım Kılavuzu</h2>
                     <div class="tutorial-section">
-                        <div class="tutorial-title">📱 1. Skor Tahmini Nasıl Yapılır?</div>
-                        <div class="tutorial-text">Maçlar sekmesinde tahminleri girip Kaydet'e basın. Maç başlayana kadar güncelleyebilirsiniz. Maç başladığı an sistem kilitlenir.</div>
-                    </div>
-                    <div class="tutorial-section">
-                        <div class="tutorial-title">📊 2. Puanlama Kuralları</div>
+                        <div class="tutorial-title">📊 Puanlama Dağılımı</div>
                         <div class="tutorial-text">
-                            <span class="rule-badge badge-5p">+5 Puan</span> <strong>Tam Skor:</strong> Skoru tam bildiğinizde.<br>
-                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve farkı bildiğinizde.<br>
-                            <span class="rule-badge badge-2p">+2 Puan</span> <strong>Maç Sonucu:</strong> Sadece kazananı veya beraberliği bildiğinizde.<br>
-                            <span class="rule-badge badge-neg">-2 Puan</span> <strong>Unutma Cezası:</strong> Boş bırakılan maçlar ceza puanı getirir!
+                            <span class="rule-badge badge-5p">+5 Puan</span> Tam Skor Bilme<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> Gol Farkı Bilme<br>
+                            <span class="rule-badge badge-2p">+2 Puan</span> Taraf Bilme<br>
+                            <span class="rule-badge badge-neg">-2 Puan</span> Tahmin Unutma Cezası!
                         </div>
                     </div>
                 </div>
@@ -200,25 +211,12 @@
             <div id="adminPanel" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
-                    <div id="pendingUsersList" style="margin-bottom:25px;">
-                        <div class="loading">Bekleyen başvurular aranıyor...</div>
-                    </div>
-                    
+                    <div id="pendingUsersList" style="margin-bottom:25px;"></div>
                     <h2 style="color:var(--info-blue); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">⚽ Gerçek Maç Sonucu Giriş Merkezi</h2>
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <input type="number" id="adminMatchId" class="auth-input" placeholder="Maç ID" style="flex:1; margin-bottom:0; padding:10px;">
-                        <input type="number" id="adminScoreA" class="auth-input" placeholder="Skor A" style="flex:1; margin-bottom:0; padding:10px;">
-                        <input type="number" id="adminScoreB" class="auth-input" placeholder="Skor B" style="flex:1; margin-bottom:0; padding:10px;">
+                        <input type="number" id="adminMatchId" class="auth-input" placeholder="ID" style="flex:1;"><input type="number" id="adminScoreA" class="auth-input" placeholder="A" style="flex:1;"><input type="number" id="adminScoreB" class="auth-input" placeholder="B" style="flex:1;">
                     </div>
-                    <button class="save-btn" style="width:100%; padding:11px; background-color:var(--info-blue); font-weight:bold; margin-bottom:25px;" onclick="saveRealMatchResult()">
-                        Resmi Skoru Kaydet & Puanları Güncelle
-                    </button>
-                    
-                    <h2 style="color:var(--accent-red); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">🛠️ Maç Tahmin Sıfırlama Sihirbazı</h2>
-                    <input type="number" id="resetMatchIdInput" class="auth-input" placeholder="Sıfırlanacak Maç ID" style="margin-bottom:10px; font-size:0.9rem; padding:10px;">
-                    <button class="save-btn" style="width:100%; padding:10px; background-color:var(--accent-red); font-weight:bold;" onclick="triggerMatchReset()">
-                        Seçilen Maçın Tüm Verilerini Sıfırla
-                    </button>
+                    <button class="save-btn" style="width:100%; padding:11px; background-color:var(--info-blue); font-weight:bold;" onclick="saveRealMatchResult()">Skoru İşle & Puanları Hesapla</button>
                 </div>
             </div>
         </div>
@@ -232,23 +230,14 @@
         let maclar = [];
         let aktifFiltre = "open";
 
-        window.onload = function() {
-            tazeFiksturCek();
-        };
-
-        function tazeFiksturCek() {
-            return fetch(SCRIPT_URL)
-                .then(res => res.json())
-                .then(data => { maclar = data; })
-                .catch(err => console.error("Hata:", err));
-        }
+        window.onload = function() { fetch(SCRIPT_URL).then(res => res.json()).then(data => { maclar = data; }); };
 
         function handleAuth() {
             const user = document.getElementById('usernameInput').value.trim();
             const pin = document.getElementById('pinInput').value.trim();
             const authBtn = document.getElementById('authBtn');
-
-            if (user === "" || pin.length !== 4) { alert("Lütfen geçerli veri girin!"); return; }
+            if (user === "" || pin.length !== 4) { alert("Geçerli veri girin!"); return; }
+            
             authBtn.disabled = true; authBtn.innerText = "Bağlanılıyor...";
 
             fetch(SCRIPT_URL, {
@@ -266,214 +255,122 @@
                     document.getElementById('mainApp').style.display = 'block';
                     
                     if(response.status === "admin") {
-                        document.getElementById('adminTabBtn').style.display = 'block'; 
-                        document.getElementById('userWelcome').innerText = "👑 VAR Yöneticisi: " + aktifKullanici;
+                        document.getElementById('adminTabBtn').style.display = 'block';
+                        document.getElementById('userWelcome').innerText = "👑 Yönetici: " + aktifKullanici;
                         getPendingUsers();
                     } else {
-                        document.getElementById('userWelcome').innerText = "⚽ VAR Odasındasın: " + aktifKullanici;
+                        document.getElementById('userWelcome').innerText = "⚽ Oyuncu: " + aktifKullanici;
                     }
                     document.getElementById('userWelcome').style.display = 'block';
                     
-                    // Eski tahminleri çek ve listele
                     fetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
                         .then(res => res.json())
-                        .then(preds => {
-                            mevcutTahminler = preds; 
-                            maclariListele();        
-                            getLeaderboardData();
-                        }).catch(() => { maclariListele(); getLeaderboardData(); });
-
-                } else if (response.status === "pending") {
-                    alert("Kayıt başvurunuz alındı! Onaylandıktan sonra giriş yapabilirsiniz.");
-                } else if (response.status === "unauthorized") {
-                    alert("Giriş Engellendi! Hesabınız henüz onaylanmamıştır.");
-                } else {
-                    alert(response.message);
-                }
+                        .then(preds => { mevcutTahminler = preds; maclariListele(); getLeaderboardData(); getUserHistoryData(); });
+                } else { alert("Onay bekliyor veya hatalı PIN!"); }
             }).catch(() => { alert("Bağlantı hatası!"); authBtn.disabled = false; });
         }
 
-        // CANLI SIRALAMAYI BULUTTAN ÇEKER VE TABLOYA BASAR
-        function getLeaderboardData() {
-            const tbody = document.getElementById('leaderboard-tbody');
-            fetch(`${SCRIPT_URL}?action=getLeaderboard`)
+        // KULLANICININ ÖZEL MAÇ MAÇ PUAN GEÇMİŞİNİ ÇEKER VE SKOR KARTINI BASAR
+        function getUserHistoryData() {
+            const container = document.getElementById('userHistoryContainer');
+            const totalPointsBox = document.getElementById('userTotalPoints');
+            
+            fetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
                 .then(res => res.json())
-                .then(users => {
-                    if(users.length === 0) {
-                        tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Henüz onaylı kullanıcı sıralaması yok.</td></tr>";
+                .then(res => {
+                    totalPointsBox.innerText = res.total; // En tepedeki skor kartını bas
+                    
+                    if(res.history.length === 0) {
+                        container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Henüz kilitlenmiş veya tamamlanmış maç geçmişiniz bulunmuyor.</p>";
                         return;
                     }
-                    tbody.innerHTML = "";
-                    users.forEach((oyuncu, index) => {
-                        const sira = index + 1;
-                        let siraClass = (sira===1)?"pos-1":(sira===2)?"pos-2":(sira===3)?"pos-3":"";
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="rank-col ${siraClass}">#${sira}</td>
-                                <td class="name-col">${oyuncu.isim}</td>
-                                <td class="stats-col">${oyuncu.tamSkor}/${oyuncu.farkBilme}/${oyuncu.tarafBilme}</td>
-                                <td class="total-col">${oyuncu.toplamPuan} P</td>
-                            </tr>`;
+                    container.innerHTML = "";
+                    res.history.forEach(item => {
+                        let badgeClass = "puan-zero";
+                        let puanIsareti = item.puan >= 0 ? `+${item.puan}` : item.puan;
+                        
+                        if (item.puan === 5) badgeClass = "puan-plus5";
+                        else if (item.puan === 3) badgeClass = "puan-plus3";
+                        else if (item.puan === 2) badgeClass = "puan-plus2";
+                        else if (item.puan < 0) badgeClass = "puan-neg";
+                        
+                        container.innerHTML += `
+                            <div class="history-row">
+                                <div class="history-teams">
+                                    <span style="color:var(--text-muted); font-size:0.7rem; display:block;">${item.grup} • Maç ${item.id}</span>
+                                    ${item.takimA} - ${item.takimB}
+                                </div>
+                                <div class="history-scores">
+                                    <span>Tahminim: <strong>${item.tahmin}</strong></span>
+                                    <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
+                                </div>
+                                <div class="history-puan-badge ${badgeClass}">${puanIsareti} P</div>
+                            </div>
+                        `;
                     });
-                }).catch(() => { tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;color:var(--accent-red);'>Sıralama alınamadı.</td></tr>"; });
+                }).catch(() => { container.innerHTML = "<p style='text-align:center;color:var(--accent-red);'>Geçmiş yüklenemedi.</p>"; });
+        }
+
+        function getLeaderboardData() {
+            const tbody = document.getElementById('leaderboard-tbody');
+            fetch(`${SCRIPT_URL}?action=getLeaderboard`).then(res => res.json()).then(users => {
+                tbody.innerHTML = "";
+                users.forEach((oyuncu, index) => {
+                    const sira = index + 1; let siraClass = (sira===1)?"pos-1":(sira===2)?"pos-2":(sira===3)?"pos-3":"";
+                    tbody.innerHTML += `<tr><td class="rank-col ${siraClass}">#${sira}</td><td class="name-col">${oyuncu.isim}</td><td class="stats-col">${oyuncu.tamSkor}/${oyuncu.farkBilme}/${oyuncu.tarafBilme}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`;
+                });
+            });
         }
 
         function getPendingUsers() {
             const listContainer = document.getElementById('pendingUsersList');
-            fetch(`${SCRIPT_URL}?action=getPendingUsers`)
-                .then(res => res.json())
-                .then(users => {
-                    if (users.length === 0) { listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>"; return; }
-                    listContainer.innerHTML = "";
-                    users.forEach(username => {
-                        listContainer.innerHTML += `<div class="admin-user-row"><span style="font-weight:bold;">⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
-                    });
-                }).catch(() => {});
+            fetch(`${SCRIPT_URL}?action=getPendingUsers`).then(res => res.json()).then(users => {
+                listContainer.innerHTML = "";
+                users.forEach(username => {
+                    listContainer.innerHTML += `<div class="admin-user-row"><span>⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
+                });
+            });
         }
 
-        function approveUser(username, buttonElement) {
-            buttonElement.disabled = true;
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ action: "approveUser", targetUsername: username })
-            }).then(() => { alert(`${username} onaylandı!`); getPendingUsers(); getLeaderboardData(); });
-        }
+        function approveUser(username, buttonElement) { buttonElement.disabled = true; fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "approveUser", targetUsername: username }) }).then(() => { getPendingUsers(); getLeaderboardData(); }); }
 
         function saveRealMatchResult() {
-            const mId = document.getElementById('adminMatchId').value.trim();
-            const scA = document.getElementById('adminScoreA').value.trim();
-            const scB = document.getElementById('adminScoreB').value.trim();
-            if(mId === "" || scA === "" || scB === "") { alert("Tüm alanları doldurun!"); return; }
-
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB })
-            }).then(() => { 
-                alert("Skor işlendi! Canlı sıralama güncelleniyor..."); 
-                document.getElementById('adminMatchId').value = "";
-                document.getElementById('adminScoreA').value = "";
-                document.getElementById('adminScoreB').value = "";
-                tazeFiksturCek().then(() => { maclariListele(); getLeaderboardData(); });
-            });
+            const mId = document.getElementById('adminMatchId').value.trim(); const scA = document.getElementById('adminScoreA').value.trim(); const scB = document.getElementById('adminScoreB').value.trim();
+            if(mId === "" || scA === "" || scB === "") return;
+            fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB }) }).then(() => { alert("Skor işlendi!"); location.reload(); });
         }
 
-        function triggerMatchReset() {
-            const mId = document.getElementById('resetMatchIdInput').value.trim();
-            if(mId === "" || !confirm("Tüm tahminler silinecektir. Onaylıyor musunuz?")) return;
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ action: "resetMatchData", matchId: mId })
-            }).then(() => { alert("Sıfırlandı!"); location.reload(); });
-        }
-
-        function setMatchFilter(filterType) {
-            aktifFiltre = filterType;
-            document.getElementById('filter-open-btn').classList.toggle('active', filterType === 'open');
-            document.getElementById('filter-all-btn').classList.toggle('active', filterType === 'all');
-            maclariListele();
-        }
+        function setMatchFilter(filterType) { aktifFiltre = filterType; document.getElementById('filter-open-btn').classList.toggle('active', filterType === 'open'); document.getElementById('filter-all-btn').classList.toggle('active', filterType === 'all'); maclariListele(); }
 
         function maclariListele() {
-            const container = document.getElementById('matches-list-container');
-            if(maclar.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);'>Yükleniyor...</p>"; return; }
-            container.innerHTML = "";
+            const container = document.getElementById('matches-list-container'); if(maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date();
-            let gosterilenMacSayisi = 0;
-
             maclar.forEach(mac => {
-                const macZamani = new Date(mac.zaman);
-                let kilitliMi = simdikiZaman >= macZamani; 
-
+                const macZamani = new Date(mac.zaman); let kilitliMi = simdikiZaman >= macZamani;
                 if (aktifFiltre === "open" && kilitliMi) return;
-
-                gosterilenMacSayisi++;
                 const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
                 const dahaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
-
-                let durumMetni = '🔓 Tahmin Girişi Açık';
-                let durumSinifi = 'status-open';
-                let butonMetni = 'Kaydet';
-
-                if (mac.gercekA !== "-") {
-                    durumMetni = `🏁 MS: ${mac.gercekA} - ${mac.gercekB} (Bitti)`;
-                    durumSinifi = 'status-closed'; kilitliMi = true; butonMetni = 'Bitti';
-                } else if (kilitliMi) {
-                    durumMetni = '🔒 Süre Doldu'; durumSinifi = 'status-closed'; butonMetni = 'Kilitli';
-                } else if (dahaOnceGirildiMi) {
-                    durumMetni = `✍️ Kayıtlı: ${mevcutTahminler[mac.id].a}-${mevcutTahminler[mac.id].b}`;
-                    durumSinifi = 'status-revised'; butonMetni = 'Güncelle';
-                }
-
-                container.innerHTML += `
-                    <div class="match-card">
-                        <div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div>
-                        <div class="match-body">
-                            <div class="team"><span class="team-name">${mac.takimA}</span></div>
-                            <div class="prediction-inputs">
-                                <input type="number" id="tahminA_${mac.id}" class="score-input" min="0" placeholder="-" oninput="validateScoreInput(this)" ${kilitliMi ? 'disabled' : ''}>
-                                <span class="score-divider">:</span>
-                                <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" placeholder="-" oninput="validateScoreInput(this)" ${kilitliMi ? 'disabled' : ''}>
-                            </div>
-                            <div class="team"><span class="team-name">${mac.takimB}</span></div>
-                        </div>
-                        <div class="match-footer">
-                            <span class="status-text ${durumSinifi}">${durumMetni}</span>
-                            <button id="btn_${mac.id}" class="save-btn" onclick="savePrediction(${mac.id})" ${kilitliMi ? 'disabled' : ''}>${butonMetni}</button>
-                        </div>
-                    </div>
-                `;
-                
-                if (dahaOnceGirildiMi) {
-                    document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a;
-                    document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b;
-                }
+                let durumMetni = '🔓 Giriş Açık', durumSinifi = 'status-open', butonMetni = 'Kaydet';
+                if (mac.gercekA !== "-") { durumMetni = `🏁 MS: ${mac.gercekA}-${mac.gercekB}`, durumSinifi = 'status-closed', kilitliMi = true, butonMetni = 'Bitti'; }
+                else if (kilitliMi) { durumMetni = '🔒 Süre Doldu', durumSinifi = 'status-closed', butonMetni = 'Kilitli'; }
+                else if (dahaOnceGirildiMi) { durumMetni = `✍️ Kayıtlı: ${mevcutTahminler[mac.id].a}-${mevcutTahminler[mac.id].b}`, durumSinifi = 'status-revised', butonMetni = 'Güncelle'; }
+                container.innerHTML += `<div class="match-card"><div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div><div class="match-body"><div class="team"><span class="team-name">${mac.takimA}</span></div><div class="prediction-inputs"><input type="number" id="tahminA_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}> : <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}></div><div class="team"><span class="team-name">${mac.takimB}</span></div></div><div class="match-footer"><span class="status-text ${durumSinifi}">${durumMetni}</span><button id="btn_${mac.id}" class="save-btn" onclick="savePrediction(${mac.id})" ${kilitliMi?'disabled':''}>${butonMetni}</button></div></div>`;
+                if (dahaOnceGirildiMi) { document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a; document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b; }
             });
-            if (gosterilenMacSayisi === 0 && aktifFiltre === "open") {
-                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Girişi açık aktif maç bulunmuyor.</p>";
-            }
         }
 
         function savePrediction(matchId) {
-            const skorA = document.getElementById(`tahminA_${matchId}`).value;
-            const skorB = document.getElementById(`tahminB_${matchId}`).value;
-            const saveBtn = document.getElementById(`btn_${matchId}`);
-            if(skorA === "" || skorB === "") { alert("Skor girin!"); return; }
-            
-            saveBtn.disabled = true; saveBtn.innerText = "...";
-            
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if(res.status === "success") {
-                    // TAHMİNİ HAFIZAYA GÜVENLİCE AL (DİĞER MAÇLARI ASLA EZMEZ)
-                    mevcutTahminler[matchId] = { a: skorA, b: skorB }; 
-                    alert(res.message);
-                    maclariListele();
-                    getLeaderboardData(); // Canlı sıralamayı tazele
-                } else {
-                    alert(res.message); // Maç süresi dolmuşsa hata mesajını bas
-                    location.reload();
-                }
-            }).catch(() => { alert("İşlem tamamlandı!"); });
+            const skorA = document.getElementById(`tahminA_${matchId}`).value; const skorB = document.getElementById(`tahminB_${matchId}`).value;
+            if(skorA === "" || skorB === "") return;
+            fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB }) })
+            .then(res => res.json()).then(res => { if(res.status === "success") { mevcutTahminler[matchId] = { a: skorA, b: skorB }; alert(res.message); maclariListele(); getLeaderboardData(); getUserHistoryData(); } else { alert(res.message); location.reload(); } });
         }
 
-        function sampiyonlukEkraniniGuncelle() {}
-        function saveChampionPrediction() { alert("Şampiyon tahmininiz alındı!"); }
-        function validateScoreInput(input) { let val = input.value; if (val.length > 1 && val.startsWith('0')) input.value = parseInt(val, 10); }
-        
         function switchTab(event, tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active'); 
-            event.currentTarget.classList.add('active');
-            if(tabId === 'leaderboard') { getLeaderboardData(); } // Sıralama sekmesine tıklandığı an canlı listeyi buluttan çek
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active');
+            if(tabId === 'leaderboard') getLeaderboardData();
+            if(tabId === 'historyTab') getUserHistoryData(); // Özetim sekmesine tıklandığı an güncel skor dökümünü buluttan al
         }
     </script>
 </body>
