@@ -38,7 +38,7 @@
         .auth-input:focus { border-color: var(--accent-red); outline: none; }
 
         .main-app { display: none; }
-        .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 5px; }
+        .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow-x: auto; gap: 5px; }
         .tab-btn { flex: 1; background: none; border: none; color: var(--text-muted); padding: 12px 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 8px; white-space: nowrap; }
         .tab-btn.active { background-color: var(--accent-red); color: var(--text-main); }
         .tab-content { display: none; }
@@ -85,7 +85,6 @@
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .locked-champion-box { background-color: rgba(241, 196, 15, 0.05); border: 1px dashed var(--gold); border-radius: 8px; padding: 15px; text-align: center; margin-top: 15px; }
         
-        /* Tutorial / Kurallar Stilleri */
         .tutorial-section { text-align: left; margin-bottom: 20px; }
         .tutorial-title { font-size: 1rem; font-weight: bold; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .tutorial-text { font-size: 0.85rem; color: #dddddd; line-height: 1.5; margin-bottom: 10px; padding-left: 5px; }
@@ -117,7 +116,6 @@
             <div id="userWelcome" class="user-welcome"></div>
         </header>
 
-        <!-- GİRİŞ EKRANI -->
         <div id="authScreen" class="auth-container">
             <h2>Giriş Yap veya Kaydol</h2>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">İlk kez giriyorsan yazdığın PIN senin şifren olur.</p>
@@ -126,7 +124,6 @@
             <button id="authBtn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="handleAuth()">Sisteme Giriş Yap</button>
         </div>
 
-        <!-- ANA UYGULAMA ALANI -->
         <div id="mainApp" class="main-app">
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'matches')">Maçlar</button>
@@ -136,7 +133,6 @@
                 <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Onay Odası</button>
             </div>
 
-            <!-- MAÇLAR SEKRESİ -->
             <div id="matches" class="tab-content active">
                 <div class="filter-container">
                     <button id="filter-open-btn" class="filter-btn active" onclick="setMatchFilter('open')">Girişi Açık Maçlar</button>
@@ -147,7 +143,6 @@
                 </div>
             </div>
 
-            <!-- SIRALAMA SEKRESİ -->
             <div id="leaderboard" class="tab-content">
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
@@ -164,7 +159,6 @@
                 </div>
             </div>
 
-            <!-- ŞAMPİYON SEKRESİ -->
             <div id="champion" class="tab-content">
                 <div class="champion-card">
                     <h2>Şampiyonunu Tahmin Et</h2>
@@ -187,47 +181,25 @@
                 </div>
             </div>
 
-            <!-- KULLANICI TUTORIAL / KURALLAR SEKRESİ -->
             <div id="rulesTab" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--info-blue); margin-bottom:15px;">🏆 VAR Odası Kullanım Kılavuzu</h2>
-                    
                     <div class="tutorial-section">
                         <div class="tutorial-title">📱 1. Skor Tahmini Nasıl Yapılır?</div>
-                        <div class="tutorial-text">
-                            <strong>Maçlar</strong> sekmesinde girişi açık olan maçların skor kutularına tahminlerinizi yazıp sağ alttaki <strong>Kaydet</strong> butonuna basın. Başarıyla kaydedildiğinde kutunun altında <em>"✍️ Kayıtlı: X-Y"</em> yazısını göreceksiniz. Maç saati başlayana kadar skorlarınızı istediğiniz kadar güncelleyebilirsiniz.
-                        </div>
+                        <div class="tutorial-text">Maçlar sekmesinde girişi açık olan maçların skor kutularına tahminlerinizi yazıp Kaydet butonuna basın. Başarıyla kaydedildiğinde kutunun altında kayıtlı skorunuzu göreceksiniz. Maç başlayana kadar güncelleyebilirsiniz.</div>
                     </div>
-
                     <div class="tutorial-section">
                         <div class="tutorial-title">📊 2. Puanlama Kuralları</div>
                         <div class="tutorial-text">
-                            Biten her maçın ardından sistem tahminlerinizi analiz eder ve otomatik olarak şu puanları dağıtır:
-                            <br><br>
-                            <span class="rule-badge badge-5p">+5 Puan</span> <strong>Tam Skor:</strong> Maçın skorunu saniyesi saniyesine tam bildiğinizde (Örn: Tahmin: 2-1, Maç Sonucu: 2-1).<br>
-                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve gol farkını doğru bildiğinizde (Örn: Tahmin: 2-0, Maç Sonucu: 3-1. İkisinde de 2 fark var).<br>
-                            <span class="rule-badge badge-2p">+2 Puan</span> <strong>Maç Sonucu:</strong> Sadece kazanan tarafı veya beraberliği bildiğinizde (Örn: Tahmin: 1-0, Maç Sonucu: 3-2).<br>
-                            <span class="rule-badge badge-neg">-2 Puan</span> <strong>Unutma Cezası:</strong> Eğer bir maça süre dolana kadar hiçbir skor girmediyseniz hanenize ceza puanı yazılır!
-                        </div>
-                    </div>
-
-                    <div class="tutorial-section">
-                        <div class="tutorial-title">🥇 3. Sıralama Tablosu</div>
-                        <div class="tutorial-text">
-                            <strong>Sıralama</strong> sekmesinde kimin kaç puanı olduğunu görebilirsiniz. Ortadaki sütun sırasıyla oyuncunun turnuva boyunca kaç tane <strong>Tam Skor / Fark / Taraf</strong> bildiğini özetler (Örn: 2/4/1).
-                        </div>
-                    </div>
-
-                    <div class="tutorial-section">
-                        <div class="tutorial-title">👑 4. Büyük Şampiyonluk Bonusu</div>
-                        <div class="tutorial-text">
-                            <strong>Şampiyon</strong> sekmesinden turnuva kupasını kaldıracak ülkeyi seçip kilitleyebilirsiniz. Turnuva sonunda şampiyonu doğru bilenler dev bir bonus puan kazanarak sıralamayı altüst edebilir!
+                            <span class="rule-badge badge-5p">+5 Puan</span> <strong>Tam Skor:</strong> Skoru tam bildiğinizde.<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve gol farkını doğru bildiğinizde.<br>
+                            <span class="rule-badge badge-2p">+2 Puan</span> <strong>Maç Sonucu:</strong> Sadece kazananı veya beraberliği bildiğinizde.<br>
+                            <span class="rule-badge badge-neg">-2 Puan</span> <strong>Unutma Cezası:</strong> Boş bırakılan maçlar ceza puanı getirir!
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- YÖNETİCİ KONTROL ODASI -->
             <div id="adminPanel" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
@@ -236,7 +208,6 @@
                     </div>
                     
                     <h2 style="color:var(--info-blue); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">⚽ Gerçek Maç Sonucu Giriş Merkezi</h2>
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">Oynanan resmi maçların skorlarını buraya girerek veritabanına işleyebilirsin.</p>
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <input type="number" id="adminMatchId" class="auth-input" placeholder="Maç ID" style="flex:1; margin-bottom:0; padding:10px;">
                         <input type="number" id="adminScoreA" class="auth-input" placeholder="Skor A" style="flex:1; margin-bottom:0; padding:10px;">
@@ -262,7 +233,6 @@
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
-        let turnuvaAsamasi = "Turnuva Başlangıcı";
         let aktifFiltre = "open";
 
         const siralamaVerisi = [
@@ -274,7 +244,6 @@
                 .then(res => res.json())
                 .then(data => {
                     maclar = data;
-                    if(aktifKullanici) maclariListele();
                 })
                 .catch(err => console.error("Hata:", err));
         };
@@ -296,25 +265,36 @@
             .then(response => {
                 authBtn.disabled = false; authBtn.innerText = "Sisteme Giriş Yap";
 
-                if (response.status === "admin") {
+                if (response.status === "admin" || response.status === "success") {
                     aktifKullanici = user;
                     document.getElementById('authScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'block';
-                    document.getElementById('adminTabBtn').style.display = 'block'; 
-                    document.getElementById('userWelcome').innerText = "👑 VAR Yöneticisi: " + aktifKullanici;
+                    
+                    if(response.status === "admin") {
+                        document.getElementById('adminTabBtn').style.display = 'block'; 
+                        document.getElementById('userWelcome').innerText = "👑 VAR Yöneticisi: " + aktifKullanici;
+                        getPendingUsers();
+                    } else {
+                        document.getElementById('userWelcome').innerText = "⚽ VAR Odasındasın: " + aktifKullanici;
+                    }
                     document.getElementById('userWelcome').style.display = 'block';
-                    maclariListele(); siralayiListele(); sampiyonlukEkraniniGuncelle(); getPendingUsers(); 
-                } else if (response.status === "success") {
-                    aktifKullanici = user;
-                    document.getElementById('authScreen').style.display = 'none';
-                    document.getElementById('mainApp').style.display = 'block';
-                    document.getElementById('userWelcome').innerText = "⚽ VAR Odasındasın: " + aktifKullanici;
-                    document.getElementById('userWelcome').style.display = 'block';
-                    maclariListele(); siralayiListele(); sampiyonlukEkraniniGuncelle();
+                    
+                    // --- KRİTİK GÜNCELLEME: GİRİŞ YAPILDIĞI AN ESKİ TAHMİNLERİ BULUTTAN ÇEK ---
+                    fetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
+                        .then(res => res.json())
+                        .then(preds => {
+                            mevcutTahminler = preds; // Eski tahminleri hafızaya al
+                            maclariListele();        // Maçları kutular dolu olacak şekilde listele
+                            siralayiListele();
+                        }).catch(() => {
+                            maclariListele();
+                            siralayiListele();
+                        });
+
                 } else if (response.status === "pending") {
-                    alert("Kayıt başvurunuz başarıyla alındı!\n\nVAR Odası yöneticisi onay verdikten sonra lig ekranınız açılacaktır. Lütfen bekleyin.");
+                    alert("Kayıt başvurunuz başarıyla alındı! Yönetici onayından sonra giriş yapabilirsiniz.");
                 } else if (response.status === "unauthorized") {
-                    alert("Giriş Engellendi!\n\nHesabınız henüz yönetici tarafından onaylanmamıştır.");
+                    alert("Giriş Engellendi! Hesabınız henüz onaylanmamıştır.");
                 } else {
                     alert(response.message);
                 }
@@ -326,20 +306,12 @@
             fetch(`${SCRIPT_URL}?action=getPendingUsers`)
                 .then(res => res.json())
                 .then(users => {
-                    if (users.length === 0) {
-                        listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>";
-                        return;
-                    }
+                    if (users.length === 0) { listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>"; return; }
                     listContainer.innerHTML = "";
                     users.forEach(username => {
-                        listContainer.innerHTML += `
-                            <div class="admin-user-row">
-                                <span style="font-weight:bold;">⚽ ${username}</span>
-                                <button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button>
-                            </div>
-                        `;
+                        listContainer.innerHTML += `<div class="admin-user-row"><span style="font-weight:bold;">⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
                     });
-                }).catch(() => { listContainer.innerHTML = "<p style='text-align:center;color:var(--accent-red);'>Hata!</p>"; });
+                }).catch(() => {});
         }
 
         function approveUser(username, buttonElement) {
@@ -355,38 +327,23 @@
             const mId = document.getElementById('adminMatchId').value.trim();
             const scA = document.getElementById('adminScoreA').value.trim();
             const scB = document.getElementById('adminScoreB').value.trim();
-
-            if(mId === "" || scA === "" || scB === "") { alert("Lütfen Maç ID ve tüm skor alanlarını doldurun!"); return; }
+            if(mId === "" || scA === "" || scB === "") { alert("Tüm alanları doldurun!"); return; }
 
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB })
-            })
-            .then(res => res.json())
-            .then(response => {
-                alert(response.message);
-                document.getElementById('adminMatchId').value = "";
-                document.getElementById('adminScoreA').value = "";
-                document.getElementById('adminScoreB').value = "";
-            }).catch(() => { alert("Skor başarıyla işlendi!"); });
+            }).then(() => { alert("Skor işlendi!"); location.reload(); });
         }
 
         function triggerMatchReset() {
             const mId = document.getElementById('resetMatchIdInput').value.trim();
-            if(mId === "") { alert("Maç ID girin!"); return; }
-            if(!confirm("Tüm tahminler ve gerçek skor silinecektir. Onaylıyor musunuz?")) return;
-            
+            if(mId === "" || !confirm("Tüm tahminler silinecektir. Onaylıyor musunuz?")) return;
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "resetMatchData", matchId: mId })
-            }).then(() => {
-                alert("Sıfırlandı!");
-                document.getElementById('resetMatchIdInput').value = "";
-                if(mevcutTahminler[mId]) delete mevcutTahminler[mId];
-                maclariListele();
-            });
+            }).then(() => { alert("Sıfırlandı!"); location.reload(); });
         }
 
         function setMatchFilter(filterType) {
@@ -405,7 +362,7 @@
 
             maclar.forEach(mac => {
                 const macZamani = new Date(mac.zaman);
-                const kilitliMi = simdikiZaman >= macZamani; 
+                let kilitliMi = simdikiZaman >= macZamani; 
 
                 if (aktifFiltre === "open" && kilitliMi) return;
 
@@ -420,8 +377,7 @@
                 if (mac.gercekA !== "-") {
                     durumMetni = `🏁 MS: ${mac.gercekA} - ${mac.gercekB} (Bitti)`;
                     durumSinifi = 'status-closed';
-                    kilitliMi = true; 
-                    butonMetni = 'Bitti';
+                    kilitliMi = true; butonMetni = 'Bitti';
                 } else if (kilitliMi) {
                     durumMetni = '🔒 Süre Doldu';
                     durumSinifi = 'status-closed';
@@ -450,11 +406,16 @@
                         </div>
                     </div>
                 `;
+                
+                // --- ARTIK SAYFA YENİLENSE DE KUTULARIN İÇİ DOLU KALACAK ---
                 if (dahaOnceGirildiMi) {
                     document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a;
                     document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b;
                 }
             });
+            if (gosterilenMacSayisi === 0 && aktifFiltre === "open") {
+                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Girişi açık aktif maç bulunmuyor.</p>";
+            }
         }
 
         function savePrediction(matchId) {
@@ -466,7 +427,11 @@
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB })
-            }).then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB }; alert("Kaydedildi!"); maclariListele(); });
+            }).then(() => { 
+                mevcutTahminler[matchId] = { a: skorA, b: skorB }; 
+                alert("Kaydedildi!"); 
+                maclariListele(); 
+            });
         }
 
         function siralayiListele() {
@@ -478,7 +443,7 @@
             });
         }
 
-        function sampiyonlukEkraniniGuncelle() { document.getElementById('current-stage-badge').innerText = `Aşama: ${turnuvaAsamasi}`; }
+        function sampiyonlukEkraniniGuncelle() {}
         function saveChampionPrediction() { alert("Şampiyon tahmininiz alındı!"); }
         function validateScoreInput(input) { let val = input.value; if (val.length > 1 && val.startsWith('0')) input.value = parseInt(val, 10); }
         function switchTab(event, tabId) {
