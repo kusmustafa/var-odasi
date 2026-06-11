@@ -154,7 +154,9 @@
                                 <th style="text-align: right; padding-right: 15px;">Puan</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboard-tbody"></tbody>
+                        <tbody id="leaderboard-tbody">
+                            <tr><td colspan="4" class="loading">Canlı sıralama hesaplanıyor...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -173,11 +175,6 @@
                     <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem; background-color: var(--gold); color: #000;" onclick="saveChampionPrediction()">
                         Şampiyonluk Tahminini Kilitle
                     </button>
-                    <div id="locked-prediction-zone" class="locked-champion-box" style="display: none;">
-                        <span style="color: var(--text-muted); font-size: 0.8rem;">Mevcut Kilitli Tahmininiz:</span>
-                        <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
-                        <p id="locked-stage-info" style="font-size: 0.75rem; margin-top: 5px; color: var(--success-green);">🔒 Takımınız hala turnuvada.</p>
-                    </div>
                 </div>
             </div>
 
@@ -186,13 +183,13 @@
                     <h2 style="color:var(--info-blue); margin-bottom:15px;">🏆 VAR Odası Kullanım Kılavuzu</h2>
                     <div class="tutorial-section">
                         <div class="tutorial-title">📱 1. Skor Tahmini Nasıl Yapılır?</div>
-                        <div class="tutorial-text">Maçlar sekmesinde girişi açık olan maçların skor kutularına tahminlerinizi yazıp Kaydet butonuna basın. Başarıyla kaydedildiğinde kutunun altında kayıtlı skorunuzu göreceksiniz. Maç başlayana kadar güncelleyebilirsiniz.</div>
+                        <div class="tutorial-text">Maçlar sekmesinde tahminleri girip Kaydet'e basın. Maç başlayana kadar güncelleyebilirsiniz. Maç başladığı an sistem kilitlenir.</div>
                     </div>
                     <div class="tutorial-section">
                         <div class="tutorial-title">📊 2. Puanlama Kuralları</div>
                         <div class="tutorial-text">
                             <span class="rule-badge badge-5p">+5 Puan</span> <strong>Tam Skor:</strong> Skoru tam bildiğinizde.<br>
-                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve gol farkını doğru bildiğinizde.<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve farkı bildiğinizde.<br>
                             <span class="rule-badge badge-2p">+2 Puan</span> <strong>Maç Sonucu:</strong> Sadece kazananı veya beraberliği bildiğinizde.<br>
                             <span class="rule-badge badge-neg">-2 Puan</span> <strong>Unutma Cezası:</strong> Boş bırakılan maçlar ceza puanı getirir!
                         </div>
@@ -235,18 +232,16 @@
         let maclar = [];
         let aktifFiltre = "open";
 
-        const siralamaVerisi = [
-            { isim: "Ahmet", tamSkor: 0, farkBilme: 0, tarafBilme: 0, toplamPuan: 0 }
-        ];
-
         window.onload = function() {
-            fetch(SCRIPT_URL)
-                .then(res => res.json())
-                .then(data => {
-                    maclar = data;
-                })
-                .catch(err => console.error("Hata:", err));
+            tazeFiksturCek();
         };
+
+        function tazeFiksturCek() {
+            return fetch(SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => { maclar = data; })
+                .catch(err => console.error("Hata:", err));
+        }
 
         function handleAuth() {
             const user = document.getElementById('usernameInput').value.trim();
@@ -279,26 +274,48 @@
                     }
                     document.getElementById('userWelcome').style.display = 'block';
                     
-                    // --- KRİTİK GÜNCELLEME: GİRİŞ YAPILDIĞI AN ESKİ TAHMİNLERİ BULUTTAN ÇEK ---
+                    // Eski tahminleri çek ve listele
                     fetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
                         .then(res => res.json())
                         .then(preds => {
-                            mevcutTahminler = preds; // Eski tahminleri hafızaya al
-                            maclariListele();        // Maçları kutular dolu olacak şekilde listele
-                            siralayiListele();
-                        }).catch(() => {
-                            maclariListele();
-                            siralayiListele();
-                        });
+                            mevcutTahminler = preds; 
+                            maclariListele();        
+                            getLeaderboardData();
+                        }).catch(() => { maclariListele(); getLeaderboardData(); });
 
                 } else if (response.status === "pending") {
-                    alert("Kayıt başvurunuz başarıyla alındı! Yönetici onayından sonra giriş yapabilirsiniz.");
+                    alert("Kayıt başvurunuz alındı! Onaylandıktan sonra giriş yapabilirsiniz.");
                 } else if (response.status === "unauthorized") {
                     alert("Giriş Engellendi! Hesabınız henüz onaylanmamıştır.");
                 } else {
                     alert(response.message);
                 }
             }).catch(() => { alert("Bağlantı hatası!"); authBtn.disabled = false; });
+        }
+
+        // CANLI SIRALAMAYI BULUTTAN ÇEKER VE TABLOYA BASAR
+        function getLeaderboardData() {
+            const tbody = document.getElementById('leaderboard-tbody');
+            fetch(`${SCRIPT_URL}?action=getLeaderboard`)
+                .then(res => res.json())
+                .then(users => {
+                    if(users.length === 0) {
+                        tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Henüz onaylı kullanıcı sıralaması yok.</td></tr>";
+                        return;
+                    }
+                    tbody.innerHTML = "";
+                    users.forEach((oyuncu, index) => {
+                        const sira = index + 1;
+                        let siraClass = (sira===1)?"pos-1":(sira===2)?"pos-2":(sira===3)?"pos-3":"";
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="rank-col ${siraClass}">#${sira}</td>
+                                <td class="name-col">${oyuncu.isim}</td>
+                                <td class="stats-col">${oyuncu.tamSkor}/${oyuncu.farkBilme}/${oyuncu.tarafBilme}</td>
+                                <td class="total-col">${oyuncu.toplamPuan} P</td>
+                            </tr>`;
+                    });
+                }).catch(() => { tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;color:var(--accent-red);'>Sıralama alınamadı.</td></tr>"; });
         }
 
         function getPendingUsers() {
@@ -320,7 +337,7 @@
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "approveUser", targetUsername: username })
-            }).then(() => { alert(`${username} onaylandı!`); getPendingUsers(); });
+            }).then(() => { alert(`${username} onaylandı!`); getPendingUsers(); getLeaderboardData(); });
         }
 
         function saveRealMatchResult() {
@@ -333,7 +350,13 @@
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB })
-            }).then(() => { alert("Skor işlendi!"); location.reload(); });
+            }).then(() => { 
+                alert("Skor işlendi! Canlı sıralama güncelleniyor..."); 
+                document.getElementById('adminMatchId').value = "";
+                document.getElementById('adminScoreA').value = "";
+                document.getElementById('adminScoreB').value = "";
+                tazeFiksturCek().then(() => { maclariListele(); getLeaderboardData(); });
+            });
         }
 
         function triggerMatchReset() {
@@ -376,16 +399,12 @@
 
                 if (mac.gercekA !== "-") {
                     durumMetni = `🏁 MS: ${mac.gercekA} - ${mac.gercekB} (Bitti)`;
-                    durumSinifi = 'status-closed';
-                    kilitliMi = true; butonMetni = 'Bitti';
+                    durumSinifi = 'status-closed'; kilitliMi = true; butonMetni = 'Bitti';
                 } else if (kilitliMi) {
-                    durumMetni = '🔒 Süre Doldu';
-                    durumSinifi = 'status-closed';
-                    butonMetni = 'Kilitli';
+                    durumMetni = '🔒 Süre Doldu'; durumSinifi = 'status-closed'; butonMetni = 'Kilitli';
                 } else if (dahaOnceGirildiMi) {
                     durumMetni = `✍️ Kayıtlı: ${mevcutTahminler[mac.id].a}-${mevcutTahminler[mac.id].b}`;
-                    durumSinifi = 'status-revised';
-                    butonMetni = 'Güncelle';
+                    durumSinifi = 'status-revised'; butonMetni = 'Güncelle';
                 }
 
                 container.innerHTML += `
@@ -407,7 +426,6 @@
                     </div>
                 `;
                 
-                // --- ARTIK SAYFA YENİLENSE DE KUTULARIN İÇİ DOLU KALACAK ---
                 if (dahaOnceGirildiMi) {
                     document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a;
                     document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b;
@@ -421,35 +439,41 @@
         function savePrediction(matchId) {
             const skorA = document.getElementById(`tahminA_${matchId}`).value;
             const skorB = document.getElementById(`tahminB_${matchId}`).value;
+            const saveBtn = document.getElementById(`btn_${matchId}`);
             if(skorA === "" || skorB === "") { alert("Skor girin!"); return; }
+            
+            saveBtn.disabled = true; saveBtn.innerText = "...";
             
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB })
-            }).then(() => { 
-                mevcutTahminler[matchId] = { a: skorA, b: skorB }; 
-                alert("Kaydedildi!"); 
-                maclariListele(); 
-            });
-        }
-
-        function siralayiListele() {
-            const tbody = document.getElementById('leaderboard-tbody'); tbody.innerHTML = "";
-            siralamaVerisi.forEach((oyuncu, index) => {
-                const sira = index + 1;
-                let siraClass = (sira===1)?"pos-1":(sira===2)?"pos-2":(sira===3)?"pos-3":"";
-                tbody.innerHTML += `<tr><td class="rank-col ${siraClass}">#${sira}</td><td class="name-col">${oyuncu.isim}</td><td class="stats-col">${oyuncu.tamSkor}/${oyuncu.farkBilme}/${oyuncu.tarafBilme}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`;
-            });
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === "success") {
+                    // TAHMİNİ HAFIZAYA GÜVENLİCE AL (DİĞER MAÇLARI ASLA EZMEZ)
+                    mevcutTahminler[matchId] = { a: skorA, b: skorB }; 
+                    alert(res.message);
+                    maclariListele();
+                    getLeaderboardData(); // Canlı sıralamayı tazele
+                } else {
+                    alert(res.message); // Maç süresi dolmuşsa hata mesajını bas
+                    location.reload();
+                }
+            }).catch(() => { alert("İşlem tamamlandı!"); });
         }
 
         function sampiyonlukEkraniniGuncelle() {}
         function saveChampionPrediction() { alert("Şampiyon tahmininiz alındı!"); }
         function validateScoreInput(input) { let val = input.value; if (val.length > 1 && val.startsWith('0')) input.value = parseInt(val, 10); }
+        
         function switchTab(event, tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active'); 
+            event.currentTarget.classList.add('active');
+            if(tabId === 'leaderboard') { getLeaderboardData(); } // Sıralama sekmesine tıklandığı an canlı listeyi buluttan çek
         }
     </script>
 </body>
