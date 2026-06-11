@@ -156,7 +156,6 @@
                     <div style="text-align: center; margin-bottom: 15px;">
                         <span class="stage-badge" id="current-stage-badge">Turnuva Başlangıcı</span>
                     </div>
-                    <!-- ALFABETİK OLARAK TÜM TURNUVA KATILIMCILARI EKLENDİ -->
                     <select id="champion-select">
                         <option value="" disabled selected>Bir takım seçin...</option>
                         <option value="ABD">ABD</option>
@@ -218,13 +217,24 @@
                 </div>
             </div>
 
+            <!-- YÖNETİCİ ONAY VE TEST SIHİRBAZI PANELİ -->
             <div id="adminPanel" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
-                    <p style="margin-bottom:20px;">Sisteme kaydolan yeni arkadaşların listesi aşağıdadır. Onayla butonuna basarak lige dahil edebilirsin.</p>
-                    <div id="pendingUsersList">
+                    <p style="margin-bottom:20px;">Sisteme kaydolan yeni arkadaşların listesi aşağıdadır.</p>
+                    <div id="pendingUsersList" style="margin-bottom:30px;">
                         <div class="loading">Bekleyen başvurular aranıyor...</div>
                     </div>
+                    
+                    <!-- ADMIN GERİ ALMA VE TEST TEMİZLEME ARACI -->
+                    <h2 style="color:var(--accent-red); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">🛠️ Maç Tahmin Sıfırlama Sihirbazı</h2>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">
+                        Test etmek amacıyla girdiğin bir maçı ya da hatalı girilen bir fikstürü temizlemek için burayı kullanabilirsin. Sıfırlanan maçın girilmiş tüm tahminleri tamamen silinir.
+                    </p>
+                    <input type="number" id="resetMatchIdInput" class="auth-input" placeholder="Sıfırlanacak Maç ID (Örn: 1)" style="margin-bottom:10px; font-size:0.9rem; padding:10px;">
+                    <button class="save-btn" style="width:100%; padding:10px; background-color:var(--accent-red); font-weight:bold;" onclick="triggerMatchReset()">
+                        Seçilen Maçın Tüm Tahminlerini Sıfırla (Geri Al)
+                    </button>
                 </div>
             </div>
         </div>
@@ -359,6 +369,34 @@
             .catch(() => {
                 alert(`${username} onaylandı!`);
                 getPendingUsers();
+            });
+        }
+
+        // ADMİN MAÇ TEMİZLEME TETİKLEYİCİSİ
+        function triggerMatchReset() {
+            const mId = document.getElementById('resetMatchIdInput').value.trim();
+            if(mId === "") { alert("Lütfen sıfırlamak istediğiniz Maç ID numarasını girin!"); return; }
+            
+            if(!confirm(`DİKKAT!\n\n${mId} ID'li maça ait girilmiş TÜM oyuncu tahminleri silinecektir. Bu işlem geri alınamaz!\n\nOnaylıyor musunuz?`)) { return; }
+            
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: "resetMatchData", matchId: mId })
+            })
+            .then(res => res.json())
+            .then(response => {
+                alert(response.message);
+                document.getElementById('resetMatchIdInput').value = "";
+                // Eğer silinen maçı ön yüzde hafızada tutuyorsak temizle
+                if(mevcutTahminler[mId]) { delete mevcutTahminler[mId]; }
+                maclariListele();
+            })
+            .catch(() => {
+                alert("Sıfırlama işlemi tamamlandı!");
+                document.getElementById('resetMatchIdInput').value = "";
+                if(mevcutTahminler[mId]) { delete mevcutTahminler[mId]; }
+                maclariListele();
             });
         }
 
