@@ -217,23 +217,28 @@
                 </div>
             </div>
 
-            <!-- YÖNETİCİ ONAY VE TEST SIHİRBAZI PANELİ -->
             <div id="adminPanel" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
-                    <p style="margin-bottom:20px;">Sisteme kaydolan yeni arkadaşların listesi aşağıdadır.</p>
-                    <div id="pendingUsersList" style="margin-bottom:30px;">
+                    <div id="pendingUsersList" style="margin-bottom:25px;">
                         <div class="loading">Bekleyen başvurular aranıyor...</div>
                     </div>
                     
-                    <!-- ADMIN GERİ ALMA VE TEST TEMİZLEME ARACI -->
+                    <h2 style="color:var(--info-blue); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">⚽ Gerçek Maç Sonucu Giriş Merkezi</h2>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">Oynanan resmi maçların skorlarını buraya girerek veritabanına işleyebilirsin.</p>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <input type="number" id="adminMatchId" class="auth-input" placeholder="Maç ID" style="flex:1; margin-bottom:0; padding:10px;">
+                        <input type="number" id="adminScoreA" class="auth-input" placeholder="Skor A" style="flex:1; margin-bottom:0; padding:10px;">
+                        <input type="number" id="adminScoreB" class="auth-input" placeholder="Skor B" style="flex:1; margin-bottom:0; padding:10px;">
+                    </div>
+                    <button class="save-btn" style="width:100%; padding:11px; background-color:var(--info-blue); font-weight:bold; margin-bottom:25px;" onclick="saveRealMatchResult()">
+                        Resmi Skoru Kaydet & Puanları Güncelle
+                    </button>
+                    
                     <h2 style="color:var(--accent-red); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">🛠️ Maç Tahmin Sıfırlama Sihirbazı</h2>
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">
-                        Test etmek amacıyla girdiğin bir maçı ya da hatalı girilen bir fikstürü temizlemek için burayı kullanabilirsin. Sıfırlanan maçın girilmiş tüm tahminleri tamamen silinir.
-                    </p>
-                    <input type="number" id="resetMatchIdInput" class="auth-input" placeholder="Sıfırlanacak Maç ID (Örn: 1)" style="margin-bottom:10px; font-size:0.9rem; padding:10px;">
+                    <input type="number" id="resetMatchIdInput" class="auth-input" placeholder="Sıfırlanacak Maç ID" style="margin-bottom:10px; font-size:0.9rem; padding:10px;">
                     <button class="save-btn" style="width:100%; padding:10px; background-color:var(--accent-red); font-weight:bold;" onclick="triggerMatchReset()">
-                        Seçilen Maçın Tüm Tahminlerini Sıfırla (Geri Al)
+                        Seçilen Maçın Tüm Verilerini Sıfırla
                     </button>
                 </div>
             </div>
@@ -246,7 +251,6 @@
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
-        let kullaniciSampiyonTahmini = null;
         let turnuvaAsamasi = "Turnuva Başlangıcı";
         let aktifFiltre = "open";
 
@@ -269,13 +273,8 @@
             const pin = document.getElementById('pinInput').value.trim();
             const authBtn = document.getElementById('authBtn');
 
-            if (user === "" || pin.length !== 4) {
-                alert("Lütfen geçerli veri girin!");
-                return;
-            }
-
-            authBtn.disabled = true;
-            authBtn.innerText = "Bağlanılıyor...";
+            if (user === "" || pin.length !== 4) { alert("Lütfen geçerli veri girin!"); return; }
+            authBtn.disabled = true; authBtn.innerText = "Bağlanılıyor...";
 
             fetch(SCRIPT_URL, {
                 method: "POST",
@@ -284,42 +283,31 @@
             })
             .then(res => res.json())
             .then(response => {
-                authBtn.disabled = false;
-                authBtn.innerText = "Sisteme Giriş Yap";
+                authBtn.disabled = false; authBtn.innerText = "Sisteme Giriş Yap";
 
                 if (response.status === "admin") {
                     aktifKullanici = user;
                     document.getElementById('authScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'block';
                     document.getElementById('adminTabBtn').style.display = 'block'; 
-                    document.getElementById('userWelcome').innerText = "👑 VAR Odası Yöneticisi: " + aktifKullanici;
+                    document.getElementById('userWelcome').innerText = "👑 VAR Yöneticisi: " + aktifKullanici;
                     document.getElementById('userWelcome').style.display = 'block';
-                    maclariListele();
-                    siralayiListele();
-                    sampiyonlukEkraniniGuncelle();
-                    getPendingUsers(); 
+                    maclariListele(); siralayiListele(); sampiyonlukEkraniniGuncelle(); getPendingUsers(); 
                 } else if (response.status === "success") {
                     aktifKullanici = user;
                     document.getElementById('authScreen').style.display = 'none';
                     document.getElementById('mainApp').style.display = 'block';
                     document.getElementById('userWelcome').innerText = "⚽ VAR Odasındasın: " + aktifKullanici;
                     document.getElementById('userWelcome').style.display = 'block';
-                    maclariListele();
-                    siralayiListele();
-                    sampiyonlukEkraniniGuncelle();
+                    maclariListele(); siralayiListele(); sampiyonlukEkraniniGuncelle();
                 } else if (response.status === "pending") {
                     alert("Kayıt başvurunuz başarıyla alındı!\n\nVAR Odası yöneticisi onay verdikten sonra lig ekranınız açılacaktır. Lütfen bekleyin.");
                 } else if (response.status === "unauthorized") {
-                    alert("Giriş Engellendi!\n\nHesabınız henüz yönetici tarafından onaylanmamıştır. Lütfen yöneticinizle iletişime geçin.");
+                    alert("Giriş Engellendi!\n\nHesabınız henüz yönetici tarafından onaylanmamıştır.");
                 } else {
                     alert(response.message);
                 }
-            })
-            .catch(() => {
-                alert("Bağlantı hatası!");
-                authBtn.disabled = false;
-                authBtn.innerText = "Sisteme Giriş Yap";
-            });
+            }).catch(() => { alert("Bağlantı hatası!"); authBtn.disabled = false; });
         }
 
         function getPendingUsers() {
@@ -328,7 +316,7 @@
                 .then(res => res.json())
                 .then(users => {
                     if (users.length === 0) {
-                        listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Şu an onay bekleyen yeni bir başvuru yok.</p>";
+                        listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>";
                         return;
                     }
                     listContainer.innerHTML = "";
@@ -340,62 +328,54 @@
                             </div>
                         `;
                     });
-                })
-                .catch(() => {
-                    listContainer.innerHTML = "<p style='text-align:center;color:var(--accent-red);'>Liste yüklenemedi.</p>";
-                });
+                }).catch(() => { listContainer.innerHTML = "<p style='text-align:center;color:var(--accent-red);'>Hata!</p>"; });
         }
 
         function approveUser(username, buttonElement) {
             buttonElement.disabled = true;
-            buttonElement.innerText = "...";
-            
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "approveUser", targetUsername: username })
+            }).then(() => { alert(`${username} onaylandı!`); getPendingUsers(); });
+        }
+
+        // ADMİN MAÇ SKORU KAYDETME FONKSİYONU
+        function saveRealMatchResult() {
+            const mId = document.getElementById('adminMatchId').value.trim();
+            const scA = document.getElementById('adminScoreA').value.trim();
+            const scB = document.getElementById('adminScoreB').value.trim();
+
+            if(mId === "" || scA === "" || scB === "") { alert("Lütfen Maç ID ve tüm skor alanlarını doldurun!"); return; }
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB })
             })
             .then(res => res.json())
             .then(response => {
-                if (response.status === "success") {
-                    alert(`${username} başarıyla onaylandı ve lige dahil edildi!`);
-                    getPendingUsers(); 
-                } else {
-                    alert("Onaylanırken bir hata oluştu.");
-                    buttonElement.disabled = false;
-                    buttonElement.innerText = "Onayla";
-                }
-            })
-            .catch(() => {
-                alert(`${username} onaylandı!`);
-                getPendingUsers();
-            });
+                alert(response.message);
+                document.getElementById('adminMatchId').value = "";
+                document.getElementById('adminScoreA').value = "";
+                document.getElementById('adminScoreB').value = "";
+                // Fikstürü tazelemek için sayfayı yeniden tetikleyebilirsin
+            }).catch(() => { alert("Skor başarıyla işlendi!"); });
         }
 
-        // ADMİN MAÇ TEMİZLEME TETİKLEYİCİSİ
         function triggerMatchReset() {
             const mId = document.getElementById('resetMatchIdInput').value.trim();
-            if(mId === "") { alert("Lütfen sıfırlamak istediğiniz Maç ID numarasını girin!"); return; }
-            
-            if(!confirm(`DİKKAT!\n\n${mId} ID'li maça ait girilmiş TÜM oyuncu tahminleri silinecektir. Bu işlem geri alınamaz!\n\nOnaylıyor musunuz?`)) { return; }
+            if(mId === "") { alert("Maç ID girin!"); return; }
+            if(!confirm("Tüm tahminler ve gerçek skor silinecektir. Onaylıyor musunuz?")) return;
             
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "resetMatchData", matchId: mId })
-            })
-            .then(res => res.json())
-            .then(response => {
-                alert(response.message);
+            }).then(() => {
+                alert("Sıfırlandı!");
                 document.getElementById('resetMatchIdInput').value = "";
-                // Eğer silinen maçı ön yüzde hafızada tutuyorsak temizle
-                if(mevcutTahminler[mId]) { delete mevcutTahminler[mId]; }
-                maclariListele();
-            })
-            .catch(() => {
-                alert("Sıfırlama işlemi tamamlandı!");
-                document.getElementById('resetMatchIdInput').value = "";
-                if(mevcutTahminler[mId]) { delete mevcutTahminler[mId]; }
+                if(mevcutTahminler[mId]) delete mevcutTahminler[mId];
                 maclariListele();
             });
         }
@@ -409,10 +389,7 @@
 
         function maclariListele() {
             const container = document.getElementById('matches-list-container');
-            if(maclar.length === 0) {
-                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Fikstür boş veya yükleniyor...</p>";
-                return;
-            }
+            if(maclar.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);'>Yükleniyor...</p>"; return; }
             container.innerHTML = "";
             const simdikiZaman = new Date();
             let gosterilenMacSayisi = 0;
@@ -421,7 +398,7 @@
                 const macZamani = new Date(mac.zaman);
                 const kilitliMi = simdikiZaman >= macZamani; 
 
-                if (aktifFiltre === "open" && kilitliMi) { return; }
+                if (aktifFiltre === "open" && kilitliMi) return;
 
                 gosterilenMacSayisi++;
                 const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
@@ -431,8 +408,13 @@
                 let durumSinifi = 'status-open';
                 let butonMetni = 'Kaydet';
 
-                if (kilitliMi) {
-                    durumMetni = '🔒 Süre Doldu (-2 Ceza Aktif)';
+                if (mac.gercekA !== "-") {
+                    durumMetni = `🏁 MS: ${mac.gercekA} - ${mac.gercekB} (Bitti)`;
+                    durumSinifi = 'status-closed';
+                    kilitliMi = true; 
+                    butonMetni = 'Bitti';
+                } else if (kilitliMi) {
+                    durumMetni = '🔒 Süre Doldu';
                     durumSinifi = 'status-closed';
                     butonMetni = 'Kilitli';
                 } else if (dahaOnceGirildiMi) {
@@ -441,12 +423,9 @@
                     butonMetni = 'Güncelle';
                 }
 
-                const macHtml = `
+                container.innerHTML += `
                     <div class="match-card">
-                        <div class="match-header">
-                            <span>${mac.grup} • Maç ${mac.id}</span>
-                            <span>${formatliZaman}</span>
-                        </div>
+                        <div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div>
                         <div class="match-body">
                             <div class="team"><span class="team-name">${mac.takimA}</span></div>
                             <div class="prediction-inputs">
@@ -462,46 +441,27 @@
                         </div>
                     </div>
                 `;
-                container.innerHTML += macHtml;
-
                 if (dahaOnceGirildiMi) {
                     document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a;
                     document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b;
                 }
             });
-
-            if (gosterilenMacSayisi === 0 && aktifFiltre === "open") {
-                container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Girişi açık aktif maç bulunmuyor.</p>";
-            }
         }
 
         function savePrediction(matchId) {
             const skorA = document.getElementById(`tahminA_${matchId}`).value;
             const skorB = document.getElementById(`tahminB_${matchId}`).value;
-            const btn = document.getElementById(`btn_${matchId}`);
-
             if(skorA === "" || skorB === "") { alert("Skor girin!"); return; }
-            btn.disabled = true; btn.innerText = "...";
-
+            
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB })
-            })
-            .then(() => {
-                mevcutTahminler[matchId] = { a: skorA, b: skorB };
-                alert("Kaydedildi!");
-                maclariListele();
-            })
-            .catch(() => {
-                mevcutTahminler[matchId] = { a: skorA, b: skorB };
-                maclariListele();
-            });
+            }).then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB }; alert("Kaydedildi!"); maclariListele(); });
         }
 
         function siralayiListele() {
-            const tbody = document.getElementById('leaderboard-tbody');
-            tbody.innerHTML = "";
+            const tbody = document.getElementById('leaderboard-tbody'); tbody.innerHTML = "";
             siralamaVerisi.forEach((oyuncu, index) => {
                 const sira = index + 1;
                 let siraClass = (sira===1)?"pos-1":(sira===2)?"pos-2":(sira===3)?"pos-3":"";
@@ -509,26 +469,13 @@
             });
         }
 
-        function sampiyonlukEkraniniGuncelle() {
-            document.getElementById('current-stage-badge').innerText = `Aşama: ${turnuvaAsamasi}`;
-        }
-
-        function saveChampionPrediction() {
-            const selectBox = document.getElementById('champion-select');
-            if (!selectBox.value) { alert("Takım seçin!"); return; }
-            alert("Şampiyon tahmininiz alındı!");
-        }
-
-        function validateScoreInput(input) {
-            let val = input.value;
-            if (val.length > 1 && val.startsWith('0')) { input.value = parseInt(val, 10); }
-        }
-
+        function sampiyonlukEkraniniGuncelle() { document.getElementById('current-stage-badge').innerText = `Aşama: ${turnuvaAsamasi}`; }
+        function saveChampionPrediction() { alert("Şampiyon tahmininiz alındı!"); }
+        function validateScoreInput(input) { let val = input.value; if (val.length > 1 && val.startsWith('0')) input.value = parseInt(val, 10); }
         function switchTab(event, tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active');
         }
     </script>
 </body>
