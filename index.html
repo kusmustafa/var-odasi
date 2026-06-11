@@ -87,11 +87,16 @@
         .puan-zero { background-color: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #444; }
         .puan-neg { background-color: rgba(229, 9, 20, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
 
+        .tutorial-section { text-align: left; margin-bottom: 20px; }
+        .tutorial-title { font-size: 1rem; font-weight: bold; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .tutorial-text { font-size: 0.85rem; color: #dddddd; line-height: 1.5; margin-bottom: 10px; padding-left: 5px; }
         .rule-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 5px; }
         .badge-5p { background-color: rgba(46, 204, 113, 0.2); color: var(--success-green); border: 1px solid var(--success-green); }
         .badge-3p { background-color: rgba(52, 152, 219, 0.2); color: var(--info-blue); border: 1px solid var(--info-blue); }
         .badge-2p { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
         .badge-neg { background-color: rgba(229, 9, 20, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-gold { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+        
         .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
         .approve-btn { background-color: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
@@ -180,16 +185,22 @@
                 </div>
             </div>
 
+            <!-- KULLANIM KILAVUZU (ŞAMPİYONLUK BONUSU EKLENDİ) -->
             <div id="rulesTab" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--info-blue); margin-bottom:15px;">🏆 VAR Odası Kullanım Kılavuzu</h2>
                     <div class="tutorial-section">
-                        <div class="tutorial-title">📊 Puanlama Dağılımı</div>
+                        <div class="tutorial-title">📱 1. Skor Tahmini Nasıl Yapılır?</div>
+                        <div class="tutorial-text">Maçlar sekmesinde tahminleri girip Kaydet'e basın. Maç başlayana kadar güncelleyebilirsiniz. Maç başladığı an sistem kilitlenir.</div>
+                    </div>
+                    <div class="tutorial-section">
+                        <div class="tutorial-title">📊 2. Puanlama Kuralları</div>
                         <div class="tutorial-text">
-                            <span class="rule-badge badge-5p">+5 Puan</span> Tam Skor Bilme<br>
-                            <span class="rule-badge badge-3p">+3 Puan</span> Gol Farkı Bilme<br>
-                            <span class="rule-badge badge-2p">+2 Puan</span> Taraf Bilme<br>
-                            <span class="rule-badge badge-neg">-2 Puan</span> Tahmin Unutma Cezası!
+                            <span class="rule-badge badge-5p">+5 Puan</span> <strong>Tam Skor:</strong> Skoru tam bildiğinizde.<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve farkı bildiğinizde.<br>
+                            <span class="rule-badge badge-2p">+2 Puan</span> <strong>Maç Sonucu:</strong> Sadece kazananı veya beraberliği bildiğinizde.<br>
+                            <span class="rule-badge badge-neg">-2 Puan</span> <strong>Unutma Cezası:</strong> Boş bırakılan maçlar ceza puanı getirir!<br>
+                            <span class="rule-badge badge-gold">+15 Puan</span> <strong>Şampiyonluk Bonusu:</strong> Turnuva şampiyonunu doğru tahmin edenler kupayla beraber dev bir bonus kazanır!
                         </div>
                     </div>
                 </div>
@@ -330,7 +341,6 @@
             fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB }) }).then(() => { alert("Skor işlendi!"); tazeFiksturCek().then(() => tazeleVeYukle()); });
         }
 
-        // OTURUM KAPATMAYAN AKILLI SIFIRLAMA FONKSİYONU
         function triggerMatchReset() {
             const mId = document.getElementById('resetMatchIdInput').value.trim();
             if(mId === "") { alert("Lütfen Maç ID girin!"); return; }
@@ -343,11 +353,7 @@
             }).then(res => res.json()).then(res => { 
                 alert(res.message);
                 document.getElementById('resetMatchIdInput').value = "";
-                
-                // OTURUMU KAPATMAK YERİNE VERİLERİ ARKA PLANDA TAZELE
-                tazeFiksturCek().then(() => {
-                    tazeleVeYukle();
-                });
+                tazeFiksturCek().then(() => { tazeleVeYukle(); });
             }).catch(() => { alert("Bağlantı hatası oluştu."); });
         }
 
@@ -367,7 +373,7 @@
                 else if (dahaOnceGirildiMi) { durumMetni = `✍️ Kayıtlı: ${mevcutTahminler[mac.id].a}-${mevcutTahminler[mac.id].b}`, durumSinifi = 'status-revised', butonMetni = 'Güncelle'; }
                 container.innerHTML += `<div class="match-card"><div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div><div class="match-body"><div class="team"><span class="team-name">${mac.takimA}</span></div><div class="prediction-inputs"><input type="number" id="tahminA_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}> : <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}></div><div class="team"><span class="team-name">${mac.takimB}</span></div></div><div class="match-footer"><span class="status-text ${durumSinifi}">${durumMetni}</span><button id="btn_${mac.id}" class="save-btn" onclick="savePrediction(${mac.id})" ${kilitliMi?'disabled':''}>${butonMetni}</button></div></div>`;
                 if (dahaOnceGirildiMi) { document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a; document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b; }
-                else { document.getElementById(`tahminA_${mac.id}`).value = ""; document.getElementById(`tahminB_${mac.id}`).value = ""; }
+                else { if(document.getElementById(`tahminA_${mac.id}`)) { document.getElementById(`tahminA_${mac.id}`).value = ""; document.getElementById(`tahminB_${mac.id}`).value = ""; } }
             });
         }
 
