@@ -35,7 +35,6 @@
 
         .auth-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; text-align: center; margin-top: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .auth-input { width: 100%; padding: 14px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; margin-bottom: 15px; text-align: center; }
-        .auth-input:focus { border-color: var(--accent-red); outline: none; }
 
         .main-app { display: none; }
         .tabs { display: flex; background-color: var(--card-bg); border-radius: 12px; padding: 5px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow-x: auto; gap: 3px; }
@@ -174,33 +173,46 @@
                 </div>
             </div>
 
+            <!-- KADEMELİ ŞAMPİYONLUK PANELİ -->
             <div id="champion" class="tab-content">
                 <div class="champion-card">
                     <h2>Şampiyonunu Tahmin Et</h2>
+                    <p style="margin-bottom:15px;">Turnuva aşamasına göre doğru tahmin ödülü değişir.</p>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <span class="stage-badge" id="current-stage-badge" style="background-color:var(--gold); color:#000; padding:5px 10px; font-weight:bold;">Yükleniyor...</span>
+                    </div>
+                    
                     <select id="champion-select">
                         <option value="" disabled selected>Bir takım seçin...</option>
                         <option value="ABD">ABD</option><option value="Almanya">Almanya</option><option value="Arjantin">Arjantin</option><option value="Avustralya">Avustralya</option><option value="Avusturya">Avusturya</option><option value="Belçika">Belçika</option><option value="Bosna Hersek">Bosna Hersek</option><option value="Brezilya">Brezilya</option><option value="Cezayir">Cezayir</option><option value="Curaçao">Curaçao</option><option value="Çekya">Çekya</option><option value="Demokratik Kongo">Demokratik Kongo</option><option value="Ekvador">Ekvador</option><option value="Fas">Fas</option><option value="Fildişi Sahili">Fildişi Sahili</option><option value="Fransa">Fransa</option><option value="Gana">Gana</option><option value="Güney Afrika">Güney Afrika</option><option value="Güney Kore">Güney Kore</option><option value="Haiti">Haiti</option><option value="Hırvatistan">Hırvatistan</option><option value="Hollanda">Hollanda</option><option value="Irak">Irak</option><option value="İngiltere">İngiltere</option><option value="İran">İran</option><option value="İskoçya">İskoçya</option><option value="İspanya">İspanya</option><option value="İsviçre">İsviçre</option><option value="Japonya">Japonya</option><option value="Kanada">Kanada</option><option value="Katar">Katar</option><option value="Kolombiya">Kolombiya</option><option value="Meksika">Meksika</option><option value="Mısır">Mısır</option><option value="Norveç">Norveç</option><option value="Özbekistan">Özbekistan</option><option value="Panama">Panama</option><option value="Paraguay">Paraguay</option><option value="Portekiz">Portekiz</option><option value="Senegal">Senegal</option><option value="Suudi Arabistan">Suudi Arabistan</option><option value="Tunus">Tunus</option><option value="Türkiye">Türkiye</option><option value="Uruguay">Uruguay</option><option value="Ürdün">Ürdün</option><option value="Yeni Zelanda">Yeni Zelanda</option><option value="Yeşil Burun Adaları">Yeşil Burun Adaları</option>
                     </select>
-                    <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000;" onclick="alert('Şampiyon kaydedildi!')">Kilitle</button>
+                    
+                    <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">
+                        Tahmini Bu Aşama İçin Kilitle
+                    </button>
+                    
+                    <div id="locked-prediction-zone" class="locked-champion-box" style="display: none;">
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">Bu Aşamadaki Kilitli Tahmininiz:</span>
+                        <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
+                    </div>
                 </div>
             </div>
 
-            <!-- KULLANIM KILAVUZU (ŞAMPİYONLUK BONUSU EKLENDİ) -->
             <div id="rulesTab" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--info-blue); margin-bottom:15px;">🏆 VAR Odası Kullanım Kılavuzu</h2>
                     <div class="tutorial-section">
-                        <div class="tutorial-title">📱 1. Skor Tahmini Nasıl Yapılır?</div>
-                        <div class="tutorial-text">Maçlar sekmesinde tahminleri girip Kaydet'e basın. Maç başlayana kadar güncelleyebilirsiniz. Maç başladığı an sistem kilitlenir.</div>
-                    </div>
-                    <div class="tutorial-section">
-                        <div class="tutorial-title">📊 2. Puanlama Kuralları</div>
+                        <div class="tutorial-title">📊 Puanlama Dağılımı</div>
                         <div class="tutorial-text">
-                            <span class="rule-badge badge-5p">+5 Puan</span> <strong>Tam Skor:</strong> Skoru tam bildiğinizde.<br>
-                            <span class="rule-badge badge-3p">+3 Puan</span> <strong>Gol Farkı:</strong> Galibi ve farkı bildiğinizde.<br>
-                            <span class="rule-badge badge-2p">+2 Puan</span> <strong>Maç Sonucu:</strong> Sadece kazananı veya beraberliği bildiğinizde.<br>
-                            <span class="rule-badge badge-neg">-2 Puan</span> <strong>Unutma Cezası:</strong> Boş bırakılan maçlar ceza puanı getirir!<br>
-                            <span class="rule-badge badge-gold">+15 Puan</span> <strong>Şampiyonluk Bonusu:</strong> Turnuva şampiyonunu doğru tahmin edenler kupayla beraber dev bir bonus kazanır!
+                            <span class="rule-badge badge-5p">+5 Puan</span> Tam Skor Bilme<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> Gol Farkı Bilme<br>
+                            <span class="rule-badge badge-2p">+2 Puan</span> Taraf Bilme<br>
+                            <span class="rule-badge badge-neg">-2 Puan</span> Tahmin Unutma Cezası!<br><br>
+                            <span class="rule-badge badge-gold">🔥 Şampiyonluk Kademeli Bonusu:</span><br>
+                            • <strong>Turnuva Başlangıcı (Bugün 22:00'ye kadar):</strong> +15 Puan<br>
+                            • <strong>Son 16 Turunda kilitleyenler:</strong> +8 Puan<br>
+                            • <strong>Çeyrek Finalde (Son 8) kilitleyenler:</strong> +4 Puan<br>
+                            • <strong>Yarı Finalde (Son 4) kilitleyenler:</strong> +2 Puan
                         </div>
                     </div>
                 </div>
@@ -210,15 +222,12 @@
                 <div class="champion-card">
                     <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
                     <div id="pendingUsersList" style="margin-bottom:25px;"></div>
-                    
                     <h2 style="color:var(--info-blue); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">⚽ Gerçek Maç Sonucu Giriş Merkezi</h2>
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <input type="number" id="adminMatchId" class="auth-input" placeholder="ID" style="flex:1;"><input type="number" id="adminScoreA" class="auth-input" placeholder="A" style="flex:1;"><input type="number" id="adminScoreB" class="auth-input" placeholder="B" style="flex:1;">
                     </div>
                     <button class="save-btn" style="width:100%; padding:11px; background-color:var(--info-blue); font-weight:bold; margin-bottom:25px;" onclick="saveRealMatchResult()">Skoru İşle & Puanları Hesapla</button>
-                    
                     <h2 style="color:var(--accent-red); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">🛠️ Maç Tahmin Sıfırlama Sihirbazı</h2>
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:15px;">Seçilen maçın hem sonucunu hem de tüm oyuncu tahminlerini/puanlarını tamamen siler.</p>
                     <input type="number" id="resetMatchIdInput" class="auth-input" placeholder="Sıfırlanacak Maç ID" style="margin-bottom:10px; font-size:0.9rem; padding:10px;">
                     <button class="save-btn" style="width:100%; padding:10px; background-color:var(--accent-red); font-weight:bold;" onclick="triggerMatchReset()">Seçilen Maçın Tüm Verilerini Sıfırla</button>
                 </div>
@@ -234,18 +243,13 @@
         let maclar = [];
         let aktifFiltre = "open";
 
-        window.onload = function() { tazeFiksturCek(); };
-
-        function tazeFiksturCek() {
-            return fetch(SCRIPT_URL).then(res => res.json()).then(data => { maclar = data; if(aktifKullanici) maclariListele(); });
-        }
+        window.onload = function() { fetch(SCRIPT_URL).then(res => res.json()).then(data => { maclar = data; maclariListele(); }); };
 
         function handleAuth() {
             const user = document.getElementById('usernameInput').value.trim();
             const pin = document.getElementById('pinInput').value.trim();
             const authBtn = document.getElementById('authBtn');
             if (user === "" || pin.length !== 4) { alert("Geçerli veri girin!"); return; }
-            
             authBtn.disabled = true; authBtn.innerText = "Bağlanılıyor...";
 
             fetch(SCRIPT_URL, {
@@ -279,12 +283,57 @@
         function tazeleVeYukle() {
             fetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
                 .then(res => res.json())
-                .then(preds => { 
-                    mevcutTahminler = preds; 
-                    maclariListele(); 
-                    getLeaderboardData(); 
-                    getUserHistoryData(); 
+                .then(preds => { mevcutTahminler = preds; maclariListele(); getLeaderboardData(); getUserHistoryData(); checkChampStatus(); });
+        }
+
+        // ŞAMPİYONLUK DURUMUNU VE GİRİŞ KİLİTLERİNİ BULUTTAN SORGULAR
+        function checkChampStatus() {
+            if(!aktifKullanici) return;
+            fetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('current-stage-badge').innerText = "Mevcut Aşama: " + data.asama;
+                    
+                    if (data.currentPrediction && data.currentPrediction !== "-") {
+                        document.getElementById('locked-prediction-zone').style.display = "block";
+                        document.getElementById('locked-team-name').innerText = "🔒 " + data.currentPrediction;
+                    } else {
+                        document.getElementById('locked-prediction-zone').style.display = "none";
+                    }
+                    
+                    if (data.locked) {
+                        document.getElementById('champion-select').disabled = true;
+                        document.getElementById('save-champion-btn').disabled = true;
+                        document.getElementById('save-champion-btn').innerText = "🔒 Bu Aşama İçin Tahmin Süresi Doldu";
+                        document.getElementById('save-champion-btn').style.backgroundColor = "#333";
+                        document.getElementById('save-champion-btn').style.color = "#777";
+                    } else {
+                        document.getElementById('champion-select').disabled = false;
+                        document.getElementById('save-champion-btn').disabled = false;
+                        document.getElementById('save-champion-btn').innerText = "Tahmini Bu Aşama İçin Kilitle";
+                        document.getElementById('save-champion-btn').style.backgroundColor = "var(--gold)";
+                        document.getElementById('save-champion-btn').style.color = "#000";
+                    }
                 });
+        }
+
+        function lockChampionPrediction() {
+            const selectBox = document.getElementById('champion-select');
+            if(!selectBox.value) { alert("Lütfen listeden bir ülke seçin!"); return; }
+            
+            if(!confirm(`${selectBox.value} ülkesini şampiyon olarak kilitlemek istediğinize emin misiniz?`)) return;
+            
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value })
+            })
+            .then(res => res.json())
+            .then(res => {
+                alert(res.message);
+                checkChampStatus();
+                getLeaderboardData();
+            });
         }
 
         function getUserHistoryData() {
@@ -344,17 +393,8 @@
         function triggerMatchReset() {
             const mId = document.getElementById('resetMatchIdInput').value.trim();
             if(mId === "") { alert("Lütfen Maç ID girin!"); return; }
-            if(!confirm("DİKKAT!\n\nBu maç sonucuyla birlikte, tüm oyuncuların bu maça girdiği tahminler ve ceza geçmişi tamamen silinecektir.\n\nOnaylıyor musunuz?")) return;
-            
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ action: "resetMatchData", matchId: mId })
-            }).then(res => res.json()).then(res => { 
-                alert(res.message);
-                document.getElementById('resetMatchIdInput').value = "";
-                tazeFiksturCek().then(() => { tazeleVeYukle(); });
-            }).catch(() => { alert("Bağlantı hatası oluştu."); });
+            if(!confirm("Bu maç sonucuyla birlikte, tüm tahminler silinecektir. Onaylıyor musunuz?")) return;
+            fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ action: "resetMatchData", matchId: mId }) }).then(res => res.json()).then(res => { alert(res.message); document.getElementById('resetMatchIdInput').value = ""; tazeFiksturCek().then(() => { tazeleVeYukle(); }); });
         }
 
         function setMatchFilter(filterType) { aktifFiltre = filterType; document.getElementById('filter-open-btn').classList.toggle('active', filterType === 'open'); document.getElementById('filter-all-btn').classList.toggle('active', filterType === 'all'); maclariListele(); }
@@ -373,7 +413,6 @@
                 else if (dahaOnceGirildiMi) { durumMetni = `✍️ Kayıtlı: ${mevcutTahminler[mac.id].a}-${mevcutTahminler[mac.id].b}`, durumSinifi = 'status-revised', butonMetni = 'Güncelle'; }
                 container.innerHTML += `<div class="match-card"><div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div><div class="match-body"><div class="team"><span class="team-name">${mac.takimA}</span></div><div class="prediction-inputs"><input type="number" id="tahminA_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}> : <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" ${kilitliMi?'disabled':''}></div><div class="team"><span class="team-name">${mac.takimB}</span></div></div><div class="match-footer"><span class="status-text ${durumSinifi}">${durumMetni}</span><button id="btn_${mac.id}" class="save-btn" onclick="savePrediction(${mac.id})" ${kilitliMi?'disabled':''}>${butonMetni}</button></div></div>`;
                 if (dahaOnceGirildiMi) { document.getElementById(`tahminA_${mac.id}`).value = mevcutTahminler[mac.id].a; document.getElementById(`tahminB_${mac.id}`).value = mevcutTahminler[mac.id].b; }
-                else { if(document.getElementById(`tahminA_${mac.id}`)) { document.getElementById(`tahminA_${mac.id}`).value = ""; document.getElementById(`tahminB_${mac.id}`).value = ""; } }
             });
         }
 
@@ -389,6 +428,7 @@
             document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active');
             if(tabId === 'leaderboard') getLeaderboardData();
             if(tabId === 'historyTab') getUserHistoryData();
+            if(tabId === 'champion') checkChampStatus();
         }
     </script>
 </body>
