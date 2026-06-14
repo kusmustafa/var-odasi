@@ -167,19 +167,15 @@
                 </div>
             </div>
 
-            <!-- ONYÜZDE GÜNCELLEME YAPILAN ADMİN PANELİ -->
             <div id="adminPanel" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--gold); margin-bottom:15px;">👑 Kullanıcı Onay Paneli</h2>
                     <div id="pendingUsersList" style="margin-bottom:25px;"></div>
                     
                     <h2 style="color:var(--info-blue); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">⚽ Gerçek Maç Sonucu Giriş Merkezi</h2>
-                    
-                    <!-- ELLE GİRİŞ YERİNE AÇILIR LİSTE ENTEGRE EDİLDİ -->
                     <select id="adminMatchSelect" class="admin-select">
                         <option value="" disabled selected>Sonucu girilecek maçı seçin...</option>
                     </select>
-                    
                     <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <input type="number" id="adminScoreA" class="auth-input" placeholder="Takım A Skoru" style="flex:1;"><input type="number" id="adminScoreB" class="auth-input" placeholder="Takım B Skoru" style="flex:1;">
                     </div>
@@ -205,32 +201,32 @@
             return fetch(url).then(res => res.json());
         }
 
+        // ISO formatlı tarih string'ini her tarayıcının yerel saat diliminde kusursuz ayrıştırması için güvenli parse fonksiyonu
+        function yerelTarihParse(tarihStr) {
+            if(!tarihStr) return new Date();
+            return new Date(tarihStr.replace(" ", "T"));
+        }
+
         window.onload = function() { 
             guvenliFetch(SCRIPT_URL).then(data => { maclar = data; adminSecimListeleriniDoldur(); }).catch(e => console.log("İlk yükleme tamamlandı.")); 
         };
 
-        // Admin paneli açılır listelerini dinamik dolduran yeni fonksiyon
         function adminSecimListeleriniDoldur() {
             const selectGiris = document.getElementById('adminMatchSelect');
             const selectSifirla = document.getElementById('adminResetMatchSelect');
             if(!selectGiris || !selectSifirla || maclar.length === 0) return;
 
-            // Listeleri temizle ve varsayılan başlıkları ekle
             selectGiris.innerHTML = '<option value="" disabled selected>Sonucu girilecek maçı seçin...</option>';
             selectSifirla.innerHTML = '<option value="" disabled selected>Sıfırlanacak maçı seçin...</option>';
 
             maclar.forEach(mac => {
                 const metin = `Maç ${mac.id} | ${mac.takimA} - ${mac.takimB} (${mac.grup})`;
-                
-                // Sonuç girme listesi için (eğer henüz skor girilmemişse ekle)
                 if (mac.gercekA === "-") {
                     const opt = document.createElement('option');
                     opt.value = mac.id;
                     opt.innerText = metin;
                     selectGiris.appendChild(opt);
                 }
-
-                // Sıfırlama listesi için (tüm maçlar görünebilir)
                 const optSifirla = document.createElement('option');
                 optSifirla.value = mac.id;
                 optSifirla.innerText = metin + (mac.gercekA !== "-" ? ` [Sonuç: ${mac.gercekA}-${mac.gercekB}]` : "");
@@ -335,7 +331,7 @@
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 tbody.innerHTML = "";
                 users.forEach((oyuncu, index) => {
-                    tbody.innerHTML += `<tr><td class="rank-col">#${index + 1}</td><td class="name-col">${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P Orient</td></tr>`;
+                    tbody.innerHTML += `<tr><td class="rank-col">#${index + 1}</td><td class="name-col">${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`;
                 });
             }).catch(()=>{});
         }
@@ -353,7 +349,6 @@
 
         function approveUser(username, buttonElement) { buttonElement.disabled = true; fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "approveUser", targetUsername: username }) }).then(() => { getPendingUsers(); }); }
 
-        // GÜNCELLEME: Açılır listeden seçilen ID değerini alacak şekilde uyarlandı
         function saveRealMatchResult() {
             const mId = document.getElementById('adminMatchSelect').value; 
             const scA = document.getElementById('adminScoreA').value.trim(); 
@@ -369,7 +364,6 @@
             });
         }
 
-        // GÜNCELLEME: Sıfırlama açılır listesinden seçilen ID'ye göre çalışacak şekilde uyarlandı
         function triggerMatchReset() {
             const mId = document.getElementById('adminResetMatchSelect').value; 
             if(!mId) { alert("Lütfen sıfırlanacak maçı seçin!"); return; }
@@ -382,14 +376,23 @@
             });
         }
 
+        // FİKSTÜR TARAMA VE GÖRECELİ GİZLEME ALGORİTMASI GÜNCELLENDİ
         function maclariListele() {
             const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date(); let gosterilenMacSayisi = 0;
 
             maclar.forEach(mac => {
-                if (mac.gercekA !== "-") return;
+                if (mac.gercekA !== "-") return; // Gerçek sonucu girilmiş bitmiş maçları direkt gizle
+                
+                const macZamani = yerelTarihParse(mac.zaman);
+                const kilitliMi = simdikiZaman >= macZamani;
+                
+                // MANTIK GÜNCELLEMESİ: Maç başladıktan 3 saat (180 dakika) sonra hala admin skoru girmediyse, 
+                // ekranın şişmesini önlemek için maçı otomatik olarak "Özetim" sekmesine pasla ve bu listeden kaldır.
+                const ucSaatSonrasi = new Date(macZamani.getTime() + (3 * 60 * 60 * 1000));
+                if (simdikiZaman >= ucSaatSonrasi) return;
+
                 gosterilenMacSayisi++;
-                const macZamani = new Date(mac.zaman); const kilitliMi = simdikiZaman >= macZamani;
                 const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
                 const dahaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
                 
@@ -408,7 +411,7 @@
 
                 container.innerHTML += `<div class="${cardClass}"><div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div><div class="match-body"><div class="team"><span class="team-name">${mac.takimA}</span></div><div class="prediction-inputs"><input type="number" id="tahminA_${mac.id}" class="score-input" min="0" ${disabledAttr} value="${tA}"> : <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" ${disabledAttr} value="${tB}"></div><div class="team"><span class="team-name">${mac.takimB}</span></div></div><div class="match-footer"><span class="status-text ${kilitliMi ? 'status-locked' : 'status-open'}">${durumMetni}</span><button id="btn_${mac.id}" class="save-btn" ${disabledAttr} onclick="savePrediction(${mac.id})">Kaydet</button></div></div>`;
             });
-            if (gosterilenMacSayisi === 0) container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Aktif maç bulunmuyor.</p>";
+            if (gosterilenMacSayisi === 0) container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Aktif veya kilitli canlı maç bulunmuyor.</p>";
         }
 
         function savePrediction(matchId) {
@@ -419,7 +422,7 @@
 
         function switchTab(event, tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active'); event.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active'); event.currentTarget.github.classList.add('active'); // Event düzeltildi
             if(tabId === 'leaderboard') getLeaderboardData();
             if(tabId === 'historyTab') getUserHistoryData();
             if(tabId === 'champion') checkChampStatus();
