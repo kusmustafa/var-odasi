@@ -50,7 +50,11 @@
         .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
-        .history-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); }
+        
+        /* ÖZETİM AKORDEON PANEL GÜNCELLEMESİ */
+        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; }
+        .history-row:hover { background-color: #2d2d2d; }
+        .history-main-info { display: flex; justify-content: space-between; align-items: center; }
         .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
         .history-scores { font-size: 0.75rem; color: var(--text-muted); flex: 2; text-align: center; display: flex; flex-direction: column; gap: 3px; }
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
@@ -59,6 +63,23 @@
         .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
         .puan-zero { background-color: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #444; }
         .puan-neg { background-color: rgba(229, 9, 20, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        
+        .history-details-dropdown { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; animation: fadeIn 0.3s ease; }
+        .details-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
+        .details-table th { color: var(--text-muted); padding: 5px; border-bottom: 1px solid #333; font-weight: bold; text-align: left; }
+        .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .tutorial-section { text-align: left; margin-bottom: 20px; }
+        .tutorial-title { font-size: 1rem; font-weight: bold; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .tutorial-text { font-size: 0.85rem; color: #dddddd; line-height: 1.5; margin-bottom: 10px; padding-left: 5px; }
+        .rule-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 5px; }
+        .badge-5p { background-color: rgba(46, 204, 113, 0.2); color: var(--success-green); border: 1px solid var(--success-green); }
+        .badge-3p { background-color: rgba(52, 152, 219, 0.2); color: var(--info-blue); border: 1px solid var(--info-blue); }
+        .badge-2p { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+        .badge-neg { background-color: rgba(229, 9, 20, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .badge-gold { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
         .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
         .approve-btn { background-color: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
@@ -110,6 +131,7 @@
                     <div class="score-card-label">Toplam VAR Odası Puanım</div>
                 </div>
                 <h3 style="margin-bottom:15px; font-size:1rem; color:var(--gold);">🏁 Tamamlanan Maç Özetlerim</h3>
+                <p style="color:var(--text-muted); font-size:0.75rem; margin-bottom:10px; text-align:center;">Maçların üzerine tıklayarak gruptaki herkesin tahminini görebilirsiniz.</p>
                 <div id="userHistoryContainer"></div>
             </div>
 
@@ -201,7 +223,6 @@
             return fetch(url).then(res => res.json());
         }
 
-        // ISO formatlı tarih string'ini her tarayıcının yerel saat diliminde kusursuz ayrıştırması için güvenli parse fonksiyonu
         function yerelTarihParse(tarihStr) {
             if(!tarihStr) return new Date();
             return new Date(tarihStr.replace(" ", "T"));
@@ -307,23 +328,68 @@
             .then(() => { alert("İşlem tamamlandı!"); checkChampStatus(); });
         }
 
+        // GÜNCELLEME: Akordeon / Açılır pencere mantığı ön yüze entegre edildi
         function getUserHistoryData() {
             const container = document.getElementById('userHistoryContainer'); const totalPointsBox = document.getElementById('userTotalPoints');
             if(!aktifKullanici || !container) return;
+            
             guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
                 .then(res => {
                     totalPointsBox.innerText = res.total;
                     if(res.history.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
                     container.innerHTML = "";
-                    res.history.forEach(item => {
+                    
+                    res.history.forEach((item, idx) => {
                         let badgeClass = "puan-zero";
                         if (item.puan === 5) badgeClass = "puan-plus5";
                         else if (item.puan === 3) badgeClass = "puan-plus3";
                         else if (item.puan === 2) badgeClass = "puan-plus2";
                         else if (item.puan < 0) badgeClass = "puan-neg";
-                        container.innerHTML += `<div class="history-row"><div class="history-teams">${item.takimA} - ${item.takimB}</div><div class="history-scores"><span>Tahmin: ${item.tahmin}</span><span>Sonuç: ${item.gercekSkor}</span></div><div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div></div>`;
+                        
+                        // İçerideki tüm oyuncuların tahmin listesini HTML tablo formatına çevir
+                        let herkesTabloSatirlari = "";
+                        if(item.herkes && item.herkes.length > 0) {
+                            item.herkes.forEach(h => {
+                                herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="color:var(--gold);text-align:right;">+${h.puan} P</td></tr>`;
+                            });
+                        } else {
+                            herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Bu maça ait tahmin verisi yok.</td></tr>";
+                        }
+
+                        container.innerHTML += `
+                            <div class="history-row" onclick="toggleHistoryDropdown(${idx})">
+                                <div class="history-main-info">
+                                    <div class="history-teams">${item.takimA} - ${item.takimB}</div>
+                                    <div class="history-scores">
+                                        <span>Tahminim: <strong>${item.tahmin}</strong></span>
+                                        <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
+                                    </div>
+                                    <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
+                                </div>
+                                <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()">
+                                    <table class="details-table">
+                                        <thead>
+                                            <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            ${herkesTabloSatirlari}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>`;
                     });
                 }).catch(()=>{});
+        }
+
+        // Akordeon açıp kapatma fonksiyonu
+        function toggleHistoryDropdown(index) {
+            const drop = document.getElementById(`history_drop_${index}`);
+            if(!drop) return;
+            if(drop.style.display === "block") {
+                drop.style.display = "none";
+            } else {
+                drop.style.display = "block";
+            }
         }
 
         function getLeaderboardData() {
@@ -376,19 +442,16 @@
             });
         }
 
-        // FİKSTÜR TARAMA VE GÖRECELİ GİZLEME ALGORİTMASI GÜNCELLENDİ
         function maclariListele() {
             const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date(); let gosterilenMacSayisi = 0;
 
             maclar.forEach(mac => {
-                if (mac.gercekA !== "-") return; // Gerçek sonucu girilmiş bitmiş maçları direkt gizle
+                if (mac.gercekA !== "-") return; 
                 
                 const macZamani = yerelTarihParse(mac.zaman);
                 const kilitliMi = simdikiZaman >= macZamani;
                 
-                // MANTIK GÜNCELLEMESİ: Maç başladıktan 3 saat (180 dakika) sonra hala admin skoru girmediyse, 
-                // ekranın şişmesini önlemek için maçı otomatik olarak "Özetim" sekmesine pasla ve bu listeden kaldır.
                 const ucSaatSonrasi = new Date(macZamani.getTime() + (3 * 60 * 60 * 1000));
                 if (simdikiZaman >= ucSaatSonrasi) return;
 
@@ -422,7 +485,10 @@
 
         function switchTab(event, tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active'); event.currentTarget.github.classList.add('active'); // Event düzeltildi
+            document.getElementById(tabId).classList.add('active');
+            if (event && event.currentTarget && event.currentTarget.classList) {
+                event.currentTarget.classList.add('active');
+            }
             if(tabId === 'leaderboard') getLeaderboardData();
             if(tabId === 'historyTab') getUserHistoryData();
             if(tabId === 'champion') checkChampStatus();
