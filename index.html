@@ -217,6 +217,7 @@
                 </div>
             </div>
 
+            <!-- GÜNCELLEME: image_26b3df.png görselindeki eksiklik "Son 32" satırı eklenerek kapatıldı -->
             <div id="rulesTab" class="tab-content">
                 <div class="champion-card">
                     <h2>🏆 VAR Odası Kullanım Kılavuzu</h2>
@@ -727,7 +728,7 @@
             const mId = document.getElementById('adminMatchSelect').value; 
             const scA = document.getElementById('adminScoreA').value.trim(); 
             const scB = document.getElementById('adminScoreB').value.trim();
-            if(!mId || scA === "" || scB === "") { alert("Lütfen maç seçin ve skorları eksikisiz girin!"); return; }
+            if(!mId || scA === "" || scB === "") { alert("Lütfen maç seçin ve skorları eksiksiz girin!"); return; }
             
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB }) })
             .then(() => { 
