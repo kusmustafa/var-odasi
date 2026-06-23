@@ -42,44 +42,43 @@
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
+        .leaderboard-table tr.player-row { cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .leaderboard-table tr.player-row:hover { background-color: #252525; }
         .leaderboard-table td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
-        .clickable-row { cursor: pointer; transition: background 0.2s; }
-        .clickable-row:hover { background-color: #252525; }
         .rank-col { font-weight: 800; width: 45px; text-align: center; color: var(--gold); }
         .name-col { font-weight: 600; }
         .total-col { font-weight: 800; color: var(--success-green); text-align: right; padding-right: 15px !important; }
         
-        .champion-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; }
-        .champion-card h2 { font-size: 1.2rem; margin-bottom: 10px; text-align: center; }
+        .player-detail-drop-row { display: none; background-color: #171717; }
+        .player-detail-drop-container { padding: 10px 15px; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
+        
         .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
         
-        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; }
+        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
         .history-row:hover { background-color: #2d2d2d; }
         .history-main-info { display: flex; justify-content: space-between; align-items: center; }
         .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
         .history-scores { font-size: 0.75rem; color: var(--text-muted); flex: 2; text-align: center; display: flex; flex-direction: column; gap: 3px; }
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
         
-        /* PUAN GENEL RENK ROZETLERİ */
+        .puan-text-badge { font-weight: bold; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; text-align: center; min-width: 45px; }
         .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
         .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
         .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
         .puan-zero { background-color: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #444; }
         .puan-neg { background-color: rgba(229, 9, 20, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
         
-        .history-details-dropdown, .leaderboard-details-dropdown { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; animation: fadeIn 0.3s ease; }
+        .history-details-dropdown { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; animation: fadeIn 0.3s ease; }
         .details-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
         .details-table th { color: var(--text-muted); padding: 5px; border-bottom: 1px solid #333; font-weight: bold; text-align: left; }
-        .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; }
+        .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
-        .approve-btn { background-color: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .admin-select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
+        .admin-user-card { background-color: #252525; padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -131,8 +130,6 @@
             </div>
 
             <div id="leaderboard" class="tab-content">
-                <h3 style="margin-bottom:10px; font-size:1rem; color:var(--gold); text-align:center;">🏆 Genel Sıralama Tablosu</h3>
-                <p style="color:var(--text-muted); font-size:0.75rem; margin-bottom:15px; text-align:center;">Oyuncuların üzerine tıklayarak bu zamana kadar yaptığı tüm tahminleri görebilirsiniz.</p>
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
                         <thead>
@@ -215,7 +212,11 @@
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
-        let globalRawHistory = []; // Sıralama röntgeni için veri önbelleği
+        let globalHistoryRawData = [];
+
+        // V26 KORUMASI: Mobil scroll kaydırma hareketini dinleyen global değişkenler
+        let isScrolling = false;
+        let startY = 0;
 
         function guvenliFetch(url) {
             return fetch(url).then(res => res.json());
@@ -228,6 +229,18 @@
 
         window.onload = function() { 
             guvenliFetch(SCRIPT_URL).then(data => { maclar = data; adminSecimListeleriniDoldur(); }).catch(e => console.log("İlk yükleme tamamlandı.")); 
+            
+            // Mobil cihazlar için scroll/tıklama çakışmasını önleyen dinleyiciler
+            window.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].pageY;
+                isScrolling = false;
+            }, {passive: true});
+            
+            window.addEventListener('touchmove', function(e) {
+                if (Math.abs(e.touches[0].pageY - startY) > 10) {
+                    isScrolling = true;
+                }
+            }, {passive: true});
         };
 
         function adminSecimListeleriniDoldur() {
@@ -287,7 +300,21 @@
         function tazeleVeYukle() {
             if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
-                .then(preds => { mevcutTahminler = preds; maclariListele(); getLeaderboardData(); getUserHistoryData(); checkChampStatus(); })
+                .then(preds => { 
+                    mevcutTahminler = preds; 
+                    maclariListele(); 
+                    
+                    // V26 Mimari Kuralı: Giriş yapıldığı saniyede geçmiş veriler önbelleğe alınır.
+                    guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
+                        .then(res => {
+                            globalHistoryRawData = [...res.history];
+                            document.getElementById('userTotalPoints').innerText = res.total;
+                            getLeaderboardData(); 
+                            getUserHistoryDataUI(res.history); 
+                        });
+                        
+                    checkChampStatus(); 
+                })
                 .catch(() => { maclariListele(); });
         }
 
@@ -327,57 +354,67 @@
         }
 
         function getUserHistoryData() {
-            const container = document.getElementById('userHistoryContainer'); const totalPointsBox = document.getElementById('userTotalPoints');
-            if(!aktifKullanici || !container) return;
-            
+            if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
                 .then(res => {
-                    totalPointsBox.innerText = res.total;
-                    if(!res.history || res.history.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
-                    container.innerHTML = "";
-                    
-                    globalRawHistory = res.history; // Sıralama sekmesinde veri süzmek için yedekle
-                    let reversedHistory = [...res.history].reverse();
-                    
-                    reversedHistory.forEach((item, idx) => {
-                        let badgeClass = "puan-zero";
-                        if (item.puan === 5) badgeClass = "puan-plus5";
-                        else if (item.puan === 3) badgeClass = "puan-plus3";
-                        else if (item.puan === 2) badgeClass = "puan-plus2";
-                        else if (item.puan < 0) badgeClass = "puan-neg";
-                        
-                        let herkesTabloSatirlari = "";
-                        if(item.herkes && item.herkes.length > 0) {
-                            item.herkes.forEach(h => {
-                                herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="color:var(--gold);text-align:right;">+${h.puan} P</td></tr>`;
-                            });
-                        } else {
-                            herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi yok.</td></tr>";
-                        }
+                    globalHistoryRawData = [...res.history];
+                    document.getElementById('userTotalPoints').innerText = res.total;
+                    getUserHistoryDataUI(res.history);
+                });
+        }
 
-                        container.innerHTML += `
-                            <div class="history-row" onclick="toggleHistoryDropdown(${idx})">
-                                <div class="history-main-info">
-                                    <div class="history-teams">${item.takimA} - ${item.takimB}</div>
-                                    <div class="history-scores">
-                                        <span>Tahmin: <strong>${item.tahmin}</strong></span>
-                                        <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
-                                    </div>
-                                    <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
-                                </div>
-                                <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()">
-                                    <table class="details-table">
-                                        <thead>
-                                            <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            ${herkesTabloSatirlari}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>`;
+        function getUserHistoryDataUI(historyArray) {
+            const container = document.getElementById('userHistoryContainer');
+            if(!container) return;
+            if(!historyArray || historyArray.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
+            container.innerHTML = "";
+            
+            let reversedHistory = [...historyArray].reverse();
+            
+            reversedHistory.forEach((item, idx) => {
+                let badgeClass = "puan-zero";
+                if (item.puan === 5) badgeClass = "puan-plus5";
+                else if (item.puan === 3) badgeClass = "puan-plus3";
+                else if (item.puan === 2) badgeClass = "puan-plus2";
+                else if (item.puan < 0) badgeClass = "puan-neg";
+                
+                let herkesTabloSatirlari = "";
+                let oyuncuListesi = item.herkes || [];
+                
+                if(oyuncuListesi.length > 0) {
+                    oyuncuListesi.forEach(h => {
+                        let innerBadgeClass = "puan-zero";
+                        if (h.puan === 5) innerBadgeClass = "puan-plus5";
+                        else if (h.puan === 3) innerBadgeClass = "puan-plus3";
+                        else if (h.puan === 2) innerBadgeClass = "puan-plus2";
+                        herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadgeClass}">+${h.puan} P</span></td></tr>`;
                     });
-                }).catch(()=>{});
+                } else {
+                    herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
+                }
+
+                container.innerHTML += `
+                    <div class="history-row" touchend="if(!isScrolling) toggleHistoryDropdown(${idx})" onclick="if(window.innerWidth > 1024) toggleHistoryDropdown(${idx})">
+                        <div class="history-main-info">
+                            <div class="history-teams">${item.takimA} - ${item.takimB}</div>
+                            <div class="history-scores">
+                                <span>Tahmin: <strong>${item.tahmin}</strong></span>
+                                <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
+                            </div>
+                            <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
+                        </div>
+                        <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()" touchend="event.stopPropagation()">
+                            <table class="details-table">
+                                <thead>
+                                    <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
+                                </thead>
+                                <tbody>
+                                    ${herkesTabloSatirlari}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            });
         }
 
         function toggleHistoryDropdown(index) {
@@ -391,17 +428,26 @@
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 tbody.innerHTML = "";
                 users.forEach((oyuncu, index) => {
-                    // Oyuncu satırı ve altına gelecek gizli detay bölmesi
+                    // ID seçici alanı için güvenli ve temiz bir string üretiyoruz
+                    let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, '');
+                    
                     tbody.innerHTML += `
-                        <tr class="clickable-row" onclick="toggleLeaderboardUserPredictions('${oyuncu.isim}', ${index})">
+                        <tr class="player-row" touchend="if(!isScrolling) togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')" onclick="if(window.innerWidth > 1024) togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')">
                             <td class="rank-col">#${index + 1}</td>
-                            <td class="name-col">⚽ ${oyuncu.isim}</td>
+                            <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                             <td class="total-col">${oyuncu.toplamPuan} P</td>
                         </tr>
-                        <tr>
-                            <td colspan="3" style="padding: 0; border: none;">
-                                <div id="user_lead_drop_${index}" class="leaderboard-details-dropdown" style="padding: 10px 15px; background-color: #171717;">
-                                    <div id="user_lead_content_${index}" class="loading" style="font-size:0.8rem;">Tahmin geçmişi hazırlanıyor...</div>
+                        <tr id="leader_drop_${safeId}" class="player-detail-drop-row">
+                            <td colspan="3">
+                                <div class="player-detail-drop-container">
+                                    <table class="details-table" id="leader_table_${safeId}">
+                                        <thead>
+                                            <tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </td>
                         </tr>`;
@@ -409,66 +455,54 @@
             }).catch(()=>{});
         }
 
-        function toggleLeaderboardUserPredictions(targetUser, index) {
-            const drop = document.getElementById(`user_lead_drop_${index}`);
-            const contentBox = document.getElementById(`user_lead_content_${index}`);
-            if(!drop || !contentBox) return;
+        // V26 KURAL GÜNCELLEMESİ: Sıralama röntgen motorunun arama metodunu localeCompare (Türkçe esnek) ile mühürledik.
+        function togglePlayerLeaderboardDetails(safeId, originalName) {
+            const dropRow = document.getElementById(`leader_drop_${safeId}`);
+            const tableBody = document.querySelector(`#leader_table_${safeId} tbody`);
+            if(!dropRow || !tableBody) return;
 
-            if(drop.style.display === "block") {
-                drop.style.display = "none";
+            if(dropRow.style.display === "table-row") {
+                dropRow.style.display = "none";
                 return;
             }
-            
-            drop.style.display = "block";
-            
-            // Eğer veri zaten yüklendiyse (globalRawHistory doluysa) oradan süz, yoksa yedek kaynaktan oku
-            if(globalRawHistory && globalRawHistory.length > 0) {
-                renderUserPredictionsInLeaderboard(targetUser, contentBox);
-            } else {
-                guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
-                    .then(res => {
-                        globalRawHistory = res.history;
-                        renderUserPredictionsInLeaderboard(targetUser, contentBox);
-                    }).catch(() => { contentBox.innerHTML = "<span style='color:var(--accent-red);'>Veriler yüklenemedi.</span>"; });
+
+            document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
+            dropRow.style.display = "table-row";
+            tableBody.innerHTML = "";
+
+            if(globalHistoryRawData.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Veriler sunucudan eşitleniyor, lütfen 2 saniye sonra tekrar basın...</td></tr>";
+                return;
             }
-        }
 
-        function renderUserPredictionsInLeaderboard(targetUser, containerElement) {
-            let htmlTableRows = "";
-            let reverseMatches = [...globalRawHistory].reverse();
+            let localHistorySorted = [...globalHistoryRawData].reverse();
+            let sayac = 0;
 
-            reverseMatches.forEach(mac => {
-                // Her maçın içindeki "herkes" listesinden hedef oyuncuyu buluyoruz
-                let userMatchData = mac.herkes.find(h => h.isim.toLowerCase() === targetUser.toLowerCase());
+            localHistorySorted.forEach(match => {
+                let oyuncuListesi = match.herkes || [];
+                // Birebir katı eşleşme yerine büyük-küçük harfe ve gizli boşluklara karşı zırhlı süzgeç
+                let pRecord = oyuncuListesi.find(h => h.isim.trim().localeCompare(originalName, 'tr', { sensitivity: 'base' }) === 0);
                 
-                if(userMatchData) {
-                    let badgeClass = "puan-zero";
-                    if (userMatchData.puan === 5) badgeClass = "puan-plus5";
-                    else if (userMatchData.puan === 3) badgeClass = "puan-plus3";
-                    else if (userMatchData.puan === 2) badgeClass = "puan-plus2";
-                    else if (userMatchData.puan < 0) badgeClass = "puan-neg";
-
-                    htmlTableRows += `
+                if(pRecord) {
+                    sayac++;
+                    
+                    let rowBadgeClass = "puan-zero";
+                    if (pRecord.puan === 5) rowBadgeClass = "puan-plus5";
+                    else if (pRecord.puan === 3) rowBadgeClass = "puan-plus3";
+                    else if (pRecord.puan === 2) rowBadgeClass = "puan-plus2";
+                    else if (pRecord.puan < 0) rowBadgeClass = "puan-neg";
+                    
+                    tableBody.innerHTML += `
                         <tr>
-                            <td style="padding: 8px 4px;"><strong>${mac.takimA} - ${mac.takimB}</strong><br><span style="color:var(--text-muted); font-size:0.7rem;">Sonuç: ${mac.gercekSkor}</span></td>
-                            <td style="text-align: center; padding: 8px 4px;">${userMatchData.skor}</td>
-                            <td style="text-align: right; padding: 8px 4px;"><span class="history-puan-badge ${badgeClass}" style="padding: 3px 8px; font-size: 0.75rem;">${userMatchData.puan >= 0 ? '+' : ''}${userMatchData.puan} P</span></td>
+                            <td>${match.takimA} - ${match.takimB} <span style="font-size:0.7rem; color:var(--text-muted);">(${match.gercekSkor})</span></td>
+                            <td><strong>${pRecord.skor}</strong></td>
+                            <td style="text-align:right;"><span class="puan-text-badge ${rowBadgeClass}">+${pRecord.puan} P</span></td>
                         </tr>`;
                 }
             });
 
-            if(htmlTableRows === "") {
-                containerElement.innerHTML = "<p style='color:var(--text-muted); padding: 5px 0;'>Bu oyuncuya ait tamamlanmış tahmin bulunamadı.</p>";
-            } else {
-                containerElement.innerHTML = `
-                    <table class="details-table">
-                        <thead>
-                            <tr><th>Maç / Sonuç</th><th style="text-align: center;">Tahmin</th><th style="text-align: right;">Puan</th></tr>
-                        </thead>
-                        <tbody>
-                            ${htmlTableRows}
-                        </tbody>
-                    </table>`;
+            if(sayac === 0) {
+                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Bu oyuncuya ait sonuçlanmış maç kaydı bulunamadı.</td></tr>";
             }
         }
 
@@ -478,8 +512,8 @@
                 listContainer.innerHTML = "";
                 if(!users || users.length === 0) { listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>"; return; }
                 users.forEach(username => {
-                    if (typeof username === 'string') {
-                        listContainer.innerHTML += `<div class="admin-user-row"><span>⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
+                    if(username && typeof username === 'string') {
+                        listContainer.innerHTML += `<div class="admin-user-card"><span>⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
                     }
                 });
             });
