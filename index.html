@@ -269,7 +269,10 @@
         let globalHistoryRawData = [];
         let activePuanFilter = null;
         let globalCachedLeaderboard = [];
-        let isFirstLoadComplete = false; // CRITICAL MÜHÜR: İlk asenkron yükleme takibi
+        
+        // GÜNCELLEME: Açık olan dropdown ID'lerini hafızada tutacak state mimarisi
+        let activeOpenedHistoryIdx = null;
+        let activeOpenedLeaderboardId = null;
 
         let isScrolling = false;
         let startY = 0;
@@ -394,10 +397,6 @@
                         .then(res => {
                             globalHistoryRawData = [...res.history];
                             document.getElementById('userTotalPoints').innerText = res.total;
-                            
-                            // CRITICAL REPAIR: İlk yükleme asenkron döngüsü bitene kadar UI basımını izole ediyoruz
-                            isFirstLoadComplete = true; 
-                            
                             getLeaderboardData(); 
                             getUserHistoryDataUI(res.history); 
                         });
@@ -453,9 +452,6 @@
         }
 
         function getUserHistoryDataUI(historyArray) {
-            // CRITICAL KORUMA: Eğer arka plandaki ilk login verisi henüz bitmediyse UI'ı ezme
-            if(!isFirstLoadComplete) return; 
-
             const container = document.getElementById('userHistoryContainer');
             if(!container) return;
             if(!historyArray || historyArray.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
@@ -485,6 +481,9 @@
                     herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
                 }
 
+                // GÜNCELLEME: Eğer bu satır az önce açıksa, durumunu koruyarak HTML basımını yap
+                let dropDisplay = (activeOpenedHistoryIdx === idx) ? "block" : "none";
+
                 container.innerHTML += `
                     <div class="history-row" onclick="if(!isScrolling) toggleHistoryDropdown(${idx})">
                         <div class="history-main-info">
@@ -495,7 +494,7 @@
                             </div>
                             <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
                         </div>
-                        <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()">
+                        <div id="history_drop_${idx}" class="history-details-dropdown" style="display: ${dropDisplay}" onclick="event.stopPropagation()">
                             <table class="details-table">
                                 <thead>
                                     <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
@@ -512,17 +511,20 @@
         function toggleHistoryDropdown(index) {
             const drop = document.getElementById(`history_drop_${index}`);
             if(!drop) return;
-            drop.style.display = (drop.style.display === "block") ? "none" : "block";
+            if(drop.style.display === "block") {
+                drop.style.display = "none";
+                activeOpenedHistoryIdx = null;
+            } else {
+                drop.style.display = "block";
+                activeOpenedHistoryIdx = index;
+            }
         }
 
         function getLeaderboardData() {
-            if(!isFirstLoadComplete) return; // CRITICAL KORUMA
-
             if(activePuanFilter !== null) {
                 renderLeaderboardTable(globalCachedLeaderboard);
                 return;
             }
-            
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 globalCachedLeaderboard = users;
                 renderLeaderboardTable(users);
@@ -551,13 +553,17 @@
                     rightColValue = `${count} Maç`;
                 }
                 
+                // GÜNCELLEME: Eğer bu oyuncunun detayı hafızada açıksa, yeni çizimde de açık bırak
+                let isOpenedRow = (activeOpenedLeaderboardId === safeId);
+                let displayStyle = isOpenedRow ? "table-row" : "none";
+                
                 tbody.innerHTML += `
                     <tr class="player-row" onclick="if(!isScrolling) togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')">
                         <td class="rank-col">#${index + 1}</td>
                         <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                         <td class="total-col" style="color: ${activePuanFilter !== null ? 'var(--text-main)' : 'var(--success-green)'}">${rightColValue}</td>
                     </tr>
-                    <tr id="leader_drop_${safeId}" class="player-detail-drop-row">
+                    <tr id="leader_drop_${safeId}" class="player-detail-drop-row" style="display: ${disabledAttr = displayStr = bittiMi ? 'none' : 'table-row'}; display: ${isFirstLoadComplete ? (activeOpenedLeaderboardId === safeId ? 'table-row' : 'none') : 'none'};">
                         <td colspan="3">
                             <div class="player-detail-drop-container">
                                 <table class="details-table" id="leader_table_${safeId}">
@@ -571,6 +577,11 @@
                             </div>
                         </td>
                     </tr>`;
+                    
+                // GÜNCELLEME: Eğer tablonun yenilenmesinden önce bu satır açıksa içeriğini anında geri doldur
+                if (activeOpenedLeaderboardId === safeId) {
+                    setTimeout(() => fillPlayerLeaderboardDetailsDOM(safeId, oyuncu.isim.trim()), 50);
+                }
             });
 
             hesaplaVeBasMiniDashboard(globalCachedLeaderboard);
@@ -580,7 +591,7 @@
             if(activePuanFilter === puanTipi) {
                 activePuanFilter = null;
                 document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('active-filter'));
-                globalCachedLeaderboard.sort((a,b) => b.toplamPuan - a.toplamPuan);
+                globalCachedLeaderboard.sort((a,b) => b.toplamPuan - a.tophamPuan);
                 renderLeaderboardTable(globalCachedLeaderboard);
                 return;
             }
@@ -592,10 +603,7 @@
             globalCachedLeaderboard.sort((a, b) => {
                 let countA = a[`filterCount${puanTipi}`] || 0;
                 let countB = b[`filterCount${puanTipi}`] || 0;
-                
-                if(countB === countA) {
-                    return b.toplamPuan - a.toplamPuan;
-                }
+                if(countB === countA) return b.toplamPuan - a.toplamPuan;
                 return countB - countA;
             });
 
@@ -651,20 +659,99 @@
 
         function togglePlayerLeaderboardDetails(safeId, originalName) {
             const dropRow = document.getElementById(`leader_drop_${safeId}`);
-            const tableBody = document.querySelector(`#leader_table_${safeId} tbody`);
-            if(!dropRow || !tableBody) return;
+            if(!dropRow) return;
 
             if(dropRow.style.display === "table-row") {
                 dropRow.style.display = "none";
+                activeOpenedLeaderboardId = null;
+                return;
+            }
+
+            // GÜNCELLEME: Tümünü kapat ve aktif olan ID'yi state'e kaydet
+            document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
+            dropRow.style.display = "table-row";
+            activeOpenedLeaderboardId = safeId;
+            
+            renderLeaderboardDropdownContent(safeId, originalName);
+        }
+
+        // GÜNCELLEME: Yeniden çizim esnasında paneli uçurmayan akıllı alt tablo basıcı motor
+        function renderLeaderboardTable(usersList) {
+            const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
+            const scoreTh = document.getElementById('leader-score-th');
+            tbody.innerHTML = "";
+
+            if(activePuanFilter !== null) {
+                scoreTh.innerText = `Adet (${activePuanFilter} P)`;
+                scoreTh.style.color = activePuanFilter === 5 ? 'var(--success-green)' : (activePuanFilter === 3 ? 'var(--info-blue)' : 'var(--gold)');
+            } else {
+                scoreTh.innerText = "Puan";
+                scoreTh.style.color = "var(--text-muted)";
+            }
+
+            usersList.forEach((oyuncu, index) => {
+                let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, '');
+                let rightColValue = `${oyuncu.toplamPuan} P`;
+                if(activePuanFilter !== null) {
+                    let count = oyuncu[`filterCount${activePuanFilter}`] || 0;
+                    rightColValue = `${count} Maç`;
+                }
+                
+                // GÜNCELLEME: Eğer bu satır asenkron tetikleme öncesinde açıksa, açık kalmasını mühürle
+                let isOpened = (activeOpenedLeaderboardId === safeId);
+                
+                tbody.innerHTML += `
+                    <tr class="player-row" onclick="if(!isScrolling) { activeOpenedLeaderboardId = (activeOpenedLeaderboardId == '${safeId}' ? null : '${safeId}'); togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}'); }">
+                        <td class="rank-col">#${index + 1}</td>
+                        <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
+                        <td class="total-col" style="color: ${activePuanFilter !== null ? 'var(--text-main)' : 'var(--success-green)'}">${rightColValue}</td>
+                    </tr>
+                    <tr id="leader_drop_${safeId}" class="player-detail-drop-row" style="display: ${isOpened ? 'table-row' : 'none'}">
+                        <td colspan="3">
+                            <div class="player-detail-drop-container">
+                                <table class="details-table" id="leader_table_${safeId}">
+                                    <thead>
+                                        <tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>`;
+                    
+                if(isOpened) {
+                    setTimeout(() => { fillLeaderboardTableDetails(safeId, oyuncu.isim.trim()); }, 10);
+                }
+            });
+
+            hesaplaVeBasMiniDashboard(globalCachedLeaderboard);
+        }
+
+        function togglePlayerLeaderboardDetails(safeId, originalName) {
+            const dropRow = document.getElementById(`leader_drop_${safeId}`);
+            if(!dropRow) return;
+
+            if(dropRow.style.display === "table-row") {
+                dropRow.style.display = "none";
+                activeOpenedLeaderboardId = null;
                 return;
             }
 
             document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
             dropRow.style.display = "table-row";
+            activeOpenedLeaderboardId = safeId;
+            fillLeaderboardTableDetails(safeId, originalName);
+        }
+
+        function fillPlayerLeaderboardDetails(safeId, originalName) {
+            const tableBody = document.querySelector(`#leader_table_${safeId} tbody`);
+            if(!tableBody) return;
             tableBody.innerHTML = "";
 
             if(globalHistoryRawData.length === 0) {
-                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Veriler sunucudan eşitleniyor, lütfen 2 saniye sonra tekrar basın...</td></tr>";
+                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Veriler sunucudan eşitleniyor...</td></tr>";
                 return;
             }
 
@@ -677,7 +764,6 @@
                 
                 if(pRecord) {
                     sayac++;
-                    
                     let rowBadgeClass = "puan-zero";
                     if (pRecord.puan === 5) rowBadgeClass = "puan-plus5";
                     else if (pRecord.puan === 3) rowBadgeClass = "puan-plus3";
@@ -694,7 +780,73 @@
             });
 
             if(sayac === 0) {
-                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Bu oyuncuya ait sonuçlanmış maç kaydı bulunamadı.</td></tr>";
+                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Maç kaydı bulunamadı.</td></tr>";
+            }
+        }
+
+        // GÜNCELLEME: Özetim listesini akıllı korumayla basan State korumalı fonksiyon
+        function getUserHistoryDataUI(historyArray) {
+            const container = document.getElementById('userHistoryContainer');
+            if(!container) return;
+            if(!historyArray || historyArray.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
+            container.innerHTML = "";
+            
+            let reversedHistory = [...historyArray].reverse();
+            
+            reversedHistory.forEach((item, idx) => {
+                let badgeClass = "puan-zero";
+                if (item.puan === 5) badgeClass = "puan-plus5";
+                else if (item.puan === 3) badgeClass = "puan-plus3";
+                else if (item.puan === 2) badgeClass = "puan-plus2";
+                else if (item.puan < 0) badgeClass = "puan-neg";
+                
+                let herkesTabloSatirlari = "";
+                let oyuncuListesi = item.herkes || [];
+                
+                oyuncuListesi.forEach(h => {
+                    let innerBadgeClass = "puan-zero";
+                    if (h.puan === 5) innerBadgeClass = "puan-plus5";
+                    else if (h.puan === 3) innerBadgeClass = "puan-plus3";
+                    else if (h.puan === 2) innerBadgeClass = "puan-plus2";
+                    herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadgeClass}">+${h.puan} P</span></td></tr>`;
+                });
+
+                // GÜNCELLEME: Eğer bu satır hafızadaki açık satır ise, render anında direkt açık (block) bas!
+                let isOpened = (activeOpenedHistoryIdx === idx);
+
+                container.innerHTML += `
+                    <div class="history-row" onclick="toggleHistoryDropdown(${idx})">
+                        <div class="history-main-info">
+                            <div class="history-teams">${item.takimA} - ${item.takimB}</div>
+                            <div class="history-scores">
+                                <span>Tahmin: <strong>${item.tahmin}</strong></span>
+                                <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
+                            </div>
+                            <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
+                        </div>
+                        <div id="history_drop_${idx}" class="history-details-dropdown" style="display: ${isOpened ? 'block' : 'none'}" onclick="event.stopPropagation()">
+                            <table class="details-table">
+                                <thead>
+                                    <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
+                                </thead>
+                                <tbody>
+                                    ${herkesTabloSatirlari}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function toggleHistoryDropdown(index) {
+            const drop = document.getElementById(`history_drop_${index}`);
+            if(!drop) return;
+            if(drop.style.display === "block") {
+                drop.style.display = "none";
+                activeOpenedHistoryIdx = null;
+            } else {
+                drop.style.display = "block";
+                activeOpenedHistoryIdx = index;
             }
         }
 
