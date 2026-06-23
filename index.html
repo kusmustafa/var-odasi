@@ -38,13 +38,21 @@
         .status-open { color: var(--info-blue); }
         .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+        
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
+        .leaderboard-table tr.player-row { cursor: pointer; transition: background 0.2s; }
+        .leaderboard-table tr.player-row:hover { background-color: #252525; }
         .leaderboard-table td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
         .rank-col { font-weight: 800; width: 45px; text-align: center; color: var(--gold); }
         .name-col { font-weight: 600; }
         .total-col { font-weight: 800; color: var(--success-green); text-align: right; padding-right: 15px !important; }
+        
+        /* SIRALAMA OYUNCU DETAY DROP */
+        .player-detail-drop-row { display: none; background-color: #171717; }
+        .player-detail-drop-container { padding: 10px 15px; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
+        
         .champion-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; }
         .champion-card h2 { font-size: 1.2rem; margin-bottom: 10px; text-align: center; }
         .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
@@ -69,18 +77,6 @@
         .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        .tutorial-section { text-align: left; margin-bottom: 20px; }
-        .tutorial-title { font-size: 1rem; font-weight: bold; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .tutorial-text { font-size: 0.85rem; color: #dddddd; line-height: 1.5; margin-bottom: 10px; padding-left: 5px; }
-        .rule-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-right: 5px; }
-        .badge-5p { background-color: rgba(46, 204, 113, 0.2); color: var(--success-green); border: 1px solid var(--success-green); }
-        .badge-3p { background-color: rgba(52, 152, 219, 0.2); color: var(--info-blue); border: 1px solid var(--info-blue); }
-        .badge-2p { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
-        .badge-neg { background-color: rgba(229, 9, 20, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
-        .badge-gold { background-color: rgba(241, 196, 15, 0.2); color: var(--gold); border: 1px solid var(--gold); }
-        .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: #252525; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
-        .approve-btn { background-color: var(--success-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .loading { text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem; }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .admin-select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
     </style>
@@ -128,8 +124,8 @@
                     <div id="userTotalPoints" class="score-card-points">0</div>
                     <div class="score-card-label">Toplam VAR Odası Puanım</div>
                 </div>
-                <h3 style="margin-bottom:15px; font-size:1rem; color:var(--gold);">🏁 Tamamlanan Maç Özetlerim</h3>
-                <p style="color:var(--text-muted); font-size:0.75rem; margin-bottom:10px; text-align:center;">Maçların üzerine tıklayarak gruptaki herkesin tahminini görebilirsiniz.</p>
+                <h3 style="margin-bottom:15px; font-size:1rem; color:var(--gold);">🏁 Tamamlanan Maç Özetlerim (Son Maç En Üstte)</h3>
+                <p style="color:var(--text-muted); font-size:0.75rem; margin-bottom:10px; text-align:center;">Maçların üzerine tıklayarak tüm grubun tahmin detaylarını açabilirsiniz.</p>
                 <div id="userHistoryContainer"></div>
             </div>
 
@@ -216,6 +212,7 @@
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
+        let globalHistoryRawData = []; // Sıralama sekmesindeki röntgenleme için ham veriyi önbelleğe alıyoruz
 
         function guvenliFetch(url) {
             return fetch(url).then(res => res.json());
@@ -326,6 +323,7 @@
             .then(() => { alert("İşlem tamamlandı!"); checkChampStatus(); });
         }
 
+        // GÜNCELLEME: MAÇLAR SONDAN BAŞA SIRALANDI (.reverse())
         function getUserHistoryData() {
             const container = document.getElementById('userHistoryContainer'); const totalPointsBox = document.getElementById('userTotalPoints');
             if(!aktifKullanici || !container) return;
@@ -336,7 +334,11 @@
                     if(res.history.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
                     container.innerHTML = "";
                     
-                    res.history.forEach((item, idx) => {
+                    // Ham veriyi klonlayıp ters çeviriyoruz (Yeni biten maç en üstte olsun)
+                    globalHistoryRawData = [...res.history];
+                    let reversedHistory = [...res.history].reverse();
+                    
+                    reversedHistory.forEach((item, idx) => {
                         let badgeClass = "puan-zero";
                         if (item.puan === 5) badgeClass = "puan-plus5";
                         else if (item.puan === 3) badgeClass = "puan-plus3";
@@ -349,7 +351,7 @@
                                 herkezTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="color:var(--gold);text-align:right;">+${h.puan} P</td></tr>`;
                             });
                         } else {
-                            herkezTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Bu maça ait tahmin verisi yok.</td></tr>";
+                            herkezTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
                         }
 
                         container.innerHTML += `
@@ -383,14 +385,79 @@
             drop.style.display = (drop.style.display === "block") ? "none" : "block";
         }
 
+        // GÜNCELLEME: OYUNCU DETAY RÖNTGENLEME ÖZELLİĞİ EKLENDİ
         function getLeaderboardData() {
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 tbody.innerHTML = "";
                 users.forEach((oyuncu, index) => {
-                    tbody.innerHTML += `<tr><td class="rank-col">#${index + 1}</td><td class="name-col">${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`;
+                    let temizIsim = oyuncu.isim.toLowerCase().trim();
+                    
+                    // Her oyuncu için iki satır basıyoruz: Biri ana bilgi, diğeri gizli detay satırı
+                    tbody.innerHTML += `
+                        <tr class="player-row" onclick="togglePlayerLeaderboardDetails('${temizIsim}')">
+                            <td class="rank-col">#${index + 1}</td>
+                            <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Detay için tıkla)</span></td>
+                            <td class="total-col">${oyuncu.toplamPuan} P</td>
+                        </tr>
+                        <tr id="leader_drop_${temizIsim}" class="player-detail-drop-row">
+                            <td colspan="3">
+                                <div class="player-detail-drop-container">
+                                    <table class="details-table" id="leader_table_${temizIsim}">
+                                        <thead>
+                                            <tr><th>Maç</th><th>Oyuncunun Tahmini</th><th style="text-align:right;">Aldığı Puan</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>`;
                 });
             }).catch(()=>{});
+        }
+
+        // Sıralama sekmesindeki oyuncu detay penceresini açan ve verileri maça göre süzen fonksiyon
+        function togglePlayerLeaderboardDetails(playerTarget) {
+            const dropRow = document.getElementById(`leader_drop_${playerTarget}`);
+            const tableBody = document.querySelector(`#leader_table_${playerTarget} tbody`);
+            if(!dropRow || !tableBody) return;
+
+            if(dropRow.style.display === "table-row") {
+                dropRow.style.display = "none";
+                return;
+            }
+
+            dropRow.style.display = "table-row";
+            tableBody.innerHTML = "";
+
+            if(globalHistoryRawData.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Özetim sekmesini bir kez ziyaret ederek geçmiş verileri yükleyin.</td></tr>";
+                return;
+            }
+
+            // Sondan başa doğru oyuncunun kupon geçmişini listele
+            let localHistorySorted = [...globalHistoryRawData].reverse();
+            let sayac = 0;
+
+            localHistorySorted.forEach(match => {
+                // Herkes array'inin içinden bu tıklanan spesifik oyuncunun kaydını cımbızla çek
+                let pRecord = match.herkes.find(h => h.isim.toLowerCase().trim() === playerTarget);
+                if(pRecord) {
+                    sayac++;
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${match.takimA} - ${match.takimB} <span style="font-size:0.7rem; color:var(--text-muted);">(${match.gercekSkor})</span></td>
+                            <td>${pRecord.skor}</td>
+                            <td style="text-align:right; font-weight:bold; color:var(--success-green);">+${pRecord.puan} P</td>
+                        </tr>`;
+                }
+            });
+
+            if(sayac === 0) {
+                tableBody.innerHTML = "<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Bu oyuncuya ait sonuçlanmış maç kaydı bulunamadı.</td></tr>";
+            }
         }
 
         function getPendingUsers() {
@@ -433,7 +500,6 @@
             });
         }
 
-        // TAM UYUMLU FİKSTÜR LİSTELEME MOTORU
         function maclariListele() {
             const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date(); let gosterilenMacSayisi = 0;
