@@ -43,7 +43,7 @@
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
         .leaderboard-table td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
-        .clickable-row { cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .clickable-row { cursor: pointer; transition: background 0.2s; }
         .clickable-row:hover { background-color: #252525; }
         .rank-col { font-weight: 800; width: 45px; text-align: center; color: var(--gold); }
         .name-col { font-weight: 600; }
@@ -55,7 +55,7 @@
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
         
-        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; }
         .history-row:hover { background-color: #2d2d2d; }
         .history-main-info { display: flex; justify-content: space-between; align-items: center; }
         .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
@@ -63,7 +63,6 @@
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
         
         /* PUAN GENEL RENK ROZETLERİ */
-        .puan-text-badge { font-weight: bold; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; text-align: center; min-width: 45px; }
         .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
         .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
         .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
@@ -216,7 +215,7 @@
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
-        let globalRawHistory = [];
+        let globalRawHistory = []; // Sıralama röntgeni için veri önbelleği
 
         function guvenliFetch(url) {
             return fetch(url).then(res => res.json());
@@ -337,7 +336,7 @@
                     if(!res.history || res.history.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
                     container.innerHTML = "";
                     
-                    globalRawHistory = res.history; 
+                    globalRawHistory = res.history; // Sıralama sekmesinde veri süzmek için yedekle
                     let reversedHistory = [...res.history].reverse();
                     
                     reversedHistory.forEach((item, idx) => {
@@ -392,7 +391,7 @@
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 tbody.innerHTML = "";
                 users.forEach((oyuncu, index) => {
-                    // %100 KARARLI ESKİ SİSTEM: Tüm deneysel touch ve delta kodları arındırıldı, sadece click ile çalışır.
+                    // Oyuncu satırı ve altına gelecek gizli detay bölmesi
                     tbody.innerHTML += `
                         <tr class="clickable-row" onclick="toggleLeaderboardUserPredictions('${oyuncu.isim}', ${index})">
                             <td class="rank-col">#${index + 1}</td>
@@ -401,7 +400,7 @@
                         </tr>
                         <tr>
                             <td colspan="3" style="padding: 0; border: none;">
-                                <div id="user_lead_drop_${index}" class="leaderboard-details-dropdown" style="padding: 10px 15px; background-color: #171717;" onclick="event.stopPropagation()">
+                                <div id="user_lead_drop_${index}" class="leaderboard-details-dropdown" style="padding: 10px 15px; background-color: #171717;">
                                     <div id="user_lead_content_${index}" class="loading" style="font-size:0.8rem;">Tahmin geçmişi hazırlanıyor...</div>
                                 </div>
                             </td>
@@ -420,9 +419,9 @@
                 return;
             }
             
-            document.querySelectorAll('.leaderboard-details-dropdown').forEach(d => d.style.display = 'none');
             drop.style.display = "block";
             
+            // Eğer veri zaten yüklendiyse (globalRawHistory doluysa) oradan süz, yoksa yedek kaynaktan oku
             if(globalRawHistory && globalRawHistory.length > 0) {
                 renderUserPredictionsInLeaderboard(targetUser, contentBox);
             } else {
@@ -439,6 +438,7 @@
             let reverseMatches = [...globalRawHistory].reverse();
 
             reverseMatches.forEach(mac => {
+                // Her maçın içindeki "herkes" listesinden hedef oyuncuyu buluyoruz
                 let userMatchData = mac.herkes.find(h => h.isim.toLowerCase() === targetUser.toLowerCase());
                 
                 if(userMatchData) {
@@ -451,8 +451,8 @@
                     htmlTableRows += `
                         <tr>
                             <td style="padding: 8px 4px;"><strong>${mac.takimA} - ${mac.takimB}</strong><br><span style="color:var(--text-muted); font-size:0.7rem;">Sonuç: ${mac.gercekSkor}</span></td>
-                            <td style="text-align: center; padding: 8px 4px; font-weight:bold;">${userMatchData.skor}</td>
-                            <td style="text-align: right; padding: 8px 4px;"><span class="puan-text-badge ${badgeClass}">${userMatchData.puan >= 0 ? '+' : ''}${userMatchData.puan} P</span></td>
+                            <td style="text-align: center; padding: 8px 4px;">${userMatchData.skor}</td>
+                            <td style="text-align: right; padding: 8px 4px;"><span class="history-puan-badge ${badgeClass}" style="padding: 3px 8px; font-size: 0.75rem;">${userMatchData.puan >= 0 ? '+' : ''}${userMatchData.puan} P</span></td>
                         </tr>`;
                 }
             });
