@@ -78,8 +78,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .admin-select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
-        
         .admin-user-card { background-color: #252525; padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .approve-btn { background-color: var(--success-green); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -146,22 +146,20 @@
             </div>
 
             <div id="champion" class="tab-content">
-                <div class="tab-content active">
-                    <div class="champion-card">
-                        <h2>Şampiyonunu Tahmin Et</h2>
-                        <p style="margin-bottom:15px;">Turnuva aşamasına göre doğru tahmin ödülü değişir.</p>
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <span class="stage-badge" id="current-stage-badge" style="background-color:var(--gold); color:#000; padding:5px 10px; font-weight:bold;">Yükleniyor...</span>
-                        </div>
-                        <select id="champion-select">
-                            <option value="" disabled selected>Bir takım seçin...</option>
-                            <option value="ABD">ABD</option><option value="Almanya">Almanya</option><option value="Arjantin">Arjantin</option><option value="Avustralya">Avustralya</option><option value="Avusturya">Avusturya</option><option value="Belçika">Belçika</option><option value="Bosna Hersek">Bosna Hersek</option><option value="Brezilya">Brezilya</option><option value="Cezayir">Cezayir</option><option value="Curaçao">Curaçao</option><option value="Çekya">Çekya</option><option value="Demokratik Kongo">Demokratik Kongo</option><option value="Ekvador">Ekvador</option><option value="Fas">Fas</option><option value="Fildişi Sahili">Fildişi Sahili</option><option value="Fransa">Fransa</option><option value="Gana">Gana</option><option value="Güney Afrika">Güney Afrika</option><option value="Güney Kore">Güney Kore</option><option value="Haiti">Haiti</option><option value="Hırvatistan">Hırvatistan</option><option value="Hollanda">Hollanda</option><option value="Irak">Irak</option><option value="İngiltere">İngiltere</option><option value="İran">İran</option><option value="İskoçya">İskoçya</option><option value="İspanya">İspanya</option><option value="İsviçre">İsviçre</option><option value="Japonya">Japonya</option><option value="Kanada">Kanada</option><option value="Katar">Katar</option><option value="Kolombiya">Kolombiya</option><option value="Meksika">Meksika</option><option value="Mısır">Mısır</option><option value="Norveç">Norveç</option><option value="Özbekistan">Özbekistan</option><option value="Panama">Panama</option><option value="Paraguay">Paraguay</option><option value="Portekiz">Portekiz</option><option value="Senegal">Senegal</option><option value="Suudi Arabistan">Suudi Arabistan</option><option value="Tunus">Tunus</option><option value="Türkiye">Türkiye</option><option value="Uruguay">Uruguay</option><option value="Ürdün">Ürdün</option><option value="Yeni Zelanda">Yeni Zelanda</option><option value="Yeşil Burun Adaları">Yeşil Burun Adaları</option>
-                        </select>
-                        <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Bu Aşama İçin Kilitle</button>
-                        <div id="locked-prediction-zone" class="locked-champion-box" style="display: none; margin-top: 15px; text-align: center;">
-                            <span style="color: var(--text-muted); font-size: 0.8rem;">Bu Aşamadaki Kilitli Tahmininiz:</span>
-                            <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
-                        </div>
+                <div class="champion-card">
+                    <h2>Şampiyonunu Tahmin Et</h2>
+                    <p style="margin-bottom:15px;">Turnuva aşamasına göre doğru tahmin ödülü değişir.</p>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <span class="stage-badge" id="current-stage-badge" style="background-color:var(--gold); color:#000; padding:5px 10px; font-weight:bold;">Yükleniyor...</span>
+                    </div>
+                    <select id="champion-select">
+                        <option value="" disabled selected>Bir takım seçin...</option>
+                        <option value="ABD">ABD</option><option value="Almanya">Almanya</option><option value="Arjantin">Arjantin</option><option value="Avustralya">Avustralya</option><option value="Avusturya">Avusturya</option><option value="Belçika">Belçika</option><option value="Bosna Hersek">Bosna Hersek</option><option value="Brezilya">Brezilya</option><option value="Cezayir">Cezayir</option><option value="Curaçao">Curaçao</option><option value="Çekya">Çekya</option><option value="Demokratik Kongo">Demokratik Kongo</option><option value="Ekvador">Ekvador</option><option value="Fas">Fas</option><option value="Fildişi Sahili">Fildişi Sahili</option><option value="Fransa">Fransa</option><option value="Gana">Gana</option><option value="Güney Afrika">Güney Afrika</option><option value="Güney Kore">Güney Kore</option><option value="Haiti">Haiti</option><option value="Hırvatistan">Hırvatistan</option><option value="Hollanda">Hollanda</option><option value="Irak">Irak</option><option value="İngiltere">İngiltere</option><option value="İran">İran</option><option value="İskoçya">İskoçya</option><option value="İspanya">İspanya</option><option value="İsviçre">İsviçre</option><option value="Japonya">Japonya</option><option value="Kanada">Kanada</option><option value="Katar">Katar</option><option value="Kolombiya">Kolombiya</option><option value="Meksika">Meksika</option><option value="Mısır">Mısır</option><option value="Norveç">Norveç</option><option value="Özbekistan">Özbekistan</option><option value="Panama">Panama</option><option value="Paraguay">Paraguay</option><option value="Portekiz">Portekiz</option><option value="Senegal">Senegal</option><option value="Suudi Arabistan">Suudi Arabistan</option><option value="Tunus">Tunus</option><option value="Türkiye">Türkiye</option><option value="Uruguay">Uruguay</option><option value="Ürdün">Ürdün</option><option value="Yeni Zelanda">Yeni Zelanda</option><option value="Yeşil Burun Adaları">Yeşil Burun Adaları</option>
+                    </select>
+                    <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Bu Aşama İçin Kilitle</button>
+                    <div id="locked-prediction-zone" class="locked-champion-box" style="display: none; margin-top: 15px; text-align: center;">
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">Bu Aşamadaki Kilitli Tahmininiz:</span>
+                        <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
                     </div>
                 </div>
             </div>
@@ -305,7 +303,6 @@
                     mevcutTahminler = preds; 
                     maclariListele(); 
                     
-                    // FIX: Klonlama array yapısı 'res.history' olarak tam senkronize edildi
                     guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
                         .then(res => {
                             globalHistoryRawData = [...res.history];
@@ -379,9 +376,12 @@
                 else if (item.puan === 2) badgeClass = "puan-plus2";
                 else if (item.puan < 0) badgeClass = "puan-neg";
                 
+                // CRITICAL FIX: "item.herkes" verisindeki Türkçe karakter ve nesne yapısı tam senkronize bağlandı
                 let herkesTabloSatirlari = "";
-                if(item.herkes && item.herkes.length > 0) {
-                    item.herkes.forEach(h => {
+                let oyuncuListesi = item.herkes || item.herkes || [];
+                
+                if(oyuncuListesi.length > 0) {
+                    oyuncuListesi.forEach(h => {
                         let innerBadgeClass = "puan-zero";
                         if (h.puan === 5) innerBadgeClass = "puan-plus5";
                         else if (h.puan === 3) innerBadgeClass = "puan-plus3";
@@ -477,7 +477,9 @@
             let sayac = 0;
 
             localHistorySorted.forEach(match => {
-                let pRecord = match.herkes.find(h => h.isim.trim().localeCompare(originalName, 'tr', { sensitivity: 'base' }) === 0);
+                // CRITICAL FIX: "match.herkes" verisindeki Türkçe/İngilizce karakter esnekliği tam senkronize bağlandı
+                let oyuncuListesi = match.herkes || match.herkes || [];
+                let pRecord = oyuncuListesi.find(h => h.isim.trim().localeCompare(originalName, 'tr', { sensitivity: 'base' }) === 0);
                 
                 if(pRecord) {
                     sayac++;
@@ -502,15 +504,13 @@
             }
         }
 
-        // FIX: Object Object hatasını kökten çözen kararlı admin onay fonksiyonu
         function getPendingUsers() {
             const listContainer = document.getElementById('pendingUsersList'); if(!listContainer) return;
             guvenliFetch(`${SCRIPT_URL}?action=getPendingUsers`).then(users => {
                 listContainer.innerHTML = "";
                 if(!users || users.length === 0) { listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>"; return; }
                 users.forEach(username => {
-                    // String kontrolünü mühürledik
-                    if(typeof username === 'string' || username instanceof String) {
+                    if(username && typeof username === 'string') {
                         listContainer.innerHTML += `<div class="admin-user-card"><span>⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
                     }
                 });
@@ -523,7 +523,7 @@
             const mId = document.getElementById('adminMatchSelect').value; 
             const scA = document.getElementById('adminScoreA').value.trim(); 
             const scB = document.getElementById('adminScoreB').value.trim();
-            if(!mId || scA === "" || scB === "") { alert("Lütfen maç seçin ve skorları eksiksiz girin!"); return; }
+            if(!mId || scA === "" || scB === "") { alert("Lütfen maç seçin ve skorları eksikosiz girin!"); return; }
             
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB }) })
             .then(() => { 
