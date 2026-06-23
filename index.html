@@ -205,9 +205,9 @@
                     <div style="text-align: center; margin-bottom: 15px;">
                         <span class="stage-badge" id="current-stage-badge" style="background-color:var(--gold); color:#000; padding:5px 10px; font-weight:bold;">Yükleniyor...</span>
                     </div>
+                    <!-- GÜNCELLEME: Şampiyonluk select kutusu dinamik hale getirildi -->
                     <select id="champion-select">
-                        <option value="" disabled selected>Bir takım seçin...</option>
-                        <option value="ABD">ABD</option><option value="Almanya">Almanya</option><option value="Arjantin">Arjantin</option><option value="Avustralya">Avustralya</option><option value="Avusturya">Avusturya</option><option value="Belçika">Belçika</option><option value="Bosna Hersek">Bosna Hersek</option><option value="Brezilya">Brezilya</option><option value="Cezayir">Cezayir</option><option value="Curaçao">Curaçao</option><option value="Çekya">Çekya</option><option value="Demokratik Kongo">Demokratik Kongo</option><option value="Ekvador">Ekvador</option><option value="Fas">Fas</option><option value="Fildişi Sahili">Fildişi Sahili</option><option value="Fransa">Fransa</option><option value="Gana">Gana</option><option value="Güney Afrika">Güney Afrika</option><option value="Güney Kore">Güney Kore</option><option value="Haiti">Haiti</option><option value="Hırvatistan">Hırvatistan</option><option value="Hollanda">Hollanda</option><option value="Irak">Irak</option><option value="İngiltere">İngiltere</option><option value="İran">İran</option><option value="İskoçya">İskoçya</option><option value="İspanya">İspanya</option><option value="İsviçre">İsviçre</option><option value="Japonya">Japonya</option><option value="Kanada">Kanada</option><option value="Katar">Katar</option><option value="Kolombiya">Kolombiya</option><option value="Meksika">Meksika</option><option value="Mısır">Mısır</option><option value="Norveç">Norveç</option><option value="Özbekistan">Özbekistan</option><option value="Panama">Panama</option><option value="Paraguay">Paraguay</option><option value="Portekiz">Portekiz</option><option value="Senegal">Senegal</option><option value="Suudi Arabistan">Suudi Arabistan</option><option value="Tunus">Tunus</option><option value="Türkiye">Türkiye</option><option value="Uruguay">Uruguay</option><option value="Ürdün">Ürdün</option><option value="Yeni Zelanda">Yeni Zelanda</option><option value="Yeşil Burun Adaları">Yeşil Burun Adaları</option>
+                        <option value="" disabled selected>Yükleniyor...</option>
                     </select>
                     <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Bu Aşama İçin Kilitle</button>
                     <div id="locked-prediction-zone" class="locked-champion-box" style="display: none; margin-top: 15px; text-align: center;">
@@ -217,7 +217,6 @@
                 </div>
             </div>
 
-            <!-- GÜNCELLEME: image_26b3df.png görselindeki eksiklik "Son 32" satırı eklenerek kapatıldı -->
             <div id="rulesTab" class="tab-content">
                 <div class="champion-card">
                     <h2>🏆 VAR Odası Kullanım Kılavuzu</h2>
@@ -288,7 +287,7 @@
         }
 
         window.onload = function() { 
-            guvenliFetch(SCRIPT_URL).then(data => { maclar = data; adminSecimListeleriniDoldur(); }).catch(e => console.log("İlk yükleme tamamlandı.")); 
+            guvenliFetch(SCRIPT_URL).then(data => { maclar = data; adminSecimListeleriniDoldur(); dinamikSampiyonDropdownDoldur(); }).catch(e => console.log("İlk yükleme tamamlandı.")); 
             
             window.addEventListener('touchstart', function(e) {
                 startY = e.touches[0].pageY;
@@ -319,6 +318,58 @@
                 handleAuth();
             }
         };
+
+        // GÜNCELLEME: Hayatta kalan takımları fikstürden çekip dropdown'a otomatik dolduran akıllı motor
+        function dinamikSampiyonDropdownDoldur() {
+            const selectBox = document.getElementById('champion-select');
+            if(!selectBox) return;
+            
+            // Tüm Dünya Kupası takımlarının ana havuzu
+            const tumTakimlar = ["ABD","Almanya","Arjantin","Avustralya","Avusturya","Belçika","Bosna Hersek","Brezilya","Cezayir","Curaçao","Çekya","Demokratik Kongo","Ekvador","Fas","Fildişi Sahili","Fransa","Gana","Güney Afrika","Güney Kore","Haiti","Hırvatistan","Hollanda","Irak","İngiltere","İran","İskoçya","İspanya","İsviçre","Japonya","Kanada","Katar","Kolombiya","Meksika","Mısır","Norveç","Özbekistan","Panama","Paraguay","Portekiz","Senegal","Suudi Arabistan","Tunus","Türkiye","Uruguay","Ürdün","Yeni Zelanda","Yeşil Burun Adaları"];
+            
+            guvenliFetch(SCRIPT_URL).then(data => {
+                let aktifAsama = "Turnuva Başlangıcı";
+                // Mevcut aşamayı anlamak için ChampStatus'a minik bir sorgu atıyoruz
+                fetch(`${SCRIPT_URL}?action=getChampStatus`).then(r => r.json()).then(status => {
+                    aktifAsama = status.asama ? status.asama.trim().toLowerCase() : "turnuva başlangıcı";
+                    
+                    selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
+                    
+                    // Eğer turnuva başındaysak tüm takımları getir
+                    if (aktifAsama === "turnuva başlangıcı" || data.length === 0) {
+                        tumTakimlar.forEach(t => {
+                            let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt);
+                        });
+                    } else {
+                        // Eğer eleme turlarına geçildiyse, sadece Fikstür sayfasında henüz oynanmamış (gercekA == "-") maçlarda adı geçen takımları süz!
+                        let aktifTurnuvaTakimlari = new Set();
+                        data.forEach(mac => {
+                            if (mac.gercekA === "-") {
+                                // "A1", "B2" gibi formülsel kalıntıları veya boşlukları eliyoruz, sadece gerçek isimleri alıyoruz
+                                if(mac.takimA && mac.takimA.length > 3) aktifTurnuvaTakimlari.add(mac.takimA.trim());
+                                if(mac.takimB && mac.takimB.length > 3) aktifTurnuvaTakimlari.add(mac.takimB.trim());
+                            }
+                        });
+                        
+                        let siralıAktifler = Array.from(aktifTurnuvaTakimlari).sort((a, b) => a.localeCompare(b, 'tr'));
+                        
+                        if(siralıAktifler.length > 0) {
+                            siralıAktifler.forEach(t => {
+                                let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt);
+                            });
+                        } else {
+                            // Yedek koruma: Eğer eleme fikstürü henüz yüklenmediyse ana havuzdan oku
+                            tumTakimlar.forEach(t => {
+                                let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt);
+                            });
+                        }
+                    }
+                });
+            }).catch(() => {
+                selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
+                tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
+            });
+        }
 
         function adminSecimListeleriniDoldur() {
             const selectGiris = document.getElementById('adminMatchSelect');
@@ -404,6 +455,7 @@
                         });
                         
                     checkChampStatus(); 
+                    dinamikSampiyonDropdownDoldur(); // GÜNCELLEME: Her girişte listeyi tara
                 })
                 .catch(() => { maclariListele(); });
         }
