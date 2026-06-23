@@ -299,7 +299,22 @@
         function tazeleVeYukle() {
             if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
-                .then(preds => { mevcutTahminler = preds; maclariListele(); getLeaderboardData(); getUserHistoryData(); checkChampStatus(); })
+                .then(preds => { 
+                    mevcutTahminler = preds; 
+                    maclariListele(); 
+                    
+                    // GÜNCELLEME: Giriş yapıldığı an geçmiş verileri arka planda indirip önbelleğe alıyoruz.
+                    // Böylece Sıralama sekmesindeki mühürler ilk saniyeden itibaren tıkır tıkır çalışacak.
+                    guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
+                        .then(res => {
+                            globalHistoryRawData = [...res.history];
+                            document.getElementById('userTotalPoints').innerText = res.total;
+                            getLeaderboardData(); 
+                            getUserHistoryDataUI(res); 
+                        });
+                        
+                    checkChampStatus(); 
+                })
                 .catch(() => { maclariListele(); });
         }
 
@@ -338,63 +353,67 @@
             .then(() => { alert("İşlem tamamlandı!"); checkChampStatus(); });
         }
 
+        // Tetikleme mekanizmasını bölerek UI basımını bağımsız hale getirdik
         function getUserHistoryData() {
-            const container = document.getElementById('userHistoryContainer'); const totalPointsBox = document.getElementById('userTotalPoints');
-            if(!aktifKullanici || !container) return;
-            
+            if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
                 .then(res => {
-                    totalPointsBox.innerText = res.total;
-                    if(res.history.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
-                    container.innerHTML = "";
-                    
                     globalHistoryRawData = [...res.history];
-                    let reversedHistory = [...res.history].reverse();
-                    
-                    reversedHistory.forEach((item, idx) => {
-                        let badgeClass = "puan-zero";
-                        if (item.puan === 5) badgeClass = "puan-plus5";
-                        else if (item.puan === 3) badgeClass = "puan-plus3";
-                        else if (item.puan === 2) badgeClass = "puan-plus2";
-                        else if (item.puan < 0) badgeClass = "puan-neg";
-                        
-                        // FIX: "herkez" kelimesi "herkes" olarak düzeltildi
-                        let herkesTabloSatirlari = "";
-                        if(item.herkes && item.herkes.length > 0) {
-                            item.herkes.forEach(h => {
-                                let innerBadgeClass = "puan-zero";
-                                if (h.puan === 5) innerBadgeClass = "puan-plus5";
-                                else if (h.puan === 3) innerBadgeClass = "puan-plus3";
-                                else if (h.puan === 2) innerBadgeClass = "puan-plus2";
-                                herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadgeClass}">+${h.puan} P</span></td></tr>`;
-                            });
-                        } else {
-                            herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
-                        }
+                    document.getElementById('userTotalPoints').innerText = res.total;
+                    getUserHistoryDataUI(res);
+                });
+        }
 
-                        container.innerHTML += `
-                            <div class="history-row" touchend="if(!isScrolling) toggleHistoryDropdown(${idx})" onclick="if(window.innerWidth > 1024) toggleHistoryDropdown(${idx})">
-                                <div class="history-main-info">
-                                    <div class="history-teams">${item.takimA} - ${item.takimB}</div>
-                                    <div class="history-scores">
-                                        <span>Tahmin: <strong>${item.tahmin}</strong></span>
-                                        <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
-                                    </div>
-                                    <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
-                                </div>
-                                <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()" touchend="event.stopPropagation()">
-                                    <table class="details-table">
-                                        <thead>
-                                            <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            ${herkesTabloSatirlari}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>`;
+        function getUserHistoryDataUI(res) {
+            const container = document.getElementById('userHistoryContainer');
+            if(!container) return;
+            if(!res || !res.history || res.history.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
+            container.innerHTML = "";
+            
+            let reversedHistory = [...res.history].reverse();
+            
+            reversedHistory.forEach((item, idx) => {
+                let badgeClass = "puan-zero";
+                if (item.puan === 5) badgeClass = "puan-plus5";
+                else if (item.puan === 3) badgeClass = "puan-plus3";
+                else if (item.puan === 2) badgeClass = "puan-plus2";
+                else if (item.puan < 0) badgeClass = "puan-neg";
+                
+                let herkesTabloSatirlari = "";
+                if(item.herkes && item.herkes.length > 0) {
+                    item.herkes.forEach(h => {
+                        let innerBadgeClass = "puan-zero";
+                        if (h.puan === 5) innerBadgeClass = "puan-plus5";
+                        else if (h.puan === 3) innerBadgeClass = "puan-plus3";
+                        else if (h.puan === 2) innerBadgeClass = "puan-plus2";
+                        herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadgeClass}">+${h.puan} P</span></td></tr>`;
                     });
-                }).catch(()=>{});
+                } else {
+                    herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
+                }
+
+                container.innerHTML += `
+                    <div class="history-row" touchend="if(!isScrolling) toggleHistoryDropdown(${idx})" onclick="if(window.innerWidth > 1024) toggleHistoryDropdown(${idx})">
+                        <div class="history-main-info">
+                            <div class="history-teams">${item.takimA} - ${item.takimB}</div>
+                            <div class="history-scores">
+                                <span>Tahmin: <strong>${item.tahmin}</strong></span>
+                                <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
+                            </div>
+                            <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
+                        </div>
+                        <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()" touchend="event.stopPropagation()">
+                            <table class="details-table">
+                                <thead>
+                                    <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
+                                </thead>
+                                <tbody>
+                                    ${herkesTabloSatirlari}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            });
         }
 
         function toggleHistoryDropdown(index) {
@@ -434,7 +453,6 @@
             }).catch(()=>{});
         }
 
-        // FIX: Sıralama detay süzme motorundaki harf uyuşmazlığı tamamen giderildi ve renk badgeleri kilitlendi
         function togglePlayerLeaderboardDetails(playerTarget) {
             const dropRow = document.getElementById(`leader_drop_${playerTarget}`);
             const tableBody = document.querySelector(`#leader_table_${playerTarget} tbody`);
@@ -451,7 +469,7 @@
             tableBody.innerHTML = "";
 
             if(globalHistoryRawData.length === 0) {
-                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Lütfen önce 'Özetim' sekmesine bir kez tıklayıp verileri eşitleyin!</td></tr>";
+                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Veriler sunucudan senkronize ediliyor, lütfen 2 saniye sonra tekrar basın...</td></tr>";
                 return;
             }
 
@@ -459,7 +477,6 @@
             let sayac = 0;
 
             localHistorySorted.forEach(match => {
-                // FIX: "herkez" kelimesi "herkes" olarak düzeltildi
                 let pRecord = match.herkes.find(h => h.isim.toLowerCase().trim() === playerTarget);
                 if(pRecord) {
                     sayac++;
