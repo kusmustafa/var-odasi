@@ -65,7 +65,6 @@
         .history-scores { font-size: 0.75rem; color: var(--text-muted); flex: 2; text-align: center; display: flex; flex-direction: column; gap: 3px; }
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
         
-        /* DİNAMİK RENK BADGELERİ SÜTUNU */
         .puan-text-badge { font-weight: bold; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; text-align: center; min-width: 45px; }
         .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
         .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
@@ -297,10 +296,11 @@
             }).catch(() => { alert("Bağlantı doğrulanamadı!"); authBtn.disabled = false; });
         }
 
+        // FİX: Sinsi büyük harf çakışması (mevcuTTahminler) düzeltildi
         function tazeleVeYukle() {
             if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
-                .then(preds => { mevcuTTahminler = preds; maclariListele(); getLeaderboardData(); getUserHistoryData(); checkChampStatus(); })
+                .then(preds => { mevcutTahminler = preds; maclariListele(); getLeaderboardData(); getUserHistoryData(); checkChampStatus(); })
                 .catch(() => { maclariListele(); });
         }
 
@@ -434,7 +434,6 @@
             }).catch(()=>{});
         }
 
-        // GÜNCELLEME: Sıralama röntgenleme tablosundaki satırlara dinamik renk badgeleri entegre edildi
         function togglePlayerLeaderboardDetails(playerTarget) {
             const dropRow = document.getElementById(`leader_drop_${playerTarget}`);
             const tableBody = document.querySelector(`#leader_table_${playerTarget} tbody`);
@@ -463,7 +462,6 @@
                 if(pRecord) {
                     sayac++;
                     
-                    // Alınan puana göre doğru rozet rengini eşitleyelim
                     let rowBadgeClass = "puan-zero";
                     if (pRecord.puan === 5) rowBadgeClass = "puan-plus5";
                     else if (pRecord.puan === 3) rowBadgeClass = "puan-plus3";
