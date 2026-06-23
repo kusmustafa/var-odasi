@@ -231,7 +231,6 @@
         let maclar = [];
         let globalHistoryRawData = [];
 
-        // GÜNCELLEME: Mobil kaydırma hassasiyet kontrolü
         let isScrolling = false;
         let startY = 0;
 
@@ -247,7 +246,6 @@
         window.onload = function() { 
             guvenliFetch(SCRIPT_URL).then(data => { maclar = data; adminSecimListeleriniDoldur(); }).catch(e => console.log("İlk yükleme tamamlandı.")); 
             
-            // Küresel kaydırma dinleyicileri
             window.addEventListener('touchstart', function(e) {
                 startY = e.touches[0].pageY;
                 isScrolling = false;
@@ -410,7 +408,6 @@
                 });
         }
 
-        // GÜNCELLEME: Event tetikleyici yapısı mobilde kaydırmayı engellemeyecek şekilde güncellendi
         function getUserHistoryDataUI(historyArray) {
             const container = document.getElementById('userHistoryContainer');
             if(!container) return;
@@ -471,7 +468,6 @@
             drop.style.display = (drop.style.display === "block") ? "none" : "block";
         }
 
-        // GÜNCELLEME: Sıralama detay açılışı mobil çakışması önlendi
         function getLeaderboardData() {
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
@@ -594,11 +590,17 @@
             });
         }
 
+        // GÜNCELLEME: Maç listesini ID sırası yerine zamana göre en yakından en uzağa akıllıca sıralayan motor mühürlendi
         function maclariListele() {
             const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date(); let gosterilenMacSayisi = 0;
 
-            maclar.forEach(mac => {
+            // KRONOLOJİK MOTOR: Maç dizisini zaman damgasına göre (en erken başlayacak olandan en geçe) kendi içinde sıralıyoruz
+            let siralıMaclar = [...maclar].sort((mac1, mac2) => {
+                return yerelTarihParse(mac1.zaman) - yerelTarihParse(mac2.zaman);
+            });
+
+            siralıMaclar.forEach(mac => {
                 if (mac.gercekA !== "-") return; 
                 
                 const macZamani = yerelTarihParse(mac.zaman);
