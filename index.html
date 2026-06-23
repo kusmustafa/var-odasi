@@ -49,7 +49,6 @@
         .name-col { font-weight: 600; }
         .total-col { font-weight: 800; color: var(--success-green); text-align: right; padding-right: 15px !important; }
         
-        /* SIRALAMA OYUNCU DETAY DROP */
         .player-detail-drop-row { display: none; background-color: #171717; }
         .player-detail-drop-container { padding: 10px 15px; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
         
@@ -212,7 +211,7 @@
         let aktifKullanici = "";
         let mevcutTahminler = {};
         let maclar = [];
-        let globalHistoryRawData = []; // Sıralama sekmesindeki röntgenleme için ham veriyi önbelleğe alıyoruz
+        let globalHistoryRawData = [];
 
         function guvenliFetch(url) {
             return fetch(url).then(res => res.json());
@@ -323,7 +322,6 @@
             .then(() => { alert("İşlem tamamlandı!"); checkChampStatus(); });
         }
 
-        // GÜNCELLEME: MAÇLAR SONDAN BAŞA SIRALANDI (.reverse())
         function getUserHistoryData() {
             const container = document.getElementById('userHistoryContainer'); const totalPointsBox = document.getElementById('userTotalPoints');
             if(!aktifKullanici || !container) return;
@@ -334,7 +332,6 @@
                     if(res.history.length === 0) { container.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Sonuçlanmış bir maç bulunmuyor.</p>"; return; }
                     container.innerHTML = "";
                     
-                    // Ham veriyi klonlayıp ters çeviriyoruz (Yeni biten maç en üstte olsun)
                     globalHistoryRawData = [...res.history];
                     let reversedHistory = [...res.history].reverse();
                     
@@ -359,7 +356,7 @@
                                 <div class="history-main-info">
                                     <div class="history-teams">${item.takimA} - ${item.takimB}</div>
                                     <div class="history-scores">
-                                        <span>Tahminim: <strong>${item.tahmin}</strong></span>
+                                        <span>Tahmin: <strong>${item.tahmin}</strong></span>
                                         <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
                                     </div>
                                     <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
@@ -385,7 +382,6 @@
             drop.style.display = (drop.style.display === "block") ? "none" : "block";
         }
 
-        // GÜNCELLEME: OYUNCU DETAY RÖNTGENLEME ÖZELLİĞİ EKLENDİ
         function getLeaderboardData() {
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
@@ -393,11 +389,10 @@
                 users.forEach((oyuncu, index) => {
                     let temizIsim = oyuncu.isim.toLowerCase().trim();
                     
-                    // Her oyuncu için iki satır basıyoruz: Biri ana bilgi, diğeri gizli detay satırı
                     tbody.innerHTML += `
                         <tr class="player-row" onclick="togglePlayerLeaderboardDetails('${temizIsim}')">
                             <td class="rank-col">#${index + 1}</td>
-                            <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Detay için tıkla)</span></td>
+                            <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                             <td class="total-col">${oyuncu.toplamPuan} P</td>
                         </tr>
                         <tr id="leader_drop_${temizIsim}" class="player-detail-drop-row">
@@ -405,7 +400,7 @@
                                 <div class="player-detail-drop-container">
                                     <table class="details-table" id="leader_table_${temizIsim}">
                                         <thead>
-                                            <tr><th>Maç</th><th>Oyuncunun Tahmini</th><th style="text-align:right;">Aldığı Puan</th></tr>
+                                            <tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
                                         </thead>
                                         <tbody>
                                             <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr>
@@ -418,7 +413,6 @@
             }).catch(()=>{});
         }
 
-        // Sıralama sekmesindeki oyuncu detay penceresini açan ve verileri maça göre süzen fonksiyon
         function togglePlayerLeaderboardDetails(playerTarget) {
             const dropRow = document.getElementById(`leader_drop_${playerTarget}`);
             const tableBody = document.querySelector(`#leader_table_${playerTarget} tbody`);
@@ -433,16 +427,14 @@
             tableBody.innerHTML = "";
 
             if(globalHistoryRawData.length === 0) {
-                tableBody.innerHTML = "<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Özetim sekmesini bir kez ziyaret ederek geçmiş verileri yükleyin.</td></tr>";
+                tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Lütfen önce 'Özetim' sekmesine bir kez tıklayıp verileri eşitleyin!</td></tr>";
                 return;
             }
 
-            // Sondan başa doğru oyuncunun kupon geçmişini listele
             let localHistorySorted = [...globalHistoryRawData].reverse();
             let sayac = 0;
 
             localHistorySorted.forEach(match => {
-                // Herkes array'inin içinden bu tıklanan spesifik oyuncunun kaydını cımbızla çek
                 let pRecord = match.herkes.find(h => h.isim.toLowerCase().trim() === playerTarget);
                 if(pRecord) {
                     sayac++;
@@ -542,7 +534,8 @@
         }
 
         function switchTab(event, tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); 
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
