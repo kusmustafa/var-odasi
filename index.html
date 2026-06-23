@@ -80,6 +80,8 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .admin-select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
+        .admin-user-row { display: flex; justify-content: space-between; align-items: center; background-color: var(--bg-color); padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border-color); }
+        .approve-btn { background-color: var(--success-green); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -303,8 +305,6 @@
                     mevcutTahminler = preds; 
                     maclariListele(); 
                     
-                    // GÜNCELLEME: Giriş yapıldığı an geçmiş verileri arka planda indirip önbelleğe alıyoruz.
-                    // Böylece Sıralama sekmesindeki mühürler ilk saniyeden itibaren tıkır tıkır çalışacak.
                     guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
                         .then(res => {
                             globalHistoryRawData = [...res.history];
@@ -353,7 +353,6 @@
             .then(() => { alert("İşlem tamamlandı!"); checkChampStatus(); });
         }
 
-        // Tetikleme mekanizmasını bölerek UI basımını bağımsız hale getirdik
         function getUserHistoryData() {
             if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
@@ -427,18 +426,18 @@
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 tbody.innerHTML = "";
                 users.forEach((oyuncu, index) => {
-                    let temizIsim = oyuncu.isim.toLowerCase().trim();
+                    let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, '');
                     
                     tbody.innerHTML += `
-                        <tr class="player-row" touchend="if(!isScrolling) togglePlayerLeaderboardDetails('${temizIsim}')" onclick="if(window.innerWidth > 1024) togglePlayerLeaderboardDetails('${temizIsim}')">
+                        <tr class="player-row" touchend="if(!isScrolling) togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')" onclick="if(window.innerWidth > 1024) togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')">
                             <td class="rank-col">#${index + 1}</td>
                             <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                             <td class="total-col">${oyuncu.toplamPuan} P</td>
                         </tr>
-                        <tr id="leader_drop_${temizIsim}" class="player-detail-drop-row">
+                        <tr id="leader_drop_${safeId}" class="player-detail-drop-row">
                             <td colspan="3">
                                 <div class="player-detail-drop-container">
-                                    <table class="details-table" id="leader_table_${temizIsim}">
+                                    <table class="details-table" id="leader_table_${safeId}">
                                         <thead>
                                             <tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
                                         </thead>
@@ -453,9 +452,9 @@
             }).catch(()=>{});
         }
 
-        function togglePlayerLeaderboardDetails(playerTarget) {
-            const dropRow = document.getElementById(`leader_drop_${playerTarget}`);
-            const tableBody = document.querySelector(`#leader_table_${playerTarget} tbody`);
+        function togglePlayerLeaderboardDetails(safeId, originalName) {
+            const dropRow = document.getElementById(`leader_drop_${safeId}`);
+            const tableBody = document.querySelector(`#leader_table_${safeId} tbody`);
             if(!dropRow || !tableBody) return;
 
             if(dropRow.style.display === "table-row") {
@@ -477,7 +476,8 @@
             let sayac = 0;
 
             localHistorySorted.forEach(match => {
-                let pRecord = match.herkes.find(h => h.isim.toLowerCase().trim() === playerTarget);
+                let pRecord = match.herkes.find(h => h.isim.trim().localeCompare(originalName, 'tr', { sensitivity: 'base' }) === 0);
+                
                 if(pRecord) {
                     sayac++;
                     
@@ -485,12 +485,13 @@
                     if (pRecord.puan === 5) rowBadgeClass = "puan-plus5";
                     else if (pRecord.puan === 3) rowBadgeClass = "puan-plus3";
                     else if (pRecord.puan === 2) rowBadgeClass = "puan-plus2";
+                    else if (pRecord.puan < 0) rowBadgeClass = "puan-neg";
                     
                     tableBody.innerHTML += `
                         <tr>
                             <td>${match.takimA} - ${match.takimB} <span style="font-size:0.7rem; color:var(--text-muted);">(${match.gercekSkor})</span></td>
                             <td><strong>${pRecord.skor}</strong></td>
-                            <td style="text-align:right;"><span class="puan-text-badge ${rowBadgeClass}">+${pRecord.puan} P</span></td>
+                            <td style="text-align:right;"><span class="puan-text-badge ${rowBadgeClass}">${pRecord.puan >= 0 ? '+' : ''}${pRecord.puan} P</span></td>
                         </tr>`;
                 }
             });
@@ -504,7 +505,7 @@
             const listContainer = document.getElementById('pendingUsersList'); if(!listContainer) return;
             guvenliFetch(SCRIPT_URL).then(users => {
                 listContainer.innerHTML = "";
-                if(users.length === 0) listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>";
+                if(!users || users.length === 0) { listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>"; return; }
                 users.forEach(username => {
                     listContainer.innerHTML += `<div class="admin-user-row"><span>⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
                 });
