@@ -63,6 +63,7 @@
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
         
         /* PUAN GENEL RENK ROZETLERİ */
+        .puan-text-badge { font-weight: bold; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; text-align: center; min-width: 45px; }
         .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
         .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
         .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
@@ -109,7 +110,7 @@
                 <button class="tab-btn active" onclick="switchTab(event, 'matches')">Maçlar</button>
                 <button class="tab-btn" onclick="switchTab(event, 'historyTab')">📊 Özetim</button>
                 <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
-                <button class="tab-btn" onclick="championTabTrigger(event)">Şampiyon</button>
+                <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
                 <button class="tab-btn" style="color:var(--info-blue);" onclick="switchTab(event, 'rulesTab')">📋 Kurallar</button>
                 <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Onay</button>
             </div>
@@ -216,10 +217,6 @@
         let mevcutTahminler = {};
         let maclar = [];
         let globalRawHistory = [];
-        
-        // SİLİNMEZ KORUMA: Dokunmatik kaydırma (scroll) koordinat takibi
-        let touchStartY = 0;
-        let touchStartX = 0;
 
         function guvenliFetch(url) {
             return fetch(url).then(res => res.json());
@@ -359,12 +356,8 @@
                             herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi yok.</td></tr>";
                         }
 
-                        // Mobil scroll korumalı touchend dinleyicileri entegre edildi
                         container.innerHTML += `
-                            <div class="history-row" 
-                                 ontouchstart="touchStartX = event.touches[0].pageX; touchStartY = event.touches[0].pageY;"
-                                 ontouchend="let diffX = Math.abs(event.changedTouches[0].pageX - touchStartX); let diffY = Math.abs(event.changedTouches[0].pageY - touchStartY); if(diffX < 8 && diffY < 8) toggleHistoryDropdown(${idx});"
-                                 onclick="if(window.innerWidth > 1024) toggleHistoryDropdown(${idx});">
+                            <div class="history-row" onclick="toggleHistoryDropdown(${idx})">
                                 <div class="history-main-info">
                                     <div class="history-teams">${item.takimA} - ${item.takimB}</div>
                                     <div class="history-scores">
@@ -399,12 +392,9 @@
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 tbody.innerHTML = "";
                 users.forEach((oyuncu, index) => {
-                    // KURŞUN GEÇİRMEZ SCROLL KORUMASI: Kaydırma yaparken kapanmayı kesin olarak engelleme koordinat takibi
+                    // %100 KARARLI ESKİ SİSTEM: Tüm deneysel touch ve delta kodları arındırıldı, sadece click ile çalışır.
                     tbody.innerHTML += `
-                        <tr class="clickable-row" 
-                            ontouchstart="touchStartX = event.touches[0].pageX; touchStartY = event.touches[0].pageY;"
-                            ontouchend="let diffX = Math.abs(event.changedTouches[0].pageX - touchStartX); let diffY = Math.abs(event.changedTouches[0].pageY - touchStartY); if(diffX < 8 && diffY < 8) toggleLeaderboardUserPredictions('${oyuncu.isim}', ${index});"
-                            onclick="if(window.innerWidth > 1024) toggleLeaderboardUserPredictions('${oyuncu.isim}', ${index});">
+                        <tr class="clickable-row" onclick="toggleLeaderboardUserPredictions('${oyuncu.isim}', ${index})">
                             <td class="rank-col">#${index + 1}</td>
                             <td class="name-col">⚽ ${oyuncu.isim}</td>
                             <td class="total-col">${oyuncu.toplamPuan} P</td>
@@ -430,9 +420,7 @@
                 return;
             }
             
-            // Diğer açık olan oyuncu pencerelerini kapat
             document.querySelectorAll('.leaderboard-details-dropdown').forEach(d => d.style.display = 'none');
-            
             drop.style.display = "block";
             
             if(globalRawHistory && globalRawHistory.length > 0) {
@@ -454,7 +442,6 @@
                 let userMatchData = mac.herkes.find(h => h.isim.toLowerCase() === targetUser.toLowerCase());
                 
                 if(userMatchData) {
-                    // RENK SENKRONİZASYONU: Özetim sekmesindeki renk skalası birebir buraya mühürlendi
                     let badgeClass = "puan-zero";
                     if (userMatchData.puan === 5) badgeClass = "puan-plus5";
                     else if (userMatchData.puan === 3) badgeClass = "puan-plus3";
@@ -465,7 +452,7 @@
                         <tr>
                             <td style="padding: 8px 4px;"><strong>${mac.takimA} - ${mac.takimB}</strong><br><span style="color:var(--text-muted); font-size:0.7rem;">Sonuç: ${mac.gercekSkor}</span></td>
                             <td style="text-align: center; padding: 8px 4px; font-weight:bold;">${userMatchData.skor}</td>
-                            <td style="text-align: right; padding: 8px 4px;"><span class="history-puan-badge ${badgeClass}" style="padding: 3px 8px; font-size: 0.75rem;">${userMatchData.puan >= 0 ? '+' : ''}${userMatchData.puan} P</span></td>
+                            <td style="text-align: right; padding: 8px 4px;"><span class="puan-text-badge ${badgeClass}">${userMatchData.puan >= 0 ? '+' : ''}${userMatchData.puan} P</span></td>
                         </tr>`;
                 }
             });
@@ -542,10 +529,10 @@
 
                 gosterilenMacSayisi++;
                 const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
-                const dhaaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
+                const dahaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
                 
                 let tA = ""; let tB = "";
-                if (dhaaOnceGirildiMi && mevcutTahminler[mac.id].a !== undefined && mevcutTahminler[mac.id].a !== "undefined") {
+                if (dahaOnceGirildiMi && mevcutTahminler[mac.id].a !== undefined && mevcutTahminler[mac.id].a !== "undefined") {
                     tA = mevcutTahminler[mac.id].a; tB = mevcutTahminler[mac.id].b;
                 }
 
@@ -566,10 +553,6 @@
             const skorA = document.getElementById(`tahminA_${matchId}`).value; const skorB = document.getElementById(`tahminB_${matchId}`).value;
             if(skorA === "" || skorB === "") return;
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB }) }).then(() => { alert("Tahmin başarıyla gönderildi!"); mevcutTahminler[matchId] = { a: skorA, b: skorB }; maclariListele(); });
-        }
-
-        function championTabTrigger(event) {
-            switchTab(event, 'champion');
         }
 
         function switchTab(event, tabId) {
