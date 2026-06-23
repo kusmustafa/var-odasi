@@ -229,6 +229,7 @@
                             <span class="rule-badge badge-neg">-2 Puan</span> Tahmin Unutma Cezası!<br><br>
                             <span class="rule-badge badge-gold">🔥 Şampiyonluk Kademeli Bonusu:</span><br>
                             • <strong>Turnuva Başlangıcı:</strong> +15 Puan<br>
+                            • <strong>Son 32 Turunda kilitleyenler:</strong> +10 Puan<br>
                             • <strong>Son 16 Turunda kilitleyenler:</strong> +8 Puan<br>
                             • <strong>Çeyrek Finalde (Son 8) kilitleyenler:</strong> +4 Puan<br>
                             • <strong>Yarı Finalde (Son 4) kilitleyenler:</strong> +2 Puan
@@ -271,8 +272,6 @@
         let globalCachedLeaderboard = [];
         let activeOpenedHistoryIdx = null;
         let activeOpenedLeaderboardId = null;
-        
-        // KİLİT GÜNCELLEME: Asenkron indirme takibi için durum kontrolü
         let isDataFetchedFromServer = false; 
 
         let isScrolling = false;
@@ -398,10 +397,7 @@
                         .then(res => {
                             globalHistoryRawData = [...res.history];
                             document.getElementById('userTotalPoints').innerText = res.total;
-                            
-                            // GÜNCELLEME: Sunucudan ham veri indi, artık render motorunun önündeki barajı kaldırıyoruz
                             isDataFetchedFromServer = true; 
-                            
                             getLeaderboardData(); 
                             getUserHistoryDataUI(res.history); 
                         });
@@ -457,7 +453,6 @@
         }
 
         function getUserHistoryDataUI(historyArray) {
-            // GÜNCELLEME: Sunucudan gelen istek tamamlanmadıysa bomboş listeyi basıp açık menüyü kapatma!
             if (!isDataFetchedFromServer) return; 
 
             const container = document.getElementById('userHistoryContainer');
@@ -535,7 +530,6 @@
         }
 
         function renderLeaderboardTable(usersList) {
-            // GÜNCELLEME: Veri indirme barajı kontrolü
             if (!isDataFetchedFromServer) return; 
 
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
@@ -561,7 +555,7 @@
                 let isOpened = (activeOpenedLeaderboardId === safeId);
                 
                 tbody.innerHTML += `
-                    <tr class="player-row" onclick="if(!isScrolling) { togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}'); }">
+                    <tr class="player-row" onclick="if(!isScrolling) { activeOpenedLeaderboardId = (activeOpenedLeaderboardId == '${safeId}' ? null : '${safeId}'); togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}'); }">
                         <td class="rank-col">#${index + 1}</td>
                         <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                         <td class="total-col" style="color: ${activePuanFilter !== null ? 'var(--text-main)' : 'var(--success-green)'}">${rightColValue}</td>
@@ -733,7 +727,7 @@
             const mId = document.getElementById('adminMatchSelect').value; 
             const scA = document.getElementById('adminScoreA').value.trim(); 
             const scB = document.getElementById('adminScoreB').value.trim();
-            if(!mId || scA === "" || scB === "") { alert("Lütfen maç seçin ve skorları eksiksiz girin!"); return; }
+            if(!mId || scA === "" || scB === "") { alert("Lütfen maç seçin ve skorları eksikisiz girin!"); return; }
             
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB }) })
             .then(() => { 
