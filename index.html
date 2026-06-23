@@ -42,7 +42,7 @@
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
-        .leaderboard-table tr.player-row { cursor: pointer; transition: background 0.2s; }
+        .leaderboard-table tr.player-row { cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
         .leaderboard-table tr.player-row:hover { background-color: #252525; }
         .leaderboard-table td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
         .rank-col { font-weight: 800; width: 45px; text-align: center; color: var(--gold); }
@@ -58,7 +58,7 @@
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
         
-        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; }
+        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
         .history-row:hover { background-color: #2d2d2d; }
         .history-main-info { display: flex; justify-content: space-between; align-items: center; }
         .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
@@ -212,6 +212,10 @@
         let mevcutTahminler = {};
         let maclar = [];
         let globalHistoryRawData = [];
+        
+        // GÜNCELLEME: Mobil cihazlarda kaydırma hareketi algılama mekanizması variables
+        let isScrolling = false;
+        let startY = 0;
 
         function guvenliFetch(url) {
             return fetch(url).then(res => res.json());
@@ -224,6 +228,18 @@
 
         window.onload = function() { 
             guvenliFetch(SCRIPT_URL).then(data => { maclar = data; adminSecimListeleriniDoldur(); }).catch(e => console.log("İlk yükleme tamamlandı.")); 
+            
+            // Global kaydırma takibi (Dokunmatik ekranlar için kilit)
+            window.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].pageY;
+                isScrolling = false;
+            }, {passive: true});
+            
+            window.addEventListener('touchmove', function(e) {
+                if (Math.abs(e.touches[0].pageY - startY) > 10) {
+                    isScrolling = true; // Eğer parmak 10 pikselden fazla kaydıysa bu bir scroll'dur!
+                }
+            }, {passive: true});
         };
 
         function adminSecimListeleriniDoldur() {
@@ -351,8 +367,9 @@
                             herkezTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
                         }
 
+                        // GÜNCELLEME: Mobil cihazlardaki sahte tıklamaları önlemek için scroll kontrolü entegre edildi
                         container.innerHTML += `
-                            <div class="history-row" onclick="toggleHistoryDropdown(${idx})">
+                            <div class="history-row" touchend="if(!isScrolling) toggleHistoryDropdown(${idx})" onclick="if(window.innerWidth > 1024) toggleHistoryDropdown(${idx})">
                                 <div class="history-main-info">
                                     <div class="history-teams">${item.takimA} - ${item.takimB}</div>
                                     <div class="history-scores">
@@ -361,7 +378,7 @@
                                     </div>
                                     <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
                                 </div>
-                                <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()">
+                                <div id="history_drop_${idx}" class="history-details-dropdown" onclick="event.stopPropagation()" touchend="event.stopPropagation()">
                                     <table class="details-table">
                                         <thead>
                                             <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
@@ -389,8 +406,9 @@
                 users.forEach((oyuncu, index) => {
                     let temizIsim = oyuncu.isim.toLowerCase().trim();
                     
+                    // GÜNCELLEME: Sıralama satırlarına hem dokunmatik (touchend) hem normal click için scroll korumalı tetikleyici mühürlendi
                     tbody.innerHTML += `
-                        <tr class="player-row" onclick="togglePlayerLeaderboardDetails('${temizIsim}')">
+                        <tr class="player-row" touchend="if(!isScrolling) togglePlayerLeaderboardDetails('${temizIsim}')" onclick="if(window.innerWidth > 1024) togglePlayerLeaderboardDetails('${temizIsim}')">
                             <td class="rank-col">#${index + 1}</td>
                             <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                             <td class="total-col">${oyuncu.toplamPuan} P</td>
@@ -422,6 +440,9 @@
                 dropRow.style.display = "none";
                 return;
             }
+
+            // Diğer açık olan detay pencereleri varsa temizle ki ekran şişmesin
+            document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
 
             dropRow.style.display = "table-row";
             tableBody.innerHTML = "";
