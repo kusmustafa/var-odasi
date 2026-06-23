@@ -59,7 +59,11 @@
         .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
         .history-scores { font-size: 0.75rem; color: var(--text-muted); flex: 2; text-align: center; display: flex; flex-direction: column; gap: 3px; }
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
+        
+        /* ÖZETİM PUAN RENK ROZETLERİ */
         .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
+        .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
+        .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
         .puan-zero { background-color: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #444; }
         .puan-neg { background-color: rgba(229, 9, 20, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
         
@@ -330,8 +334,11 @@
                     let reversedHistory = [...res.history].reverse();
                     
                     reversedHistory.forEach((item, idx) => {
+                        // KİLİT DÜZELTME: Orijinal kararlı dinamik renk kartları mühürlendi
                         let badgeClass = "puan-zero";
                         if (item.puan === 5) badgeClass = "puan-plus5";
+                        else if (item.puan === 3) badgeClass = "puan-plus3";
+                        else if (item.puan === 2) badgeClass = "puan-plus2";
                         else if (item.puan < 0) badgeClass = "puan-neg";
                         
                         let herkesTabloSatirlari = "";
@@ -379,7 +386,7 @@
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
                 tbody.innerHTML = "";
                 users.forEach((oyuncu, index) => {
-                    tbody.innerHTML += `<tr><td class="rank-col">#${index + 1}</td><td class="name-col">${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`;
+                    tbody.innerHTML += `<tr><td class="rank-col">#${index + 1}</td><td class="name-col">⚽ ${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`;
                 });
             }).catch(()=>{});
         }
@@ -390,7 +397,9 @@
                 listContainer.innerHTML = "";
                 if(!users || users.length === 0) { listContainer.innerHTML = "<p style='text-align:center;color:var(--text-muted);font-size:0.85rem;'>Bekleyen başvuru yok.</p>"; return; }
                 users.forEach(username => {
-                    listContainer.innerHTML += `<div class="admin-user-row"><span>⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
+                    if (typeof username === 'string') {
+                        listContainer.innerHTML += `<div class="admin-user-row"><span>⚽ ${username}</span><button class="approve-btn" onclick="approveUser('${username}', this)">Onayla</button></div>`;
+                    }
                 });
             });
         }
