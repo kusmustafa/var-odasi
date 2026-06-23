@@ -46,15 +46,26 @@
         .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         
-        /* MINI DASHBOARD ROZET ALANI */
+        /* MINI DASHBOARD ROZET ALANI VE FILTRE EFEKTLERI */
         .mini-dashboard { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
-        .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        .dash-card-title { font-size: 0.68rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-        .dash-card-winner { font-size: 0.85rem; font-weight: bold; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-        .dash-card-count { font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; margin-top: 2px; }
+        .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.15s, border-color 0.2s; -webkit-tap-highlight-color: transparent; }
+        .dash-card:active { transform: scale(0.96); }
+        .dash-card.active-filter { border-width: 2px; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        .dash-card.active-filter#card-5 { border-color: var(--success-green); }
+        .dash-card.active-filter#card-3 { border-color: var(--info-blue); }
+        .dash-card.active-filter#card-2 { border-color: var(--gold); }
+        
+        .dash-card-title { font-size: 0.68rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; pointer-events: none; }
+        .dash-card-winner { font-size: 0.85rem; font-weight: bold; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; pointer-events: none; }
+        .dash-card-count { font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; margin-top: 2px; pointer-events: none; }
         .dc-5 { border: 1px solid var(--success-green); color: var(--success-green); background-color: rgba(46, 204, 113, 0.05); }
         .dc-3 { border: 1px solid var(--info-blue); color: var(--info-blue); background-color: rgba(52, 152, 219, 0.05); }
         .dc-2 { border: 1px solid var(--gold); color: var(--gold); background-color: rgba(241, 196, 15, 0.05); }
+        
+        /* Aktif filtre durumunda kartların arka plan parlaması */
+        .dash-card.active-filter#card-5 .dc-5 { background-color: var(--success-green); color: #000; }
+        .dash-card.active-filter#card-3 .dc-3 { background-color: var(--info-blue); color: #000; }
+        .dash-card.active-filter#card-2 .dc-2 { background-color: var(--gold); color: #000; }
 
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -157,19 +168,19 @@
             </div>
 
             <div id="leaderboard" class="tab-content">
-                <!-- GÜNCELLEME: Sıralama Üstü Mini Ödül Kürsüsü Alanı -->
+                <!-- GÜNCELLEME: Filtre Tetikleyici Click Eventleri Eklendi -->
                 <div class="mini-dashboard">
-                    <div class="dash-card">
+                    <div id="card-5" class="dash-card" onclick="toggleDashboardFilter(5)">
                         <span class="dash-card-title">🎯 Tam İsabet (+5)</span>
                         <span id="king5-name" class="dash-card-winner">-</span>
                         <span id="king5-count" class="dash-card-count dc-5">0 Kez</span>
                     </div>
-                    <div class="dash-card">
+                    <div id="card-3" class="dash-card" onclick="toggleDashboardFilter(3)">
                         <span class="dash-card-title">📐 Fark Uzmanı (+3)</span>
                         <span id="king3-name" class="dash-card-winner">-</span>
                         <span id="king3-count" class="dash-card-count dc-3">0 Kez</span>
                     </div>
-                    <div class="dash-card">
+                    <div id="card-2" class="dash-card" onclick="toggleDashboardFilter(2)">
                         <span class="dash-card-title">🔮 Taraf Bilici (+2)</span>
                         <span id="king2-name" class="dash-card-winner">-</span>
                         <span id="king2-count" class="dash-card-count dc-2">0 Kez</span>
@@ -179,10 +190,10 @@
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
                         <thead>
-                            <tr>
+                            <tr id="leader-th-row">
                                 <th style="text-align: center;">Sıra</th>
                                 <th>Oyuncu</th>
-                                <th style="text-align: right; padding-right: 15px;">Puan</th>
+                                <th id="leader-score-th" style="text-align: right; padding-right: 15px;">Puan</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboard-tbody"></tbody>
@@ -259,6 +270,8 @@
         let mevcutTahminler = {};
         let maclar = [];
         let globalHistoryRawData = [];
+        let activePuanFilter = null; // 5, 3, 2 veya null (filtre kapalı)
+        let globalCachedLeaderboard = []; // Orijinal API sıralama yedeği
 
         let isScrolling = false;
         let startY = 0;
@@ -498,50 +511,109 @@
         }
 
         function getLeaderboardData() {
-            const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
+            if(activePuanFilter !== null) {
+                // Filtre aktifse API'den yeni ham veri çekip arayüzü bozma, filtreyi koru
+                renderLeaderboardTable(globalCachedLeaderboard);
+                return;
+            }
+            
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
-                tbody.innerHTML = "";
-                users.forEach((oyuncu, index) => {
-                    let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, '');
-                    
-                    tbody.innerHTML += `
-                        <tr class="player-row" onclick="if(!isScrolling) togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')">
-                            <td class="rank-col">#${index + 1}</td>
-                            <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
-                            <td class="total-col">${oyuncu.toplamPuan} P</td>
-                        </tr>
-                        <tr id="leader_drop_${safeId}" class="player-detail-drop-row">
-                            <td colspan="3">
-                                <div class="player-detail-drop-container">
-                                    <table class="details-table" id="leader_table_${safeId}">
-                                        <thead>
-                                            <tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </td>
-                        </tr>`;
-                });
-                
-                // GÜNCELLEME: Sıralama listesi başarıyla basıldıktan sonra, mini dashboard istatistiklerini hesapla
-                hesaplaVeBasMiniDashboard(users);
+                globalCachedLeaderboard = users; // Orijinal veri setini yedekle
+                renderLeaderboardTable(users);
             }).catch(()=>{});
         }
 
-        // GÜNCELLEME: En çok 5, 3 ve 2 puan alan kişileri otomatik tarayan akıllı mini motor
+        // GÜNCELLEME: Filtreleme ve orijinal listeleme durumuna göre tabloyu basan tek dinamik fonksiyon
+        function renderLeaderboardTable(usersList) {
+            const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
+            const scoreTh = document.getElementById('leader-score-th');
+            tbody.innerHTML = "";
+
+            // Başlığı filtre durumuna göre dinamik güncelle
+            if(activePuanFilter !== null) {
+                scoreTh.innerText = `Adet (${activePuanFilter} P)`;
+                scoreTh.style.color = activePuanFilter === 5 ? 'var(--success-green)' : (activePuanFilter === 3 ? 'var(--info-blue)' : 'var(--gold)');
+            } else {
+                scoreTh.innerText = "Puan";
+                scoreTh.style.color = "var(--text-muted)";
+            }
+
+            usersList.forEach((oyuncu, index) => {
+                let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, '');
+                
+                // Sağ tarafa basılacak dinamik değer (Filtre aktifse adet sayısı, değilse toplam puan)
+                let rightColValue = `${oyuncu.toplamPuan} P`;
+                if(activePuanFilter !== null) {
+                    let count = oyuncu[`filterCount${activePuanFilter}`] || 0;
+                    rightColValue = `${count} Maç`;
+                }
+                
+                tbody.innerHTML += `
+                    <tr class="player-row" onclick="if(!isScrolling) togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')">
+                        <td class="rank-col">#${index + 1}</td>
+                        <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.7rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
+                        <td class="total-col" style="color: ${activePuanFilter !== null ? 'var(--text-main)' : 'var(--success-green)'}">${rightColValue}</td>
+                    </tr>
+                    <tr id="leader_drop_${safeId}" class="player-detail-drop-row">
+                        <td colspan="3">
+                            <div class="player-detail-drop-container">
+                                    <table class="details-table" id="leader_table_${safeId}">
+                                    <thead>
+                                        <tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+
+            // Mini üst istatistik paneline verileri gönder
+            hesaplaVeBasMiniDashboard(globalCachedLeaderboard);
+        }
+
+        // GÜNCELLEME: Üst skor kartlarına tıklandığında listeyi adet sırasına göre manipüle eden interaktif fonksiyon
+        function toggleDashboardFilter(puanTipi) {
+            // Eğer zaten tıklı olan karta bir daha tıklandıysa filtreyi tamamen temizle ve sıfırla
+            if(activePuanFilter === puanTipi) {
+                activePuanFilter = null;
+                document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('active-filter'));
+                // Orijinal toplam puan sıralamasına göre diz (Hafızadaki yedekten)
+                globalCachedLeaderboard.sort((a,b) => b.toplamPuan - a.toplamPuan);
+                renderLeaderboardTable(globalCachedLeaderboard);
+                return;
+            }
+
+            // Yeni filtreyi aktifleştir
+            activePuanFilter = puanTipi;
+            document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('active-filter'));
+            document.getElementById(`card-${puanTipi}`).classList.add('active-filter');
+
+            // Listeyi o puan tipini en çok bilenden en aza doğru sırala
+            globalCachedLeaderboard.sort((a, b) => {
+                let countA = a[`filterCount${puanTipi}`] || 0;
+                let countB = b[`filterCount${puanTipi}`] || 0;
+                
+                // Eğer adet sayıları eşitse, haksızlık olmasın diye turnuva genel puanı yüksek olanı öne al
+                if(countB === countA) {
+                    return b.toplamPuan - a.toplamPuan;
+                }
+                return countB - countA;
+            });
+
+            renderLeaderboardTable(globalCachedLeaderboard);
+        }
+
         function hesaplaVeBasMiniDashboard(leaderboardUsers) {
             if(!globalHistoryRawData || globalHistoryRawData.length === 0 || leaderboardUsers.length === 0) return;
 
             let stats = {};
-            // Önce tüm oyuncular için sayaç nesnesi oluştur
             leaderboardUsers.forEach(u => {
                 stats[u.isim.trim().toLowerCase()] = { name: u.isim.trim(), count5: 0, count3: 0, count2: 0 };
             });
 
-            // Tüm bitmiş maç geçmişini tarayarak puan tiplerini say
             globalHistoryRawData.forEach(mac => {
                 let list = mac.herkes || [];
                 list.forEach(p => {
@@ -554,7 +626,16 @@
                 });
             });
 
-            // Kralları bul
+            // Hesaplanan bu anlık adetleri filtreleme motoru için ana nesnelere enjekte edelim
+            leaderboardUsers.forEach(u => {
+                let key = u.isim.trim().toLowerCase();
+                if(stats[key]) {
+                    u.filterCount5 = stats[key].count5;
+                    u.filterCount3 = stats[key].count3;
+                    u.filterCount2 = stats[key].count2;
+                }
+            });
+
             let king5 = { name: "-", count: 0 };
             let king3 = { name: "-", count: 0 };
             let king2 = { name: "-", count: 0 };
@@ -565,7 +646,6 @@
                 if(stats[key].count2 > king2.count) { king2.name = stats[key].name; king2.count = stats[key].count2; }
             }
 
-            // Arayüze bas
             document.getElementById('king5-name').innerText = king5.name;
             document.getElementById('king5-count').innerText = king5.count + " İsabet";
             document.getElementById('king3-name').innerText = king3.name;
