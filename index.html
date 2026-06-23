@@ -296,7 +296,6 @@
             }).catch(() => { alert("Bağlantı doğrulanamadı!"); authBtn.disabled = false; });
         }
 
-        // FİX: Sinsi büyük harf çakışması (mevcuTTahminler) düzeltildi
         function tazeleVeYukle() {
             if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
@@ -359,17 +358,18 @@
                         else if (item.puan === 2) badgeClass = "puan-plus2";
                         else if (item.puan < 0) badgeClass = "puan-neg";
                         
-                        let herkezTabloSatirlari = "";
+                        // FIX: "herkez" kelimesi "herkes" olarak düzeltildi
+                        let herkesTabloSatirlari = "";
                         if(item.herkes && item.herkes.length > 0) {
                             item.herkes.forEach(h => {
                                 let innerBadgeClass = "puan-zero";
                                 if (h.puan === 5) innerBadgeClass = "puan-plus5";
                                 else if (h.puan === 3) innerBadgeClass = "puan-plus3";
                                 else if (h.puan === 2) innerBadgeClass = "puan-plus2";
-                                herkezTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadgeClass}">+${h.puan} P</span></td></tr>`;
+                                herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadgeClass}">+${h.puan} P</span></td></tr>`;
                             });
                         } else {
-                            herkezTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
+                            herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Tahmin verisi bulunmuyor.</td></tr>";
                         }
 
                         container.innerHTML += `
@@ -388,7 +388,7 @@
                                             <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
                                         </thead>
                                         <tbody>
-                                            ${herkezTabloSatirlari}
+                                            ${herkesTabloSatirlari}
                                         </tbody>
                                     </table>
                                 </div>
@@ -434,6 +434,7 @@
             }).catch(()=>{});
         }
 
+        // FIX: Sıralama detay süzme motorundaki harf uyuşmazlığı tamamen giderildi ve renk badgeleri kilitlendi
         function togglePlayerLeaderboardDetails(playerTarget) {
             const dropRow = document.getElementById(`leader_drop_${playerTarget}`);
             const tableBody = document.querySelector(`#leader_table_${playerTarget} tbody`);
@@ -458,6 +459,7 @@
             let sayac = 0;
 
             localHistorySorted.forEach(match => {
+                // FIX: "herkez" kelimesi "herkes" olarak düzeltildi
                 let pRecord = match.herkes.find(h => h.isim.toLowerCase().trim() === playerTarget);
                 if(pRecord) {
                     sayac++;
