@@ -51,7 +51,6 @@
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
         
-        /* ÖZETİM AKORDEON PANEL GÜNCELLEMESİ */
         .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; }
         .history-row:hover { background-color: #2d2d2d; }
         .history-main-info { display: flex; justify-content: space-between; align-items: center; }
@@ -70,7 +69,6 @@
         .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
         .tutorial-section { text-align: left; margin-bottom: 20px; }
         .tutorial-title { font-size: 1rem; font-weight: bold; color: var(--gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
         .tutorial-text { font-size: 0.85rem; color: #dddddd; line-height: 1.5; margin-bottom: 10px; padding-left: 5px; }
@@ -328,7 +326,6 @@
             .then(() => { alert("İşlem tamamlandı!"); checkChampStatus(); });
         }
 
-        // GÜNCELLEME: Akordeon / Açılır pencere mantığı ön yüze entegre edildi
         function getUserHistoryData() {
             const container = document.getElementById('userHistoryContainer'); const totalPointsBox = document.getElementById('userTotalPoints');
             if(!aktifKullanici || !container) return;
@@ -346,14 +343,13 @@
                         else if (item.puan === 2) badgeClass = "puan-plus2";
                         else if (item.puan < 0) badgeClass = "puan-neg";
                         
-                        // İçerideki tüm oyuncuların tahmin listesini HTML tablo formatına çevir
-                        let herkesTabloSatirlari = "";
+                        let herkezTabloSatirlari = "";
                         if(item.herkes && item.herkes.length > 0) {
                             item.herkes.forEach(h => {
-                                herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="color:var(--gold);text-align:right;">+${h.puan} P</td></tr>`;
+                                herkezTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="color:var(--gold);text-align:right;">+${h.puan} P</td></tr>`;
                             });
                         } else {
-                            herkesTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Bu maça ait tahmin verisi yok.</td></tr>";
+                            herkezTabloSatirlari = "<tr><td colspan='3' style='color:var(--text-muted);text-align:center;'>Bu maça ait tahmin verisi yok.</td></tr>";
                         }
 
                         container.innerHTML += `
@@ -372,7 +368,7 @@
                                             <tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
                                         </thead>
                                         <tbody>
-                                            ${herkesTabloSatirlari}
+                                            ${herkezTabloSatirlari}
                                         </tbody>
                                     </table>
                                 </div>
@@ -381,15 +377,10 @@
                 }).catch(()=>{});
         }
 
-        // Akordeon açıp kapatma fonksiyonu
         function toggleHistoryDropdown(index) {
             const drop = document.getElementById(`history_drop_${index}`);
             if(!drop) return;
-            if(drop.style.display === "block") {
-                drop.style.display = "none";
-            } else {
-                drop.style.display = "block";
-            }
+            drop.style.display = (drop.style.display === "block") ? "none" : "block";
         }
 
         function getLeaderboardData() {
@@ -442,6 +433,7 @@
             });
         }
 
+        // TAM UYUMLU FİKSTÜR LİSTELEME MOTORU
         function maclariListele() {
             const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date(); let gosterilenMacSayisi = 0;
@@ -486,7 +478,7 @@
         function switchTab(event, tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            if (event && event.currentTarget && event.currentTarget.classList) {
+            if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
             }
             if(tabId === 'leaderboard') getLeaderboardData();
