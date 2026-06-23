@@ -46,6 +46,16 @@
         .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         
+        /* MINI DASHBOARD ROZET ALANI */
+        .mini-dashboard { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
+        .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .dash-card-title { font-size: 0.68rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+        .dash-card-winner { font-size: 0.85rem; font-weight: bold; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .dash-card-count { font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; margin-top: 2px; }
+        .dc-5 { border: 1px solid var(--success-green); color: var(--success-green); background-color: rgba(46, 204, 113, 0.05); }
+        .dc-3 { border: 1px solid var(--info-blue); color: var(--info-blue); background-color: rgba(52, 152, 219, 0.05); }
+        .dc-2 { border: 1px solid var(--gold); color: var(--gold); background-color: rgba(241, 196, 15, 0.05); }
+
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
@@ -147,6 +157,25 @@
             </div>
 
             <div id="leaderboard" class="tab-content">
+                <!-- GÜNCELLEME: Sıralama Üstü Mini Ödül Kürsüsü Alanı -->
+                <div class="mini-dashboard">
+                    <div class="dash-card">
+                        <span class="dash-card-title">🎯 Tam İsabet (+5)</span>
+                        <span id="king5-name" class="dash-card-winner">-</span>
+                        <span id="king5-count" class="dash-card-count dc-5">0 Kez</span>
+                    </div>
+                    <div class="dash-card">
+                        <span class="dash-card-title">📐 Fark Uzmanı (+3)</span>
+                        <span id="king3-name" class="dash-card-winner">-</span>
+                        <span id="king3-count" class="dash-card-count dc-3">0 Kez</span>
+                    </div>
+                    <div class="dash-card">
+                        <span class="dash-card-title">🔮 Taraf Bilici (+2)</span>
+                        <span id="king2-name" class="dash-card-winner">-</span>
+                        <span id="king2-count" class="dash-card-count dc-2">0 Kez</span>
+                    </div>
+                </div>
+
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
                         <thead>
@@ -496,7 +525,53 @@
                             </td>
                         </tr>`;
                 });
+                
+                // GÜNCELLEME: Sıralama listesi başarıyla basıldıktan sonra, mini dashboard istatistiklerini hesapla
+                hesaplaVeBasMiniDashboard(users);
             }).catch(()=>{});
+        }
+
+        // GÜNCELLEME: En çok 5, 3 ve 2 puan alan kişileri otomatik tarayan akıllı mini motor
+        function hesaplaVeBasMiniDashboard(leaderboardUsers) {
+            if(!globalHistoryRawData || globalHistoryRawData.length === 0 || leaderboardUsers.length === 0) return;
+
+            let stats = {};
+            // Önce tüm oyuncular için sayaç nesnesi oluştur
+            leaderboardUsers.forEach(u => {
+                stats[u.isim.trim().toLowerCase()] = { name: u.isim.trim(), count5: 0, count3: 0, count2: 0 };
+            });
+
+            // Tüm bitmiş maç geçmişini tarayarak puan tiplerini say
+            globalHistoryRawData.forEach(mac => {
+                let list = mac.herkes || [];
+                list.forEach(p => {
+                    let key = p.isim.trim().toLowerCase();
+                    if(stats[key]) {
+                        if(p.puan === 5) stats[key].count5++;
+                        else if(p.puan === 3) stats[key].count3++;
+                        else if(p.puan === 2) stats[key].count2++;
+                    }
+                });
+            });
+
+            // Kralları bul
+            let king5 = { name: "-", count: 0 };
+            let king3 = { name: "-", count: 0 };
+            let king2 = { name: "-", count: 0 };
+
+            for(let key in stats) {
+                if(stats[key].count5 > king5.count) { king5.name = stats[key].name; king5.count = stats[key].count5; }
+                if(stats[key].count3 > king3.count) { king3.name = stats[key].name; king3.count = stats[key].count3; }
+                if(stats[key].count2 > king2.count) { king2.name = stats[key].name; king2.count = stats[key].count2; }
+            }
+
+            // Arayüze bas
+            document.getElementById('king5-name').innerText = king5.name;
+            document.getElementById('king5-count').innerText = king5.count + " İsabet";
+            document.getElementById('king3-name').innerText = king3.name;
+            document.getElementById('king3-count').innerText = king3.count + " İsabet";
+            document.getElementById('king2-name').innerText = king2.name;
+            document.getElementById('king2-count').innerText = king2.count + " İsabet";
         }
 
         function togglePlayerLeaderboardDetails(safeId, originalName) {
@@ -590,12 +665,10 @@
             });
         }
 
-        // GÜNCELLEME: Maç listesini ID sırası yerine zamana göre en yakından en uzağa akıllıca sıralayan motor mühürlendi
         function maclariListele() {
             const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
             const simdikiZaman = new Date(); let gosterilenMacSayisi = 0;
 
-            // KRONOLOJİK MOTOR: Maç dizisini zaman damgasına göre (en erken başlayacak olandan en geçe) kendi içinde sıralıyoruz
             let siralıMaclar = [...maclar].sort((mac1, mac2) => {
                 return yerelTarihParse(mac1.zaman) - yerelTarihParse(mac2.zaman);
             });
