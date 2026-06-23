@@ -9,13 +9,21 @@
         :root { --bg-color: #121212; --card-bg: #1e1e1e; --accent-red: #e50914; --text-main: #ffffff; --text-muted: #aaaaaa; --border-color: #2a2a2a; --success-green: #2ecc71; --info-blue: #3498db; --gold: #f1c40f; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 15px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 480px; padding-bottom: 60px; }
-        header { text-align: center; margin-bottom: 25px; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .app-container { width: 100%; max-width: 480px; padding-bottom: 60px; position: relative; }
+        
+        /* SAĞ ÜST KÖŞE KULLANICI VE ÇIKISH ALANI */
+        header { text-align: center; margin-bottom: 25px; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+        .header-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 30px; margin-bottom: -5px; }
+        .user-welcome { font-size: 0.85rem; color: var(--success-green); font-weight: 600; display: none; }
+        .logout-icon-btn { background: none; border: none; fill: none; color: #ff3333; cursor: pointer; display: none; align-items: center; justify-content: center; padding: 5px; border-radius: 5px; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .logout-icon-btn:hover { background-color: rgba(229, 9, 20, 0.1); }
+        .logout-icon-btn svg { width: 22px; height: 22px; }
+
         .logo-container { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); border: 2px solid var(--gold); border-radius: 12px; padding: 10px 20px; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.2); }
         .logo-svg { width: 40px; height: 40px; margin-right: 12px; }
         header h1 { font-size: 1.8rem; text-transform: uppercase; font-weight: 900; letter-spacing: 1.5px; color: var(--text-main); }
         header h1 span { color: var(--accent-red); background-color: rgba(229, 9, 20, 0.1); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(229, 9, 20, 0.3); }
-        .user-welcome { font-size: 0.85rem; color: var(--success-green); margin-top: 5px; display: none; font-weight: 600; }
+        
         .auth-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; text-align: center; margin-top: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .auth-input { width: 100%; padding: 14px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; margin-bottom: 15px; text-align: center; }
         .main-app { display: none; }
@@ -86,6 +94,17 @@
 
     <div class="app-container">
         <header>
+            <!-- GÜNCELLEME: Sağ Üst Köşe Bilgi ve Çıkış İkon Sırası -->
+            <div class="header-top-row">
+                <div id="userWelcome" class="user-welcome"></div>
+                <div></div> <!-- Boşluğu korumak için flex dengeleyici -->
+                <button id="logoutBtn" class="logout-icon-btn" onclick="handleLogout()" title="Oturumu Kapat">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 13v-2H10V9l-5 3 5 3v-2h6M20 3H11c-1.1 0-2 .9-2 2v4h2V5h9v14h-9v-4H9v4c0 1.1r.9 2 2 2h9c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+            
             <div class="logo-container">
                 <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <rect x="5" y="15" width="90" height="70" rx="8" fill="none" stroke="#f1c40f" stroke-width="4" stroke-dasharray="6,4"/>
@@ -93,7 +112,6 @@
                 </svg>
                 <h1>VAR <span>Odası</span></h1>
             </div>
-            <div id="userWelcome" class="user-welcome"></div>
         </header>
 
         <div id="authScreen" class="auth-container">
@@ -112,7 +130,6 @@
                 <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
                 <button class="tab-btn" style="color:var(--info-blue);" onclick="switchTab(event, 'rulesTab')">📋 Kurallar</button>
                 <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Onay</button>
-                <button class="tab-btn" style="color:var(--accent-red); font-weight: bold;" onclick="handleLogout()">🚪 Çıkış</button>
             </div>
 
             <div id="matches" class="tab-content active">
@@ -215,7 +232,7 @@
         let mevcutTahminler = {};
         let maclar = [];
         let globalHistoryRawData = [];
-        
+
         let isScrolling = false;
         let startY = 0;
 
@@ -228,11 +245,9 @@
             return new Date(tarihStr.replace(" ", "T"));
         }
 
-        // GÜNCELLEME: Sayfa yüklendiğinde otomatik şifre hatırlama kontrolü yap ve Enter dinleyicilerini kur
         window.onload = function() { 
             guvenliFetch(SCRIPT_URL).then(data => { maclar = data; adminSecimListeleriniDoldur(); }).catch(e => console.log("İlk yükleme tamamlandı.")); 
             
-            // Mobil cihazlardaki kaydırma koruması
             window.addEventListener('touchstart', function(e) {
                 startY = e.touches[0].pageY;
                 isScrolling = false;
@@ -244,7 +259,7 @@
                 }
             }, {passive: true});
 
-            // GÜNCELLEME: Giriş kutularında klavyeden "Enter" tuşuna basılma takibi
+            // Enter tuş mekanizması
             const inputs = [document.getElementById('usernameInput'), document.getElementById('pinInput')];
             inputs.forEach(input => {
                 input.addEventListener("keyup", function(event) {
@@ -255,13 +270,13 @@
                 });
             });
 
-            // GÜNCELLEME: Tarayıcı kalıcı hafızasında kayıtlı oturum var mı kontrol et
+            // localStorage Oturum Hafızası Kontrolü
             const savedUser = localStorage.getItem("var_username");
             const savedPin = localStorage.getItem("var_pin");
             if (savedUser && savedPin) {
                 document.getElementById('usernameInput').value = savedUser;
                 document.getElementById('pinInput').value = savedPin;
-                handleAuth(); // Otomatik giriş yap
+                handleAuth();
             }
         };
 
@@ -304,7 +319,6 @@
             .then(() => {
                 authBtn.disabled = false; authBtn.innerText = "Sisteme Giriş Yap";
                 
-                // GÜNCELLEME: Başarılı girişte bilgileri tarayıcı kalıcı hafızasına (localStorage) mühürle
                 localStorage.setItem("var_username", user);
                 localStorage.setItem("var_pin", pin);
 
@@ -312,6 +326,9 @@
                 document.getElementById('authScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 
+                // GÜNCELLEME: Çıkış İkonunu Görünür Yapıyoruz
+                document.getElementById('logoutBtn').style.display = 'flex';
+
                 if(user.toLowerCase() === "admin") {
                     document.getElementById('adminTabBtn').style.display = 'block';
                     document.getElementById('userWelcome').innerText = "👑 Yönetici: " + aktifKullanici;
@@ -324,12 +341,11 @@
             }).catch(() => { alert("Bağlantı doğrulanamadı!"); authBtn.disabled = false; });
         }
 
-        // GÜNCELLEME: Oturumu kapatıp hafızayı sıfırlamak isteyenler için Çıkış fonksiyonu
         function handleLogout() {
             if(!confirm("Oturumu kapatmak istediğinize emin misiniz?")) return;
             localStorage.removeItem("var_username");
             localStorage.removeItem("var_pin");
-            window.location.reload(); // Sayfayı sıfırla ve giriş ekranına dön
+            window.location.reload();
         }
 
         function tazeleVeYukle() {
