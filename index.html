@@ -46,7 +46,6 @@
         .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         
-        /* MINI DASHBOARD ROZET ALANI VE FILTRE EFEKTLERI */
         .mini-dashboard { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
         .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.15s, border-color 0.2s; -webkit-tap-highlight-color: transparent; }
         .dash-card:active { transform: scale(0.96); }
@@ -62,7 +61,6 @@
         .dc-3 { border: 1px solid var(--info-blue); color: var(--info-blue); background-color: rgba(52, 152, 219, 0.05); }
         .dc-2 { border: 1px solid var(--gold); color: var(--gold); background-color: rgba(241, 196, 15, 0.05); }
         
-        /* Aktif filtre durumunda kartların arka plan parlaması */
         .dash-card.active-filter#card-5 .dc-5 { background-color: var(--success-green); color: #000; }
         .dash-card.active-filter#card-3 .dc-3 { background-color: var(--info-blue); color: #000; }
         .dash-card.active-filter#card-2 .dc-2 { background-color: var(--gold); color: #000; }
@@ -168,7 +166,6 @@
             </div>
 
             <div id="leaderboard" class="tab-content">
-                <!-- GÜNCELLEME: Filtre Tetikleyici Click Eventleri Eklendi -->
                 <div class="mini-dashboard">
                     <div id="card-5" class="dash-card" onclick="toggleDashboardFilter(5)">
                         <span class="dash-card-title">🎯 Tam İsabet (+5)</span>
@@ -270,8 +267,8 @@
         let mevcutTahminler = {};
         let maclar = [];
         let globalHistoryRawData = [];
-        let activePuanFilter = null; // 5, 3, 2 veya null (filtre kapalı)
-        let globalCachedLeaderboard = []; // Orijinal API sıralama yedeği
+        let activePuanFilter = null;
+        let globalCachedLeaderboard = [];
 
         let isScrolling = false;
         let startY = 0;
@@ -512,24 +509,21 @@
 
         function getLeaderboardData() {
             if(activePuanFilter !== null) {
-                // Filtre aktifse API'den yeni ham veri çekip arayüzü bozma, filtreyi koru
                 renderLeaderboardTable(globalCachedLeaderboard);
                 return;
             }
             
             guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => {
-                globalCachedLeaderboard = users; // Orijinal veri setini yedekle
+                globalCachedLeaderboard = users;
                 renderLeaderboardTable(users);
             }).catch(()=>{});
         }
 
-        // GÜNCELLEME: Filtreleme ve orijinal listeleme durumuna göre tabloyu basan tek dinamik fonksiyon
         function renderLeaderboardTable(usersList) {
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return;
             const scoreTh = document.getElementById('leader-score-th');
             tbody.innerHTML = "";
 
-            // Başlığı filtre durumuna göre dinamik güncelle
             if(activePuanFilter !== null) {
                 scoreTh.innerText = `Adet (${activePuanFilter} P)`;
                 scoreTh.style.color = activePuanFilter === 5 ? 'var(--success-green)' : (activePuanFilter === 3 ? 'var(--info-blue)' : 'var(--gold)');
@@ -541,7 +535,6 @@
             usersList.forEach((oyuncu, index) => {
                 let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, '');
                 
-                // Sağ tarafa basılacak dinamik değer (Filtre aktifse adet sayısı, değilse toplam puan)
                 let rightColValue = `${oyuncu.toplamPuan} P`;
                 if(activePuanFilter !== null) {
                     let count = oyuncu[`filterCount${activePuanFilter}`] || 0;
@@ -557,7 +550,7 @@
                     <tr id="leader_drop_${safeId}" class="player-detail-drop-row">
                         <td colspan="3">
                             <div class="player-detail-drop-container">
-                                    <table class="details-table" id="leader_table_${safeId}">
+                                <table class="details-table" id="leader_table_${safeId}">
                                     <thead>
                                         <tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr>
                                     </thead>
@@ -570,33 +563,26 @@
                     </tr>`;
             });
 
-            // Mini üst istatistik paneline verileri gönder
             hesaplaVeBasMiniDashboard(globalCachedLeaderboard);
         }
 
-        // GÜNCELLEME: Üst skor kartlarına tıklandığında listeyi adet sırasına göre manipüle eden interaktif fonksiyon
         function toggleDashboardFilter(puanTipi) {
-            // Eğer zaten tıklı olan karta bir daha tıklandıysa filtreyi tamamen temizle ve sıfırla
             if(activePuanFilter === puanTipi) {
                 activePuanFilter = null;
                 document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('active-filter'));
-                // Orijinal toplam puan sıralamasına göre diz (Hafızadaki yedekten)
                 globalCachedLeaderboard.sort((a,b) => b.toplamPuan - a.toplamPuan);
                 renderLeaderboardTable(globalCachedLeaderboard);
                 return;
             }
 
-            // Yeni filtreyi aktifleştir
             activePuanFilter = puanTipi;
             document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('active-filter'));
             document.getElementById(`card-${puanTipi}`).classList.add('active-filter');
 
-            // Listeyi o puan tipini en çok bilenden en aza doğru sırala
             globalCachedLeaderboard.sort((a, b) => {
                 let countA = a[`filterCount${puanTipi}`] || 0;
                 let countB = b[`filterCount${puanTipi}`] || 0;
                 
-                // Eğer adet sayıları eşitse, haksızlık olmasın diye turnuva genel puanı yüksek olanı öne al
                 if(countB === countA) {
                     return b.toplamPuan - a.toplamPuan;
                 }
@@ -626,7 +612,6 @@
                 });
             });
 
-            // Hesaplanan bu anlık adetleri filtreleme motoru için ana nesnelere enjekte edelim
             leaderboardUsers.forEach(u => {
                 let key = u.isim.trim().toLowerCase();
                 if(stats[key]) {
