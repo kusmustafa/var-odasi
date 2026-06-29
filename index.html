@@ -215,7 +215,7 @@
     </div>
 
     <script>
-        // CRITICAL: Web App URL linkini buraya mühürle Mustafa!
+        // ENTEGRE EDİLEN YENİ LINK:
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgXVvEfJGwM595_GQtKBPAFPd32TN-Mj3gLklKP9XKP_j-LhNoHweP5wqCRzBMyDbh/exec";
         
         let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let globalCachedLeaderboard = [];
@@ -240,13 +240,13 @@
         };
 
         function checkAnnouncementModal() {
-            if (!localStorage.getItem("var_star_announcement_viewed_v46")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v47")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed_v46", "true");
+            localStorage.setItem("var_star_announcement_viewed_v47", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -293,7 +293,9 @@
         }
 
         function maclariListele() {
-            const container = document.getElementById('matches-list-container'); if(!container || maclar.length === 0) return; container.innerHTML = "";
+            const container = document.getElementById('matches-list-container'); if(!container) return; 
+            if(maclar.length === 0) { container.innerHTML = "<div class='loading'>Aktif maç verisi bekleniyor...</div>"; return; }
+            container.innerHTML = "";
             const simdikiZaman = new Date();
             let siralıMaclar = [...maclar].sort((mac1, mac2) => yerelTarihParse(mac1.zaman) - yerelTarihParse(mac2.zaman));
 
@@ -331,14 +333,13 @@
                         </div>
                         <div class="match-footer">
                             <span class="status-text">${durumMetni}</span>
-                            <button id="btn_${mac.id}" class="save-btn" ${disabledAttr} onclick="savePredictionWithStar(${matchId})">Kaydet</button>
+                            <button id="btn_${mac.id}" class="save-btn" ${disabledAttr} onclick="savePredictionWithStar(${mac.id})">Kaydet</button>
                         </div>
                     </div>`;
             });
             if (container.innerHTML === "") container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Aktif canlı maç bulunmuyor.</p>";
         }
 
-        // AMAN DIKKAT: Dinamik matchId parametre geçiş fixlendi!
         function savePredictionWithStar(mId) {
             const skorA = document.getElementById(`tahminA_${mId}`).value; const skorB = document.getElementById(`tahminB_${mId}`).value;
             const yildizIstegi = document.getElementById(`star_${mId}`).checked;
@@ -412,14 +413,12 @@
             }); 
         }
 
-        // CRITICAL FIX: Tırnak çakışmasını önlemek için String parametreler tamamen havaya uçuruldu, index bazlı klik referansı getirildi!
         function renderLeaderboardTable(usersList) { 
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; 
             usersList.forEach((oyuncu, index) => { 
                 let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, ''); 
                 let isOpened = (activeOpenedLeaderboardId === safeId); 
                 
-                // HTML içine kırılgan stringler yazmak yerine doğrudan index referanslı temiz klik mühürlendi
                 tbody.innerHTML += `
                     <tr class="player-row" id="leader_row_trigger_${safeId}">
                         <td class="rank-col">#${index + 1}</td>
@@ -437,7 +436,6 @@
                         </td>
                     </tr>`; 
                 
-                // DOM oluştuktan sonra event listener'ı güvenli bağlama operasyonu
                 setTimeout(() => {
                     const rowBtn = document.getElementById(`leader_row_trigger_${safeId}`);
                     if(rowBtn) {
@@ -487,7 +485,6 @@
         function dinamikSampiyonDropdownDoldur() {
             const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
             const saveBtn = document.getElementById('save-champion-btn'); const headerDisplay = document.getElementById('header-team-display');
-            const tumTakimlar = ["ABD","Almanya","Arjantin","Avustralya","Avusturya","Belçika","Bosna Hersek","Brezilya","Cezayir","Curaçao","Çekya","Demokratik Kongo","Ekvador","Fas","Fildişi Sahili","Fransa","Gana","Güney Afrika","Güney Kore","Haiti","Hırvatistan","Hollanda","Irak","İngiltere","İran","İskoçya","İspanya","İsviçre","Japonya","Kanada","Katar","Kolombiya","Meksika","Mısır","Norveç","Özbekistan","Panama","Paraguay","Portekiz","Senegal","Suudi Arabistan","Tunus","Türkiye","Uruguay","Ürdün","Yeni Zelanda","Yeşil Burun Adaları"];
             
             guvenliFetch(SCRIPT_URL).then(data => {
                 guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(status => {
@@ -500,13 +497,10 @@
                     let temizEskiTahminKey = turkceKucukHarfCevir(eskiTahmin);
 
                     if (eskiTahmin !== "-" && eskiTahmin !== "" && (hayattaKalanTakimlar.size === 0 || hayattaKalanTakimlar.has(temizEskiTahminKey))) {
-                        selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Turnuvada Devam Ediyor)</option>`;
-                        selectBox.disabled = true; saveBtn.disabled = true; saveBtn.innerText = "🔒 Adayınız Turnuvada Devam Ediyor"; saveBtn.style.backgroundColor = "#333"; saveBtn.style.color = "#777"; return;
+                        selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin}</option>`;
+                        selectBox.disabled = true; saveBtn.disabled = true; return;
                     }
-                    selectBox.disabled = false; saveBtn.disabled = false; saveBtn.innerText = "Yenilenen Tahmini Kilitle"; saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000"; selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
-                    let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => tumTakimlar.find(orig => turkceKucukHarfCevir(orig) === t)).filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr'));
-                    if(siralıAktifler.length > 0) { siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); }); }
-                    else { tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); }); }
+                    selectBox.disabled = false; saveBtn.disabled = false;
                 });
             });
         }
