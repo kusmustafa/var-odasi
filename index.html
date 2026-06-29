@@ -14,7 +14,8 @@
         header { text-align: center; margin-bottom: 25px; margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
         .header-top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; height: 30px; margin-bottom: -5px; }
         .user-welcome { font-size: 0.85rem; color: var(--success-green); font-weight: 600; display: none; }
-        .logout-icon-btn { background: none; border: none; fill: none; color: #ff3333; cursor: pointer; display: none; align-items: center; justify-content: center; padding: 5px; border-radius: 5px; transition: background 0.2s; }
+        .logout-icon-btn { background: none; border: none; fill: none; color: #ff3333; cursor: pointer; display: none; align-items: center; justify-content: center; padding: 5px; border-radius: 5px; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .logout-icon-btn:hover { background-color: rgba(229, 9, 20, 0.1); }
         .logout-icon-btn svg { width: 22px; height: 22px; pointer-events: none; }
 
         .logo-container { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); border: 2px solid var(--gold); border-radius: 12px; padding: 10px 20px; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.2); }
@@ -64,31 +65,40 @@
 
         .mini-dashboard { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
         .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; }
+        
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
         .leaderboard-table tr.player-row { cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .leaderboard-table tr.player-row:hover { background-color: #252525; }
         .leaderboard-table td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
         .rank-col { font-weight: 800; width: 45px; text-align: center; color: var(--gold); }
         .name-col { font-weight: 600; }
         .total-col { font-weight: 800; color: var(--success-green); text-align: right; padding-right: 15px !important; }
         .player-detail-drop-row { display: none; background-color: #171717; }
         .player-detail-drop-container { padding: 10px 15px; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
+        
         .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
-        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; }
+        
+        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .history-row:hover { background-color: #2d2d2d; }
         .history-main-info { display: flex; justify-content: space-between; align-items: center; }
         .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
         .history-scores { font-size: 0.75rem; color: var(--text-muted); flex: 2; text-align: center; display: flex; flex-direction: column; gap: 3px; }
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
+        
         .puan-text-badge { font-weight: bold; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; text-align: center; min-width: 45px; }
+        .puan-plus10 { background-color: rgba(241, 196, 15, 0.25); color: #fff; border: 2px solid var(--gold); box-shadow: 0 0 8px rgba(241, 196, 15, 0.4); } /* GÜNCELLEME: JOKER PUAN BADGE STİLİ */
+        .puan-plus6 { background-color: rgba(52, 152, 219, 0.25); color: #fff; border: 2px solid var(--info-blue); }
+        .puan-plus4 { background-color: rgba(46, 204, 113, 0.25); color: #fff; border: 2px solid var(--success-green); }
         .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
         .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
         .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
         .puan-zero { background-color: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #444; }
         .puan-neg { background-color: rgba(229, 9, 20, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
-        .history-details-dropdown { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; }
+        .history-details-dropdown { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; animation: fadeIn 0.3s ease; }
         .details-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
         .details-table th { color: var(--text-muted); padding: 5px; border-bottom: 1px solid #333; font-weight: bold; text-align: left; }
         .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
@@ -159,23 +169,6 @@
             </div>
 
             <div id="leaderboard" class="tab-content">
-                <div class="mini-dashboard">
-                    <div id="card-5" class="dash-card" onclick="toggleDashboardFilter(5)">
-                        <span class="dash-card-title">🎯 Tam İsabet (+5)</span>
-                        <span id="king5-name" class="dash-card-winner">-</span>
-                        <span id="king5-count" class="dash-card-count dc-5">0 Kez</span>
-                    </div>
-                    <div id="card-3" class="dash-card" onclick="toggleDashboardFilter(3)">
-                        <span class="dash-card-title">📐 Fark Uzmanı (+3)</span>
-                        <span id="king3-name" class="dash-card-winner">-</span>
-                        <span id="king3-count" class="dash-card-count dc-3">0 Kez</span>
-                    </div>
-                    <div id="card-2" class="dash-card" onclick="toggleDashboardFilter(2)">
-                        <span class="dash-card-title">🔮 Taraf Bilici (+2)</span>
-                        <span id="king2-name" class="dash-card-winner">-</span>
-                        <span id="king2-count" class="dash-card-count dc-2">0 Kez</span>
-                    </div>
-                </div>
                 <div class="leaderboard-container">
                     <table class="leaderboard-table">
                         <thead><tr><th style="text-align: center;">Sıra</th><th>Oyuncu</th><th id="leader-score-th" style="text-align: right; padding-right: 15px;">Puan</th></tr></thead>
@@ -190,16 +183,12 @@
                         <span>Mevcut Şampiyon Adayınız</span>
                         <strong id="header-team-display">YÜKLENİYOR...</strong>
                     </div>
-
                     <h2>Şampiyonunu Güncelle</h2>
                     <div style="text-align: center; margin-bottom: 15px;">
                         <span class="stage-badge" id="current-stage-badge" style="background-color:var(--gold); color:#000; padding:5px 10px; font-weight:bold;">Yükleniyor...</span>
                     </div>
                     <select id="champion-select"><option value="" disabled selected>Yükleniyor...</option></select>
                     <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Kilitle</button>
-                    <div id="locked-prediction-zone" class="locked-champion-box" style="display: none; margin-top: 15px; text-align: center;">
-                        <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
-                    </div>
                 </div>
             </div>
 
@@ -229,10 +218,10 @@
     </div>
 
     <script>
-        // CRITICAL: Buraya yeni deployment linkini yapıştır reis
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykgimcGpea0LYJJluZeH3XSuc4Fjs7eEyDA0xSpjlx_dUCE5OaW1kRcpCP_QXo0dZd/exec";
+        // GÜNCELLEME: Kendi Script URL'ini buraya yapıştır Mustafa!
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp3jmY8VXu4ybY1ODzPFc_Qt91iM4qM9LOc2zHIOwFBlLGdfytufHo2b8Eo3vPrvIG/exec";
         
-        let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let activePuanFilter = null; let globalCachedLeaderboard = [];
+        let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let globalCachedLeaderboard = [];
         let activeOpenedHistoryIdx = null; let activeOpenedLeaderboardId = null; let isDataFetchedFromServer = false;
         let isScrolling = false; let startY = 0;
 
@@ -245,10 +234,6 @@
         function yerelTarihParse(tarihStr) { if(!tarihStr) return new Date(); return new Date(tarihStr.replace(" ", "T")); }
 
         window.onload = function() { 
-            if(SCRIPT_URL.includes("BURAYA_YENI")) {
-                document.getElementById('matches-list-container').innerHTML = "<div style='color:var(--accent-red); padding:20px; font-weight:bold; text-align:center;'>⚠️ Hata: Lütfen SCRIPT_URL alanına yeni Apps Script linkini yapıştırın!</div>";
-                return;
-            }
             guvenliFetch(SCRIPT_URL).then(data => { maclar = data; maclariListele(); dinamikSampiyonDropdownDoldur(); });
             window.addEventListener('touchstart', function(e) { startY = e.touches[0].pageY; isScrolling = false; }, {passive: true});
             window.addEventListener('touchmove', function(e) { if (Math.abs(e.touches[0].pageY - startY) > 6) isScrolling = true; }, {passive: true});
@@ -258,13 +243,13 @@
         };
 
         function checkAnnouncementModal() {
-            if (!localStorage.getItem("var_star_announcement_viewed_v43_1")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v45")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed_v43_1", "true");
+            localStorage.setItem("var_star_announcement_viewed_v45", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -306,7 +291,6 @@
                                 getUserHistoryDataUI(res.history); 
                             }
                         });
-                    checkChampStatus();
                     dinamikSampiyonDropdownDoldur();
                 });
         }
@@ -372,94 +356,164 @@
             .then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
         }
 
+        // REPARATİON: ÖZETİM SEKMESİNDEKİ RENKLENDİRME VE KLİK HATA MOTORU DÜZELTİLDİ
+        function getUserHistoryDataUI(historyArray) {
+            if (!isDataFetchedFromServer) return; 
+            const container = document.getElementById('userHistoryContainer'); if(!container) return;
+            container.innerHTML = ""; 
+            let reversedHistory = [...historyArray].reverse();
+            
+            reversedHistory.forEach((item, idx) => {
+                let isJoker = item.tahmin.includes("⭐"); // GÜNCELLEME: Jokerli maçı isminden tanı
+                
+                let badgeClass = "puan-zero";
+                if (item.puan === 10 || item.puan === 5) badgeClass = isJoker ? "puan-plus10" : "puan-plus5";
+                else if (item.puan === 6 || item.puan === 3) badgeClass = isJoker ? "puan-plus6" : "puan-plus3";
+                else if (item.puan === 4 || item.puan === 2) badgeClass = isJoker ? "puan-plus4" : "puan-plus2";
+                else if (item.puan < 0) badgeClass = "puan-neg";
+                
+                let herkesTabloSatirlari = ""; 
+                (item.herkes || []).forEach(h => { 
+                    let innerJoker = h.skor.includes("⭐");
+                    let innerBadge = "puan-zero";
+                    if (h.puan === 10 || h.puan === 5) innerBadge = innerJoker ? "puan-plus10" : "puan-plus5";
+                    else if (h.puan === 6 || h.puan === 3) innerBadge = innerJoker ? "puan-plus6" : "puan-plus3";
+                    else if (h.puan === 4 || h.puan === 2) innerBadge = innerJoker ? "puan-plus4" : "puan-plus2";
+                    
+                    // GÜNCELLEME: Yıldızlı extra puanı olan satırı bold yap ve renklendir
+                    let rowStyle = innerJoker ? "font-weight: 800; color: var(--gold);" : "";
+                    herkesTabloSatirlari += `<tr style="${rowStyle}"><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadge}">${h.puan} P</span></td></tr>`; 
+                });
+                
+                let isOpened = (activeOpenedHistoryIdx === idx);
+                container.innerHTML += `
+                    <div class="history-row" onclick="toggleHistoryDropdown(${idx})">
+                        <div class="history-main-info" style="${isJoker ? 'border-left: 3px solid var(--gold); padding-left: 8px;' : ''}">
+                            <div class="history-teams">${item.takimA} - ${item.takimB}</div>
+                            <div class="history-scores">
+                                <span>Tahmin: <strong style="${isJoker ? 'color: var(--gold);' : ''}">${item.tahmin}</strong></span>
+                                <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
+                            </div>
+                            <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
+                        </div>
+                        <div id="history_drop_${idx}" class="history-details-dropdown" style="display: ${isOpened ? 'block' : 'none'}" onclick="event.stopPropagation()">
+                            <table class="details-table">
+                                <thead><tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr></thead>
+                                <tbody>${herkesTabloSatirlari}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function toggleHistoryDropdown(index) {
+            const drop = document.getElementById(`history_drop_${index}`); if(!drop) return; 
+            if(drop.style.display === "block") { drop.style.display = "none"; activeOpenedHistoryIdx = null; } 
+            else { drop.style.display = "block"; activeOpenedHistoryIdx = index; } 
+        }
+
+        function getLeaderboardData() { 
+            guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => { 
+                if(users && users.length > 0) { globalCachedLeaderboard = users; renderLeaderboardTable(users); } 
+            }); 
+        }
+
+        // REPARATİON: SIRALAMA SEKMESİNDEKİ KLİK KİLİDİ VE YÜKLENME HATASI TAMAMEN GİDERİLDİ
+        function renderLeaderboardTable(usersList) { 
+            const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; 
+            usersList.forEach((oyuncu, index) => { 
+                let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, ''); 
+                let isOpened = (activeOpenedLeaderboardId === safeId); 
+                
+                tbody.innerHTML += `
+                    <tr class="player-row" onclick="togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')">
+                        <td class="rank-col">#${index + 1}</td>
+                        <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Detay)</span></td>
+                        <td class="total-col">${oyuncu.toplamPuan} P</td>
+                    </tr>
+                    <tr id="leader_drop_${safeId}" class="player-detail-drop-row" style="display: ${isOpened ? 'table-row' : 'none'}">
+                        <td colspan="3">
+                            <div class="player-detail-drop-container">
+                                <table class="details-table" id="leader_table_${safeId}">
+                                    <thead><tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr></thead>
+                                    <tbody><tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr></tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>`; 
+                if(isOpened) { setTimeout(() => { fillLeaderboardTableDetails(safeId, oyuncu.isim.trim()); }, 20); }
+            }); 
+        }
+
+        function togglePlayerLeaderboardDetails(safeId, originalName) {
+            const dropRow = document.getElementById(`leader_drop_${safeId}`); if(!dropRow) return;
+            if(dropRow.style.display === "table-row") { dropRow.style.display = "none"; activeOpenedLeaderboardId = null; return; }
+            document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
+            dropRow.style.display = "table-row"; activeOpenedLeaderboardId = safeId;
+            fillLeaderboardTableDetails(safeId, originalName);
+        }
+
+        function fillLeaderboardTableDetails(safeId, originalName) {
+            const tableBody = document.querySelector(`#leader_table_${safeId} tbody`); if(!tableBody) return; tableBody.innerHTML = "";
+            if(globalHistoryRawData.length === 0) { tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Veriler sunucudan eşitleniyor...</td></tr>"; return; }
+            let localHistorySorted = [...globalHistoryRawData].reverse(); let sayac = 0;
+            
+            localHistorySorted.forEach(match => {
+                let oyuncuListesi = match.herkes || [];
+                let pRecord = oyuncuListesi.find(h => h.isim.trim().localeCompare(originalName, 'tr', { sensitivity: 'base' }) === 0);
+                if(pRecord) {
+                    sayac++;
+                    let hasJoker = pRecord.skor.includes("⭐");
+                    let rowBadgeClass = "puan-zero";
+                    if (pRecord.puan === 10 || pRecord.puan === 5) rowBadgeClass = hasJoker ? "puan-plus10" : "puan-plus5";
+                    else if (pRecord.puan === 6 || pRecord.puan === 3) rowBadgeClass = hasJoker ? "puan-plus6" : "puan-plus3";
+                    else if (pRecord.puan === 4 || pRecord.puan === 2) rowBadgeClass = hasJoker ? "puan-plus4" : "puan-plus2";
+                    
+                    let rowStyle = hasJoker ? "font-weight: 800; color: var(--gold);" : "";
+                    tableBody.innerHTML += `<tr style="${rowStyle}"><td>${match.takimA} - ${match.takimB} <span style="font-size:0.7rem; color:var(--text-muted);">(${match.gercekSkor})</span></td><td><strong>${pRecord.skor}</strong></td><td style="text-align:right;"><span class="puan-text-badge ${rowBadgeClass}">${pRecord.puan} P</span></td></tr>`;
+                }
+            });
+            if(sayac === 0) tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Maç kaydı bulunamadı.</td></tr>";
+        }
+
         function lockChampionPrediction() {
-            const selectBox = document.getElementById('champion-select');
-            if(!selectBox.value) { alert("Lütfen listeden bir ülke seçin!"); return; }
+            const selectBox = document.getElementById('champion-select'); if(!selectBox.value) { alert("Lütfen listeden bir ülke seçin!"); return; }
             if(!confirm(`${selectBox.value} ülkesini şampiyon olarak kilitlemek istediğinize emin misiniz?`)) return;
-            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value }) })
-            .then(() => { alert("İşlem tamamlandı!"); tazeleVeYukle(); });
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value }) }).then(() => { alert("İşlem tamamlandı!"); tazeleVeYukle(); });
         }
 
         function dinamikSampiyonDropdownDoldur() {
             const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
-            const saveBtn = document.getElementById('save-champion-btn');
-            const headerDisplay = document.getElementById('header-team-display');
+            const saveBtn = document.getElementById('save-champion-btn'); const headerDisplay = document.getElementById('header-team-display');
             const tumTakimlar = ["ABD","Almanya","Arjantin","Avustralya","Avusturya","Belçika","Bosna Hersek","Brezilya","Cezayir","Curaçao","Çekya","Demokratik Kongo","Ekvador","Fas","Fildişi Sahili","Fransa","Gana","Güney Afrika","Güney Kore","Haiti","Hırvatistan","Hollanda","Irak","İngiltere","İran","İskoçya","İspanya","İsviçre","Japonya","Kanada","Katar","Kolombiya","Meksika","Mısır","Norveç","Özbekistan","Panama","Paraguay","Portekiz","Senegal","Suudi Arabistan","Tunus","Türkiye","Uruguay","Ürdün","Yeni Zelanda","Yeşil Burun Adaları"];
             
             guvenliFetch(SCRIPT_URL).then(data => {
                 guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(status => {
                     let aktifAsama = status.asama ? status.asama.trim().toLowerCase() : "turnuva başlangıcı";
                     let eskiTahmin = status.currentPrediction ? status.currentPrediction.toString().trim() : "-";
-
-                    if(eskiTahmin !== "-" && eskiTahmin !== "") {
-                        headerDisplay.innerText = eskiTahmin.toUpperCase();
-                    } else {
-                        headerDisplay.innerText = "GİRİLMEDİ";
-                    }
+                    headerDisplay.innerText = (eskiTahmin !== "-" && eskiTahmin !== "") ? eskiTahmin.toUpperCase() : "GİRİLMEDİ";
 
                     let hayattaKalanTakimlar = new Set();
-                    if(data && data.length > 0) {
-                        data.forEach(mac => {
-                            if (mac.gercekA === "-") {
-                                if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimA));
-                                if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimB));
-                            }
-                        });
-                    }
-
+                    if(data && data.length > 0) { data.forEach(mac => { if (mac.gercekA === "-") { if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimA)); if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimB)); } }); }
                     let temizEskiTahminKey = turkceKucukHarfCevir(eskiTahmin);
 
                     if (eskiTahmin !== "-" && eskiTahmin !== "" && (hayattaKalanTakimlar.size === 0 || hayattaKalanTakimlar.has(temizEskiTahminKey))) {
                         selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Turnuvada Devam Ediyor)</option>`;
-                        selectBox.disabled = true; saveBtn.disabled = true;
-                        saveBtn.innerText = "🔒 Adayınız Turnuvada Devam Ediyor";
-                        saveBtn.style.backgroundColor = "#333"; saveBtn.style.color = "#777";
-                        return;
+                        selectBox.disabled = true; saveBtn.disabled = true; saveBtn.innerText = "🔒 Adayınız Turnuvada Devam Ediyor"; saveBtn.style.backgroundColor = "#333"; saveBtn.style.color = "#777"; return;
                     }
-
-                    selectBox.disabled = false; saveBtn.disabled = false;
-                    saveBtn.innerText = "Yenilenen Tahmini Kilitle";
-                    saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000";
-                    selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
-                    
-                    let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => {
-                        return tumTakimlar.find(orig => turkceKucukHarfCevir(orig) === t);
-                    }).filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr'));
-
-                    if(siralıAktifler.length > 0) {
-                        siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
-                    } else {
-                        tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
-                    }
+                    selectBox.disabled = false; saveBtn.disabled = false; saveBtn.innerText = "Yenilenen Tahmini Kilitle"; saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000"; selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
+                    let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => tumTakimlar.find(orig => turkceKucukHarfCevir(orig) === t)).filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr'));
+                    if(siralıAktifler.length > 0) { siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); }); }
+                    else { tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); }); }
                 });
             });
         }
 
         function checkChampStatus() {
             if(!aktifKullanici) return;
-            guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`)
-                .then(data => {
-                    document.getElementById('current-stage-badge').innerText = "Mevcut Aşama: " + data.asama;
-                    if (data.currentPrediction && data.currentPrediction !== "-") {
-                        document.getElementById('locked-prediction-zone').style.display = "block";
-                        document.getElementById('locked-team-name').innerText = "🔒 Kayıtlı Adayınız: " + data.currentPrediction;
-                    } else { document.getElementById('locked-prediction-zone').style.display = "none"; }
-                });
+            guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(data => { if(data && data.asama) document.getElementById('current-stage-badge').innerText = "Mevcut Aşama: " + data.asama; });
         }
 
-        function getUserHistoryDataUI(historyArray) {
-            const container = document.getElementById('userHistoryContainer'); if(!container) return;
-            container.innerHTML = ""; let reversedHistory = [...historyArray].reverse();
-            reversedHistory.forEach((item, idx) => {
-                let badgeClass = item.puan === 10 || item.puan === 5 ? "puan-plus5" : (item.puan === 6 || item.puan === 3 ? "puan-plus3" : (item.puan === 4 || item.puan === 2 ? "puan-plus2" : "puan-zero"));
-                let herkesTabloSatirlari = ""; (item.herkes || []).forEach(h => { herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge">${h.puan} P</span></td></tr>`; });
-                let isOpened = (activeOpenedHistoryIdx === idx);
-                container.innerHTML += `<div class="history-row" onclick="toggleHistoryDropdown(${idx})"><div class="history-main-info"><div class="history-teams">${item.takimA} - ${item.takimB}</div><div class="history-scores"><span>Tahmin: <strong>${item.tahmin}</strong></span><span>Sonuç: <strong>${item.gercekSkor}</strong></span></div><div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div></div><div id="history_drop_${idx}" class="history-details-dropdown" style="display: ${isOpened ? 'block' : 'none'}" onclick="event.stopPropagation()"><table class="details-table"><thead><tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr></thead><tbody>${herkesTabloSatirlari}</tbody></table></div></div>`;
-            });
-        }
-        function toggleHistoryDropdown(index) { const drop = document.getElementById(`history_drop_${index}`); if(!drop) return; if(drop.style.display === "block") { drop.style.display = "none"; activeOpenedHistoryIdx = null; } else { drop.style.display = "block"; activeOpenedHistoryIdx = index; } }
-        function getLeaderboardData() { guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => { if(users && users.length > 0) { globalCachedLeaderboard = users; renderLeaderboardTable(users); } }); }
-        function renderLeaderboardTable(usersList) { const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; usersList.forEach((oyuncu, index) => { tbody.innerHTML += `<tr class="player-row"><td class="rank-col">#${index + 1}</td><td class="name-col">⚽ ${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`; }); }
         function switchTab(event, tabId) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if (event && event.currentTarget) event.currentTarget.classList.add('active'); if(tabId === 'leaderboard') getLeaderboardData(); if(tabId === 'historyTab') getUserHistoryDataUI(globalHistoryRawData); if(tabId === 'champion') { checkChampStatus(); dinamikSampiyonDropdownDoldur(); } }
     </script>
 </body>
