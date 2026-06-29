@@ -202,7 +202,7 @@
                             <span class="rule-badge badge-gold" style="background-color:var(--gold); color:#000;">⭐ 5 YILDIZLI JOKER MAÇI:</span><br>
                             • Son 32 turundan itibaren toplam **5 maç yıldızlama** hakkınız vardır.<br>
                             • Yıldızladığınız maçtan alacağınız tüm puanlar **2 ile çarpılır**!<br><br>
-                            <span class="rule-badge badge-gold">🔥 Şampiyonluk Kademeli Bonusu:</span><br>
+                            <span class="rule-badge badge-gold">🔥 Şampiyonluk Kademeli Bonus:</span><br>
                             • <strong>Turnuva Başlangıcı:</strong> +15 Puan<br>
                             • <strong>Son 32 Turunda kilitleyenler:</strong> +10 Puan<br>
                             • <strong>Son 16 Turunda kilitleyenler:</strong> +8 Puan<br>
@@ -215,7 +215,6 @@
     </div>
 
     <script>
-        // ENTEGRE EDİLEN YENİ LINK:
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgXVvEfJGwM595_GQtKBPAFPd32TN-Mj3gLklKP9XKP_j-LhNoHweP5wqCRzBMyDbh/exec";
         
         let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let globalCachedLeaderboard = [];
@@ -352,7 +351,11 @@
             if(yildizSayisi > 5) { alert("🔴 Hata: 5 yıldızlı joker limitiniz doldu!"); document.getElementById(`star_${mId}`).checked = false; return; }
 
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: mId, scoreA: skorA, scoreB: skorB, yildiz: yildizIstegi }) })
-            .then(() => { mevcutTahminler[mId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
+            .then(() => { 
+                mevcutTahminler[mId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; 
+                alert("⚽ Tahmininiz başarıyla kaydedildi!"); // GERİ GETİRİLEN POP-UP BİLDİRİMİ
+                tazeleVeYukle(); 
+            });
         }
 
         function getUserHistoryDataUI(historyArray) {
@@ -479,7 +482,11 @@
         function lockChampionPrediction() {
             const selectBox = document.getElementById('champion-select'); if(!selectBox.value) { alert("Lütfen listeden bir ülke seçin!"); return; }
             if(!confirm(`${selectBox.value} ülkesini şampiyon olarak kilitlemek istediğinize emin misiniz?`)) return;
-            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value }) }).then(() => { alert("İşlem tamamlandı!"); tazeleVeYukle(); });
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value }) })
+            .then(() => { 
+                alert("🏆 Şampiyon tahmininiz başarıyla kilitlendi!"); 
+                tazeleVeYukle(); 
+            });
         }
 
         function dinamikSampiyonDropdownDoldur() {
