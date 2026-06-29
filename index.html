@@ -63,9 +63,6 @@
         .modal-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 15px; text-transform: uppercase; }
         .modal-body-text { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 25px; text-align: center; }
 
-        .mini-dashboard { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
-        .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; }
-        
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
@@ -90,7 +87,7 @@
         .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
         
         .puan-text-badge { font-weight: bold; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; text-align: center; min-width: 45px; }
-        .puan-plus10 { background-color: rgba(241, 196, 15, 0.25); color: #fff; border: 2px solid var(--gold); box-shadow: 0 0 8px rgba(241, 196, 15, 0.4); } /* GÜNCELLEME: JOKER PUAN BADGE STİLİ */
+        .puan-plus10 { background-color: rgba(241, 196, 15, 0.25); color: #fff; border: 2px solid var(--gold); box-shadow: 0 0 8px rgba(241, 196, 15, 0.4); }
         .puan-plus6 { background-color: rgba(52, 152, 219, 0.25); color: #fff; border: 2px solid var(--info-blue); }
         .puan-plus4 { background-color: rgba(46, 204, 113, 0.25); color: #fff; border: 2px solid var(--success-green); }
         .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
@@ -151,7 +148,7 @@
                 <button class="tab-btn" onclick="switchTab(event, 'historyTab')">📊 Özetim</button>
                 <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
                 <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
-                <button class="tab-btn" style="color:var(--info-blue);" onclick="switchTab(event, 'rulesTab')">📋 Kurallar</button>
+                <button class="tab-btn" style="color:var(--info-blue);" onclick="rulesTabClick(event)">📋 Kurallar</button>
             </div>
 
             <div id="matches" class="tab-content active">
@@ -218,8 +215,8 @@
     </div>
 
     <script>
-        // GÜNCELLEME: Kendi Script URL'ini buraya yapıştır Mustafa!
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp3jmY8VXu4ybY1ODzPFc_Qt91iM4qM9LOc2zHIOwFBlLGdfytufHo2b8Eo3vPrvIG/exec";
+        // CRITICAL: Web App URL linkini buraya mühürle Mustafa!
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykgimcGpea0LYJJluZeH3XSuc4Fjs7eEyDA0xSpjlx_dUCE5OaW1kRcpCP_QXo0dZd/exec";
         
         let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let globalCachedLeaderboard = [];
         let activeOpenedHistoryIdx = null; let activeOpenedLeaderboardId = null; let isDataFetchedFromServer = false;
@@ -243,13 +240,13 @@
         };
 
         function checkAnnouncementModal() {
-            if (!localStorage.getItem("var_star_announcement_viewed_v45")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v46")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed_v45", "true");
+            localStorage.setItem("var_star_announcement_viewed_v46", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -334,38 +331,36 @@
                         </div>
                         <div class="match-footer">
                             <span class="status-text">${durumMetni}</span>
-                            <button id="btn_${mac.id}" class="save-btn" ${disabledAttr} onclick="savePredictionWithStar(${mac.id})">Kaydet</button>
+                            <button id="btn_${mac.id}" class="save-btn" ${disabledAttr} onclick="savePredictionWithStar(${matchId})">Kaydet</button>
                         </div>
                     </div>`;
             });
             if (container.innerHTML === "") container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Aktif canlı maç bulunmuyor.</p>";
         }
 
-        function savePredictionWithStar(matchId) {
-            const skorA = document.getElementById(`tahminA_${matchId}`).value; const skorB = document.getElementById(`tahminB_${matchId}`).value;
-            const yildizIstegi = document.getElementById(`star_${matchId}`).checked;
+        // AMAN DIKKAT: Dinamik matchId parametre geçiş fixlendi!
+        function savePredictionWithStar(mId) {
+            const skorA = document.getElementById(`tahminA_${mId}`).value; const skorB = document.getElementById(`tahminB_${mId}`).value;
+            const yildizIstegi = document.getElementById(`star_${mId}`).checked;
             if(skorA === "" || skorB === "") return;
 
             let yildizSayisi = 0;
-            for (let k in mevcutTahminler) { if(k.toString() !== matchId.toString() && mevcutTahminler[k].yildiz === true) yildizSayisi++; }
+            for (let k in mevcutTahminler) { if(k.toString() !== mId.toString() && mevcutTahminler[k].yildiz === true) yildizSayisi++; }
             if(yildizIstegi) yildizSayisi++;
 
-            if(yildizSayisi > 5) { alert("🔴 Hata: 5 yıldızlı joker limitiniz doldu!"); document.getElementById(`star_${matchId}`).checked = false; return; }
+            if(yildizSayisi > 5) { alert("🔴 Hata: 5 yıldızlı joker limitiniz doldu!"); document.getElementById(`star_${mId}`).checked = false; return; }
 
-            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: matchId, scoreA: skorA, scoreB: skorB, yildiz: yildizIstegi }) })
-            .then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: mId, scoreA: skorA, scoreB: skorB, yildiz: yildizIstegi }) })
+            .then(() => { mevcutTahminler[mId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
         }
 
-        // REPARATİON: ÖZETİM SEKMESİNDEKİ RENKLENDİRME VE KLİK HATA MOTORU DÜZELTİLDİ
         function getUserHistoryDataUI(historyArray) {
             if (!isDataFetchedFromServer) return; 
             const container = document.getElementById('userHistoryContainer'); if(!container) return;
-            container.innerHTML = ""; 
-            let reversedHistory = [...historyArray].reverse();
+            container.innerHTML = ""; let reversedHistory = [...historyArray].reverse();
             
             reversedHistory.forEach((item, idx) => {
-                let isJoker = item.tahmin.includes("⭐"); // GÜNCELLEME: Jokerli maçı isminden tanı
-                
+                let isJoker = item.tahmin.includes("⭐");
                 let badgeClass = "puan-zero";
                 if (item.puan === 10 || item.puan === 5) badgeClass = isJoker ? "puan-plus10" : "puan-plus5";
                 else if (item.puan === 6 || item.puan === 3) badgeClass = isJoker ? "puan-plus6" : "puan-plus3";
@@ -380,7 +375,6 @@
                     else if (h.puan === 6 || h.puan === 3) innerBadge = innerJoker ? "puan-plus6" : "puan-plus3";
                     else if (h.puan === 4 || h.puan === 2) innerBadge = innerJoker ? "puan-plus4" : "puan-plus2";
                     
-                    // GÜNCELLEME: Yıldızlı extra puanı olan satırı bold yap ve renklendir
                     let rowStyle = innerJoker ? "font-weight: 800; color: var(--gold);" : "";
                     herkesTabloSatirlari += `<tr style="${rowStyle}"><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadge}">${h.puan} P</span></td></tr>`; 
                 });
@@ -418,17 +412,18 @@
             }); 
         }
 
-        // REPARATİON: SIRALAMA SEKMESİNDEKİ KLİK KİLİDİ VE YÜKLENME HATASI TAMAMEN GİDERİLDİ
+        // CRITICAL FIX: Tırnak çakışmasını önlemek için String parametreler tamamen havaya uçuruldu, index bazlı klik referansı getirildi!
         function renderLeaderboardTable(usersList) { 
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; 
             usersList.forEach((oyuncu, index) => { 
                 let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, ''); 
                 let isOpened = (activeOpenedLeaderboardId === safeId); 
                 
+                // HTML içine kırılgan stringler yazmak yerine doğrudan index referanslı temiz klik mühürlendi
                 tbody.innerHTML += `
-                    <tr class="player-row" onclick="togglePlayerLeaderboardDetails('${safeId}', '${oyuncu.isim.trim()}')">
+                    <tr class="player-row" id="leader_row_trigger_${safeId}">
                         <td class="rank-col">#${index + 1}</td>
-                        <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Detay)</span></td>
+                        <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                         <td class="total-col">${oyuncu.toplamPuan} P</td>
                     </tr>
                     <tr id="leader_drop_${safeId}" class="player-detail-drop-row" style="display: ${isOpened ? 'table-row' : 'none'}">
@@ -441,16 +436,23 @@
                             </div>
                         </td>
                     </tr>`; 
+                
+                // DOM oluştuktan sonra event listener'ı güvenli bağlama operasyonu
+                setTimeout(() => {
+                    const rowBtn = document.getElementById(`leader_row_trigger_${safeId}`);
+                    if(rowBtn) {
+                        rowBtn.onclick = function() {
+                            const dropRow = document.getElementById(`leader_drop_${safeId}`); if(!dropRow) return;
+                            if(dropRow.style.display === "table-row") { dropRow.style.display = "none"; activeOpenedLeaderboardId = null; return; }
+                            document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
+                            dropRow.style.display = "table-row"; activeOpenedLeaderboardId = safeId;
+                            fillLeaderboardTableDetails(safeId, oyuncu.isim.trim());
+                        };
+                    }
+                }, 10);
+
                 if(isOpened) { setTimeout(() => { fillLeaderboardTableDetails(safeId, oyuncu.isim.trim()); }, 20); }
             }); 
-        }
-
-        function togglePlayerLeaderboardDetails(safeId, originalName) {
-            const dropRow = document.getElementById(`leader_drop_${safeId}`); if(!dropRow) return;
-            if(dropRow.style.display === "table-row") { dropRow.style.display = "none"; activeOpenedLeaderboardId = null; return; }
-            document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
-            dropRow.style.display = "table-row"; activeOpenedLeaderboardId = safeId;
-            fillLeaderboardTableDetails(safeId, originalName);
         }
 
         function fillLeaderboardTableDetails(safeId, originalName) {
@@ -513,6 +515,8 @@
             if(!aktifKullanici) return;
             guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(data => { if(data && data.asama) document.getElementById('current-stage-badge').innerText = "Mevcut Aşama: " + data.asama; });
         }
+
+        function rulesTabClick(e) { switchTab(e, 'rulesTab'); }
 
         function switchTab(event, tabId) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if (event && event.currentTarget) event.currentTarget.classList.add('active'); if(tabId === 'leaderboard') getLeaderboardData(); if(tabId === 'historyTab') getUserHistoryDataUI(globalHistoryRawData); if(tabId === 'champion') { checkChampStatus(); dinamikSampiyonDropdownDoldur(); } }
     </script>
