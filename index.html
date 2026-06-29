@@ -152,7 +152,8 @@
             </div>
 
             <div id="matches" class="tab-content active">
-                <div id="starTrackerBanner" class="star-tracker-banner">⭐ Kalan 5 Yıldızlı Maç Hakkınız: Hesaplandıyor...</div>
+                <!-- REVISE: Banner formatı "Kalan Yıldızlanmış Maç Hakkı: X/5" olarak güncellendi -->
+                <div id="starTrackerBanner" class="star-tracker-banner">⭐ Kalan Yıldızlanmış Maç Hakkı: Hesaplandıyor...</div>
                 <div id="matches-list-container"><div class="loading">Aktif maçlar yükleniyor...</div></div>
             </div>
 
@@ -274,7 +275,8 @@
                     mevcutTahminler = preds; 
                     let kullanılanYildiz = 0;
                     for (let key in preds) { if(preds[key].yildiz === true) kullanılanYildiz++; }
-                    document.getElementById('starTrackerBanner').innerText = `⭐ Kalan 5 Yıldızlı Maç Hakkınız: ${5 - kullanılanYildiz}`;
+                    // REVISE: Canlı hesaplama sonrası üst bannerı X/5 formatında güncelle
+                    document.getElementById('starTrackerBanner').innerText = `⭐ Kalan Yıldızlanmış Maç Hakkı: ${5 - kullanılanYildiz}/5`;
                     
                     maclariListele(); 
                     guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
@@ -315,7 +317,6 @@
                 let durumMetni = kilitliMi ? `🔒 Kilitlendi ${yildizChecked ? '(⭐)' : ''}` : `🔓 Tahmin Girişi Açık`;
                 let disabledAttr = kilitliMi ? "disabled" : "";
 
-                // REVISE: İfade isteğin doğrultusunda "Yıldızla ve 2 Kat Puan Kazan" olarak güncellendi.
                 container.innerHTML += `
                     <div class="match-card ${kilitliMi ? 'locked' : ''}">
                         <div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div>
@@ -519,6 +520,10 @@
         }
 
         function rulesTabClick(e) { switchTab(e, 'rulesTab'); }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // DOM Kontrolleri için stabil kalıntı
+        });
 
         function switchTab(event, tabId) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if (event && event.currentTarget) event.currentTarget.classList.add('active'); if(tabId === 'leaderboard') getLeaderboardData(); if(tabId === 'historyTab') getUserHistoryDataUI(globalHistoryRawData); if(tabId === 'champion') { checkChampStatus(); dinamikSampiyonDropdownDoldur(); } }
     </script>
