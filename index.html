@@ -315,6 +315,7 @@
                 let durumMetni = kilitliMi ? `🔒 Kilitlendi ${yildizChecked ? '(⭐)' : ''}` : `🔓 Tahmin Girişi Açık`;
                 let disabledAttr = kilitliMi ? "disabled" : "";
 
+                // REVISE: İfade isteğin doğrultusunda "Yıldızla ve 2 Kat Puan Kazan" olarak güncellendi.
                 container.innerHTML += `
                     <div class="match-card ${kilitliMi ? 'locked' : ''}">
                         <div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div>
@@ -328,7 +329,7 @@
                         </div>
                         <div class="star-checkbox-container ${yildizChecked ? 'active-star' : ''}">
                             <input type="checkbox" id="star_${mac.id}" ${disabledAttr} ${yildizChecked ? 'checked' : ''} onchange="this.parentElement.classList.toggle('active-star', this.checked)">
-                            <label for="star_${mac.id}">⭐ Bu Maçı 5 Yıldızlı Yap (2 Kat Puan)</label>
+                            <label for="star_${mac.id}">⭐ Yıldızla ve 2 Kat Puan Kazan</label>
                         </div>
                         <div class="match-footer">
                             <span class="status-text">${durumMetni}</span>
@@ -353,7 +354,7 @@
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: mId, scoreA: skorA, scoreB: skorB, yildiz: yildizIstegi }) })
             .then(() => { 
                 mevcutTahminler[mId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; 
-                alert("⚽ Tahmininiz başarıyla kaydedildi!"); // GERİ GETİRİLEN POP-UP BİLDİRİMİ
+                alert("⚽ Tahmininiz başarıyla kaydedildi!"); 
                 tazeleVeYukle(); 
             });
         }
