@@ -53,14 +53,12 @@
         .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         
-        /* POP-UP MODAL STİLLERİ */
         .announcement-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background-color: var(--card-bg); border: 2px solid var(--gold); border-radius: 20px; max-width: 420px; width: 100%; padding: 25px; text-align: center; box-shadow: 0 4px 25px rgba(241,196,15,0.3); animation: fadeIn 0.4s ease; }
         .modal-header-star { font-size: 2.5rem; margin-bottom: 10px; }
         .modal-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 15px; text-transform: uppercase; }
         .modal-body-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; text-align: left; }
-        
-        /* Diğer kararlı dashboard ve tablo CSS'leri stabil tutuldu... */
+
         .mini-dashboard { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
         .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.15s, border-color 0.2s; -webkit-tap-highlight-color: transparent; }
         .dash-card-title { font-size: 0.68rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; pointer-events: none; }
@@ -110,8 +108,7 @@
             <div class="modal-body-text">
                 Turnuvada eleme heyecanı tavan yapıyor Mustafa! İşte grubun kaderini değiştirecek yepyeni kurallar:<br><br>
                 <strong>1. ⭐ 5 Yıldızlı Joker Maç Hakkı:</strong> Artık finale kadar toplam 5 maçınızı yıldızlama hakkınız var. Yıldızladığınız maçtan alacağınız puanlar (Cezalar dahil!) <strong>tam 2 katıyla</strong> çarpılır.<br><br>
-                <strong>2. 📈 Son 32 Şampiyonluk Bonusu:</strong> Bu tur bitmeden şampiyon tahminini güncelleyenler tam <strong>+10 Puan</strong> kazanacak.<br><br>
-                <strong>3. 🔄 Otomatik Fikstür Ağacı:</strong> Grup maçları tamamlandığı için elenen takımlar listeden otomatik uçurulmuştur.
+                <strong>2. 🔄 Otomatik Fikstür Ağacı:</strong> Grup maçları tamamlandığı için elenen takımlar listeden otomatik olarak uçurulmuştur.
             </div>
             <button class="save-btn" style="width:100%; padding:12px; background-color:var(--gold); color:#000; font-weight:900;" onclick="closeAnnouncementModal()">Kuralları Okudum, Başlayalım!</button>
         </div>
@@ -200,12 +197,34 @@
                     <select id="champion-select"><option value="" disabled selected>Yükleniyor...</option></select>
                     <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Kilitle</button>
                     <div id="locked-prediction-zone" class="locked-champion-box" style="display: none; margin-top: 15px; text-align: center;">
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">Kilitli Tahmininiz:</span>
                         <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
                     </div>
                 </div>
             </div>
 
-            <div id="rulesTab" class="tab-content">/* ... kurallar divi yukarıdakiyle aynı ... */</div>
+            <div id="rulesTab" class="tab-content">
+                <div class="champion-card">
+                    <h2>🏆 VAR Odası Kullanım Kılavuzu</h2>
+                    <div class="tutorial-section">
+                        <div class="tutorial-title">📊 Puanlama Dağılımı</div>
+                        <div class="tutorial-text">
+                            <span class="rule-badge badge-5p">+5 Puan</span> Tam Skor Bilme<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> Gol Farkı Bilme<br>
+                            <span class="rule-badge badge-2p">+2 Puan</span> Taraf Bilme<br>
+                            <span class="rule-badge badge-neg">-2 Puan</span> Tahmin Unutma Cezası!<br><br>
+                            <span class="rule-badge badge-gold" style="background-color:var(--gold); color:#000;">⭐ 5 YILDIZLI JOKER MAÇI:</span><br>
+                            • Son 32 turundan itibaren toplam **5 maç yıldızlama** hakkınız vardır.<br>
+                            • Yıldızladığınız maçtan alacağınız tüm puanlar **2 ile çarpılır**!<br><br>
+                            <span class="rule-badge badge-gold">🔥 Şampiyonluk Kademeli Bonusu:</span><br>
+                            • <strong>Turnuva Başlangıcı:</strong> +15 Puan<br>
+                            • <strong>Son 32 Turunda kilitleyenler:</strong> +10 Puan<br>
+                            • <strong>Son 16 Turunda kilitleyenler:</strong> +8 Puan<br>
+                            • <strong>Çeyrek Finalde:</strong> +4 Puan
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -228,14 +247,13 @@
         };
 
         function checkAnnouncementModal() {
-            // GÜNCELLEME: Pop-up mühür kontrolü (Girişte sadece 1 kez tetiklenir)
-            if (!localStorage.getItem("var_star_announcement_viewed")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v38")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed", "true");
+            localStorage.setItem("var_star_announcement_viewed_v38", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -248,7 +266,7 @@
                 document.getElementById('logoutBtn').style.display = 'flex';
                 document.getElementById('userWelcome').innerText = "⚽ Oyuncu: " + aktifKullanici; document.getElementById('userWelcome').style.display = 'block';
                 tazeleVeYukle();
-                checkAnnouncementModal(); // Pop-up'ı ateşle
+                checkAnnouncementModal();
             });
         }
 
@@ -271,6 +289,76 @@
                             getUserHistoryDataUI(res.history); 
                         });
                     checkChampStatus();
+                });
+        }
+
+        // GÜNCELLEME: ŞAMPİYON TAKIM TURNUVADA DEVAM EDİYORSA SEÇİMİ KİLİTLEYEN AKILLI MOTOR
+        function dinamikSampiyonDropdownDoldur() {
+            const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
+            const saveBtn = document.getElementById('save-champion-btn');
+            const tumTakimlar = ["ABD","Almanya","Arjantin","Avustralya","Avusturya","Belçika","Bosna Hersek","Brezilya","Cezayir","Curaçao","Çekya","Demokratik Kongo","Ekvador","Fas","Fildişi Sahili","Fransa","Gana","Güney Afrika","Güney Kore","Haiti","Hırvatistan","Hollanda","Irak","İngiltere","İran","İskoçya","İspanya","İsviçre","Japonya","Kanada","Katar","Kolombiya","Meksika","Mısır","Norveç","Özbekistan","Panama","Paraguay","Portekiz","Senegal","Suudi Arabistan","Tunus","Türkiye","Uruguay","Ürdün","Yeni Zelanda","Yeşil Burun Adaları"];
+            
+            guvenliFetch(SCRIPT_URL).then(data => {
+                guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(status => {
+                    let aktifAsama = status.asama ? status.asama.trim().toLowerCase() : "turnuva başlangıcı";
+                    let eskiTahmin = status.currentPrediction ? status.currentPrediction.toString().trim() : "-";
+
+                    // Fikstür sayfasındaki henüz oynanmamış (gercekA == "-") maçlarda hayatta olan takımları Set'e alıyoruz
+                    let hayattaKalanTakimlar = new Set();
+                    data.forEach(mac => {
+                        if (mac.gercekA === "-") {
+                            if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(mac.takimA.trim().toLowerCase());
+                            if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(mac.takimB.trim().toLowerCase());
+                        }
+                    });
+
+                    // KRİTİK KONTROL: Eğer adamın eski tahmini hâlâ hayattaysa dropdown'ı ve butonu tamamen kilitle!
+                    if (eskiTahmin !== "-" && eskiTahmin !== "" && hayattaKalanTakimlar.has(eskiTahmin.toLowerCase())) {
+                        selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Devam Ediyor)</option>`;
+                        selectBox.disabled = true;
+                        saveBtn.disabled = true;
+                        saveBtn.innerText = "🔒 Adayınız Turnuvada Devam Ediyor";
+                        saveBtn.style.backgroundColor = "#333"; saveBtn.style.color = "#777";
+                        return;
+                    }
+
+                    // Eğer eski tahmin elendiyse veya hiç girilmediyse dropdown'ı aktif hale getir ve sadece hayatta kalanları dök!
+                    selectBox.disabled = false;
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = "Tahmini Kilitle";
+                    saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000";
+                    
+                    selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
+                    
+                    if (aktifAsama === "turnuva başlangıcı" || data.length === 0) {
+                        tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
+                    } else {
+                        let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => {
+                            // Orijinal büyük harfli halini bulalım
+                            return tumTakimlar.find(orig => orig.toLowerCase() === t) || t;
+                        }).filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr'));
+
+                        if(siralıAktifler.length > 0) {
+                            siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
+                        } else {
+                            tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
+                        }
+                    }
+                });
+            });
+        }
+
+        function checkChampStatus() {
+            if(!aktifKullanici) return;
+            guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`)
+                .then(data => {
+                    document.getElementById('current-stage-badge').innerText = "Mevcut Aşama: " + data.asama;
+                    if (data.currentPrediction && data.currentPrediction !== "-") {
+                        document.getElementById('locked-prediction-zone').style.display = "block";
+                        document.getElementById('locked-team-name').innerText = "🔒 Kayıtlı Adayınız: " + data.currentPrediction;
+                    } else {
+                        document.getElementById('locked-prediction-zone').style.display = "none";
+                    }
                 });
         }
 
@@ -334,13 +422,20 @@
             .then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
         }
 
-        // Diğer alt tablo motorları (Leaderboard, Dropdown vb.) stabil mühürlü korundu...
-        function dinamikSampiyonDropdownDoldur() { /* ... */ }
-        function getUserHistoryDataUI(h) { /* ... */ }
-        function getLeaderboardData() { /* ... */ }
-        function renderLeaderboardTable(u) { /* ... */ }
-        function toggleDashboardFilter(p) { /* ... */ }
-        function switchTab(e, t) { /* ... */ }
+        function getUserHistoryDataUI(historyArray) {
+            if (!isDataFetchedFromServer) return; const container = document.getElementById('userHistoryContainer'); if(!container) return;
+            container.innerHTML = ""; let reversedHistory = [...historyArray].reverse();
+            reversedHistory.forEach((item, idx) => {
+                let badgeClass = item.puan === 10 || item.puan === 5 ? "puan-plus5" : (item.puan === 6 || item.puan === 3 ? "puan-plus3" : (item.puan === 4 || item.puan === 2 ? "puan-plus2" : "puan-zero"));
+                let herkesTabloSatirlari = ""; (item.herkes || []).forEach(h => { herkesTabloSatirlari += `<tr><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge">${h.puan} P</span></td></tr>`; });
+                let isOpened = (activeOpenedHistoryIdx === idx);
+                container.innerHTML += `<div class="history-row" onclick="toggleHistoryDropdown(${idx})"><div class="history-main-info"><div class="history-teams">${item.takimA} - ${item.takimB}</div><div class="history-scores"><span>Tahmin: <strong>${item.tahmin}</strong></span><span>Sonuç: <strong>${item.gercekSkor}</strong></span></div><div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div></div><div id="history_drop_${idx}" class="history-details-dropdown" style="display: ${isOpened ? 'block' : 'none'}" onclick="event.stopPropagation()"><table class="details-table"><thead><tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr></thead><tbody>${herkesTabloSatirlari}</tbody></table></div></div>`;
+            });
+        }
+        function toggleHistoryDropdown(index) { const drop = document.getElementById(`history_drop_${index}`); if(!drop) return; if(drop.style.display === "block") { drop.style.display = "none"; activeOpenedHistoryIdx = null; } else { drop.style.display = "block"; activeOpenedHistoryIdx = index; } }
+        function getLeaderboardData() { guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => { globalCachedLeaderboard = users; renderLeaderboardTable(users); }); }
+        function renderLeaderboardTable(usersList) { const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; usersList.forEach((oyuncu, index) => { let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, ''); tbody.innerHTML += `<tr class="player-row" onclick="if(!isScrolling) { activeOpenedLeaderboardId = (activeOpenedLeaderboardId == '${safeId}' ? null : '${safeId}'); getLeaderboardData(); }"><td class="rank-col">#${index + 1}</td><td class="name-col">⚽ ${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`; }); }
+        function switchTab(event, tabId) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if (event && event.currentTarget) event.currentTarget.classList.add('active'); if(tabId === 'leaderboard') getLeaderboardData(); if(tabId === 'historyTab') getUserHistoryData(); if(tabId === 'champion') { checkChampStatus(); dinamikSampiyonDropdownDoldur(); } }
     </script>
 </body>
 </html>
