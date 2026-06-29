@@ -53,6 +53,11 @@
         .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         
+        /* GÜNCELLEME: ŞAMPİYON ADAYI GÖSTERGE ALANI CSS */
+        .current-prediction-header-box { background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 20px; }
+        .current-prediction-header-box span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px; }
+        .current-prediction-header-box strong { font-size: 1.3rem; color: var(--gold); font-weight: 900; letter-spacing: 0.5px; }
+
         .announcement-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background-color: var(--card-bg); border: 2px solid var(--gold); border-radius: 20px; max-width: 420px; width: 100%; padding: 25px; text-align: center; box-shadow: 0 4px 25px rgba(241,196,15,0.3); animation: fadeIn 0.4s ease; }
         .modal-header-star { font-size: 2.5rem; margin-bottom: 10px; }
@@ -189,14 +194,19 @@
 
             <div id="champion" class="tab-content">
                 <div class="champion-card">
-                    <h2>Şampiyonunu Tahmin Et</h2>
+                    <div class="current-prediction-header-box">
+                        <span>Mevcut Şampiyon Adayınız</span>
+                        <strong id="header-team-display">YÜKLENİYOR...</strong>
+                    </div>
+
+                    <h2>Şampiyonunu Yenile</h2>
                     <div style="text-align: center; margin-bottom: 15px;">
                         <span class="stage-badge" id="current-stage-badge" style="background-color:var(--gold); color:#000; padding:5px 10px; font-weight:bold;">Yükleniyor...</span>
                     </div>
                     <select id="champion-select"><option value="" disabled selected>Yükleniyor...</option></select>
                     <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Kilitle</button>
                     <div id="locked-prediction-zone" class="locked-champion-box" style="display: none; margin-top: 15px; text-align: center;">
-                        <span style="color: var(--text-muted); font-size: 0.8rem;">Kilitli Tahmininiz:</span>
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">Durum Durumu:</span>
                         <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
                     </div>
                 </div>
@@ -233,6 +243,12 @@
         let activeOpenedHistoryIdx = null; let activeOpenedLeaderboardId = null; let isDataFetchedFromServer = false;
         let isScrolling = false; let startY = 0;
 
+        // Türkçe karakter güvenli küçük harf çevirici motor (MÜHÜR FIX)
+        function turkceKucukHarfCevir(str) {
+            if(!str) return "";
+            return str.toString().replace(/İ/g, "i").replace(/I/g, "ı").replace(/Ş/g, "ş").replace(/Ğ/g, "ğ").replace(/Ç/g, "ç").replace(/Ö/g, "ö").replace(/Ü/g, "ü").toLowerCase().trim();
+        }
+
         function guvenliFetch(url) { return fetch(url).then(res => res.json()); }
         function yerelTarihParse(tarihStr) { if(!tarihStr) return new Date(); return new Date(tarihStr.replace(" ", "T")); }
 
@@ -246,13 +262,13 @@
         };
 
         function checkAnnouncementModal() {
-            if (!localStorage.getItem("var_star_announcement_viewed_v39")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v40")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed_v39", "true");
+            localStorage.setItem("var_star_announcement_viewed_v40", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -295,6 +311,7 @@
                             getUserHistoryDataUI(res.history); 
                         });
                     checkChampStatus();
+                    dinamikSampiyonDropdownDoldur();
                 });
         }
 
@@ -358,9 +375,11 @@
             .then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
         }
 
+        // GÜNCELLEME: TÜRKÇE HARF KORUMALI ÇİFT KİLİTLİ SEÇİM ENGELLEME MOTORU
         function dinamikSampiyonDropdownDoldur() {
             const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
             const saveBtn = document.getElementById('save-champion-btn');
+            const headerDisplay = document.getElementById('header-team-display');
             const tumTakimlar = ["ABD","Almanya","Arjantin","Avustralya","Avusturya","Belçika","Bosna Hersek","Brezilya","Cezayir","Curaçao","Çekya","Demokratik Kongo","Ekvador","Fas","Fildişi Sahili","Fransa","Gana","Güney Afrika","Güney Kore","Haiti","Hırvatistan","Hollanda","Irak","İngiltere","İran","İskoçya","İspanya","İsviçre","Japonya","Kanada","Katar","Kolombiya","Meksika","Mısır","Norveç","Özbekistan","Panama","Paraguay","Portekiz","Senegal","Suudi Arabistan","Tunus","Türkiye","Uruguay","Ürdün","Yeni Zelanda","Yeşil Burun Adaları"];
             
             guvenliFetch(SCRIPT_URL).then(data => {
@@ -368,24 +387,38 @@
                     let aktifAsama = status.asama ? status.asama.trim().toLowerCase() : "turnuva başlangıcı";
                     let eskiTahmin = status.currentPrediction ? status.currentPrediction.toString().trim() : "-";
 
+                    // Üst göstergeyi mühürle
+                    if(eskiTahmin !== "-" && eskiTahmin !== "") {
+                        headerDisplay.innerText = eskiTahmin.toUpperCase();
+                    } else {
+                        headerDisplay.innerText = "GİRİLMEDİ";
+                    }
+
+                    // Fikstür sayfasındaki canlı maç havuzunu Türkçe güvenli tarama
                     let hayattaKalanTakimlar = new Set();
                     data.forEach(mac => {
                         if (mac.gercekA === "-") {
-                            if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(mac.takimA.trim().toLowerCase());
-                            if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(mac.takimB.trim().toLowerCase());
+                            if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimA));
+                            if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimB));
                         }
                     });
 
-                    if (eskiTahmin !== "-" && eskiTahmin !== "" && hayattaKalanTakimlar.has(eskiTahmin.toLowerCase())) {
-                        selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Devam Ediyor)</option>`;
-                        selectBox.disabled = true; saveBtn.disabled = true;
+                    let temizEskiTahminKey = turkceKucukHarfCevir(eskiTahmin);
+
+                    // TAM FIX KİLİT: Eğer adayınız (örn: Portekiz) fikstür havuzunda canlıysa seçtirme, kilitle!
+                    if (eskiTahmin !== "-" && eskiTahmin !== "" && hayattaKalanTakimlar.has(temizEskiTahminKey)) {
+                        selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Turnuvada Devam Ediyor)</option>`;
+                        selectBox.disabled = true;
+                        saveBtn.disabled = true;
                         saveBtn.innerText = "🔒 Adayınız Turnuvada Devam Ediyor";
                         saveBtn.style.backgroundColor = "#333"; saveBtn.style.color = "#777";
                         return;
                     }
 
-                    selectBox.disabled = false; saveBtn.disabled = false;
-                    saveBtn.innerText = "Tahmini Kilitle";
+                    // Aday elendiyse burası tetiklenir ve sadece canlı kalan 32 takımı selecte basar
+                    selectBox.disabled = false;
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = "Yenilenen Tahmini Kilitle";
                     saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000";
                     
                     selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
@@ -394,11 +427,14 @@
                         tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
                     } else {
                         let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => {
-                            return tumTakimlar.find(orig => orig.toLowerCase() === t) || t;
+                            return tumTakimlar.find(orig => turkceKucukHarfCevir(orig) === t);
                         }).filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr'));
 
-                        if(siralıAktifler.length > 0) { siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); }); }
-                        else { tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); }); }
+                        if(siralıAktifler.length > 0) {
+                            siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
+                        } else {
+                            tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
+                        }
                     }
                 });
             });
