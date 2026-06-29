@@ -100,6 +100,574 @@
         .details-table th { color: var(--text-muted); padding: 5px; border-bottom: 1px solid #333; font-weight: bold; text-align: left; }
         .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
+        .admin-select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
+        .admin-user-card { background-color: #252525; padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .approve-btn { background-color: var(--success-green); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="announcementModal" class="announcement-modal">
+        <div class="modal-content">
+            <div class="modal-header-star">⭐</div>
+            <div class="modal-title">5 Yıldızlı Joker Aktif!</div>
+            <div class="modal-body-text">
+                Son 32 turundan itibaren finale kadar toplam <strong>5 maçı yıldızlama</strong> hakkınız tanımlanmıştır.<br><br>
+                Yıldızladığınız maçlardan alacağınız tüm puanlar (veya tahmin etmeme cezaları) tam <strong>2 katıyla (x2)</strong> hesaplanacaktır!
+            </div>
+            <button class="save-btn" style="width:100%; padding:12px; background-color:var(--gold); color:#000; font-weight:900;" onclick="closeAnnouncementModal()">Anladım, Tahminlere Başla!</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <div class="header-top-row">
+                <div id="userWelcome" class="user-welcome"></div>
+                <div></div>
+                <button id="logoutBtn" class="logout-icon-btn" onclick="handleLogout()" title="Oturumu Kapat">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 13v-2H10V9l-5 3 5 3v-2h6M20 3H11c-1.1 0-2 .9-2 2v4h2V5h9v14h-9v-4H9v4c0 1.1.9 2 2 2h9c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="currentColor"/></svg>
+                </button>
+            </div>
+            <div class="logo-container">
+                <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="15" width="90" height="70" rx="8" fill="none" stroke="#f1c40f" stroke-width="4" stroke-dasharray="6,4"/>
+                    <path d="M35 25 C35 25, 35 45, 42 55 L42 75 L32 75 L32 82 L68 82 L68 75 L58 75 L58 55 C65 45, 65 25, 65 25 Z" fill="#f1c40f"/>
+                </svg>
+                <h1>VAR <span>Odası</span></h1>
+            </div>
+        </header>
+
+        <div id="authScreen" class="auth-container">
+            <h2>Giriş Yap veya Kaydol</h2>
+            <input type="text" id="usernameInput" class="auth-input" placeholder="Kullanıcı Adı">
+            <input type="password" id="pinInput" class="auth-input" maxlength="4" placeholder="4 Haneli PIN Kodu">
+            <button id="authBtn" class="save-btn" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="handleAuth()">Sisteme Giriş Yap</button>
+        </div>
+
+        <div id="mainApp" class="main-app">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'matches')">Maçlar</button>
+                <button class="tab-btn" onclick="switchTab(event, 'historyTab')">📊 Özetim</button>
+                <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
+                <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
+                <button class="tab-btn" style="color:var(--info-blue);" onclick="rulesTabClick(event)">📋 Kurallar</button>
+                <!-- ENTEGRASYON: Geri getirilen Admin sekme butonu -->
+                <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Yönetici</button>
+            </div>
+
+            <div id="matches" class="tab-content active">
+                <div id="starTrackerBanner" class="star-tracker-banner">⭐ Kalan Yıldızlanmış Maç Hakkı: Hesaplandıyor...</div>
+                <div id="matches-list-container"><div class="loading">Aktif maçlar yükleniyor...</div></div>
+            </div>
+
+            <div id="historyTab" class="tab-content">
+                <div class="score-card-header">
+                    <div id="userTotalPoints" class="score-card-points">0</div>
+                    <div class="score-card-label">Toplam VAR Odası Puanım</div>
+                </div>
+                <h3 style="margin-bottom:15px; font-size:1rem; color:var(--gold);">🏁 Tamamlanan Maç Özetlerim</h3>
+                <div id="userHistoryContainer"></div>
+            </div>
+
+            <div id="leaderboard" class="tab-content">
+                <div class="leaderboard-container">
+                    <table class="leaderboard-table">
+                        <thead><tr><th style="text-align: center;">Sıra</th><th>Oyuncu</th><th id="leader-score-th" style="text-align: right; padding-right: 15px;">Puan</th></tr></thead>
+                        <tbody id="leaderboard-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="champion" class="tab-content">
+                <div class="champion-card">
+                    <div class="current-prediction-header-box">
+                        <span>Mevcut Şampiyon Adayınız</span>
+                        <strong id="header-team-display">YÜKLENİYOR...</strong>
+                    </div>
+                    <h2>Şampiyonunu Güncelle</h2>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <span class="stage-badge" id="current-stage-badge" style="background-color:var(--gold); color:#000; padding:5px 10px; font-weight:bold;">Yükleniyor...</span>
+                    </div>
+                    <select id="champion-select"><option value="" disabled selected>Yükleniyor...</option></select>
+                    <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Kilitle</button>
+                </div>
+            </div>
+
+            <div id="rulesTab" class="tab-content">
+                <div class="champion-card">
+                    <h2>🏆 VAR Odası Kullanım Kılavuzu</h2>
+                    <div class="tutorial-section">
+                        <div class="tutorial-title">📊 Puanlama Dağılımı</div>
+                        <div class="tutorial-text">
+                            <span class="rule-badge badge-5p">+5 Puan</span> Tam Skor Bilme<br>
+                            <span class="rule-badge badge-3p">+3 Puan</span> Gol Farkı Bilme<br>
+                            <span class="rule-badge badge-2p">+2 Puan</span> Taraf Bilme<br>
+                            <span class="rule-badge badge-neg">-2 Puan</span> Tahmin Unutma Cezası!<br><br>
+                            <span class="rule-badge badge-gold" style="background-color:var(--gold); color:#000;">⭐ 5 YILDIZLI JOKER MAÇI:</span><br>
+                            • Son 32 turundan itibaren toplam **5 maç yıldızlama** hakkınız vardır.<br>
+                            • Yıldızladığınız maçtan alacağınız tüm puanlar **2 ile çarpılır**!<br><br>
+                            <span class="rule-badge badge-gold">🔥 Şampiyonluk Kademeli Bonus:</span><br>
+                            • <strong>Turnuva Başlangıcı:</strong> +15 Puan<br>
+                            • <strong>Son 32 Turunda kilitleyenler:</strong> +10 Puan<br>
+                            • <strong>Son 16 Turunda kilitleyenler:</strong> +8 Puan<br>
+                            • <strong>Çeyrek Finalde:</strong> +4 Puan
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ENTEGRASYON: Geri getirilen Admin Panel İçerik Alanı -->
+            <div id="adminPanel" class="tab-content">
+                <div class="champion-card">
+                    <h2 style="color:var(--info-blue); margin-bottom:10px;">⚽ Gerçek Maç Sonucu Giriş Merkezi</h2>
+                    <select id="adminMatchSelect" class="admin-select">
+                        <option value="" disabled selected>Sonucu girilecek maçı seçin...</option>
+                    </select>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <input type="number" id="adminScoreA" class="auth-input" placeholder="Takım A Skoru" style="flex:1;">
+                        <input type="number" id="adminScoreB" class="auth-input" placeholder="Takım B Skoru" style="flex:1;">
+                    </div>
+                    <button class="save-btn" style="width:100%; padding:11px; background-color:var(--info-blue); font-weight:bold; margin-bottom:25px;" onclick="saveRealMatchResult()">Skoru İşle & Puanları Hesapla</button>
+                    
+                    <h2 style="color:var(--accent-red); margin-bottom:10px; border-top: 1px solid var(--border-color); padding-top:20px;">🛠️ Maç Tahmin Sıfırlama Sihirbazı</h2>
+                    <select id="adminResetMatchSelect" class="admin-select">
+                        <option value="" disabled selected>Sıfırlanacak maçı seçin...</option>
+                    </select>
+                    <button class="save-btn" style="width:100%; padding:10px; background-color:var(--accent-red); font-weight:bold;" onclick="triggerMatchReset()">Seçilen Maçın Tüm Verilerini Sıfırla</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgXVvEfJGwM595_GQtKBPAFPd32TN-Mj3gLklKP9XKP_j-LhNoHweP5wqCRzBMyDbh/exec";
+        
+        let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let globalCachedLeaderboard = [];
+        let activeOpenedHistoryIdx = null; let activeOpenedLeaderboardId = null; let isDataFetchedFromServer = false;
+        let isScrolling = false; let startY = 0;
+
+        function turkceKucukHarfCevir(str) {
+            if(!str) return "";
+            return str.toString().replace(/İ/g, "i").replace(/I/g, "ı").replace(/Ş/g, "ş").replace(/Ğ/g, "ğ").replace(/Ç/g, "ç").replace(/Ö/g, "ö").replace(/Ü/g, "ü").toLowerCase().trim();
+        }
+
+        function guvenliFetch(url) { return fetch(url).then(res => res.json()).catch(e => { return []; }); }
+        function yerelTarihParse(tarihStr) { if(!tarihStr) return new Date(); return new Date(tarihStr.replace(" ", "T")); }
+
+        window.onload = function() { 
+            guvenliFetch(SCRIPT_URL).then(data => { maclar = data; maclariListele(); dinamikSampiyonDropdownDoldur(); adminSecimListeleriniDoldur(); });
+            window.addEventListener('touchstart', function(e) { startY = e.touches[0].pageY; isScrolling = false; }, {passive: true});
+            window.addEventListener('touchmove', function(e) { if (Math.abs(e.touches[0].pageY - startY) > 6) isScrolling = true; }, {passive: true});
+            
+            const savedUser = localStorage.getItem("var_username"); const savedPin = localStorage.getItem("var_pin");
+            if (savedUser && savedPin) { document.getElementById('usernameInput').value = savedUser; document.getElementById('pinInput').value = savedPin; handleAuth(); }
+        };
+
+        function checkAnnouncementModal() {
+            if (!localStorage.getItem("var_star_announcement_viewed_v47")) {
+                document.getElementById('announcementModal').style.display = 'flex';
+            }
+        }
+
+        function closeAnnouncementModal() {
+            localStorage.setItem("var_star_announcement_viewed_v47", "true");
+            document.getElementById('announcementModal').style.display = 'none';
+        }
+
+        function handleAuth() {
+            const user = document.getElementById('usernameInput').value.trim(); const pin = document.getElementById('pinInput').value.trim();
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "auth", username: user, pin: pin }) })
+            .then(() => {
+                localStorage.setItem("var_username", user); localStorage.setItem("var_pin", pin); aktifKullanici = user;
+                document.getElementById('authScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('logoutBtn').style.display = 'flex';
+                
+                // ENTEGRASYON: Giriş yapan admin ise üst başlığı ve yönetim sekmesini görünür kıl
+                if(user.toLowerCase() === "admin") {
+                    document.getElementById('adminTabBtn').style.display = 'block';
+                    document.getElementById('userWelcome').innerText = "👑 Yönetici: " + aktifKullanici;
+                } else {
+                    document.getElementById('adminTabBtn').style.display = 'none';
+                    document.getElementById('userWelcome').innerText = "⚽ Oyuncu: " + aktifKullanici;
+                }
+                
+                document.getElementById('userWelcome').style.display = 'block';
+                tazeleVeYukle();
+                checkAnnouncementModal();
+            });
+        }
+
+        function handleLogout() {
+            if(!confirm("Oturumu kapatmak istediğinize emin misiniz?")) return;
+            localStorage.removeItem("var_username"); localStorage.removeItem("var_pin"); window.location.reload();
+        }
+
+        function tazeleVeYukle() {
+            if(!aktifKullanici) return;
+            guvenliFetch(`${SCRIPT_URL}?action=getUserPredictions&username=${encodeURIComponent(aktifKullanici)}`)
+                .then(preds => { 
+                    mevcutTahminler = preds; 
+                    let kullanılanYildiz = 0;
+                    for (let key in preds) { if(preds[key].yildiz === true) kullanılanYildiz++; }
+                    document.getElementById('starTrackerBanner').innerText = `⭐ Kalan Yıldızlanmış Maç Hakkı: ${5 - kullanılanYildiz}/5`;
+                    
+                    maclariListele(); 
+                    guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
+                        .then(res => {
+                            if(res && res.history) {
+                                globalHistoryRawData = [...res.history];
+                                document.getElementById('userTotalPoints').innerText = res.total;
+                                isDataFetchedFromServer = true; 
+                                getLeaderboardData(); 
+                                getUserHistoryDataUI(res.history); 
+                                adminSecimListeleriniDoldur();
+                            }
+                        });
+                    dinamikSampiyonDropdownDoldur();
+                });
+        }
+
+        function maclariListele() {
+            const container = document.getElementById('matches-list-container'); if(!container) return; 
+            if(maclar.length === 0) { container.innerHTML = "<div class='loading'>Aktif maç verisi bekleniyor...</div>"; return; }
+            container.innerHTML = "";
+            const simdikiZaman = new Date();
+            let siralıMaclar = [...maclar].sort((mac1, mac2) => yerelTarihParse(mac1.zaman) - yerelTarihParse(mac2.zaman));
+
+            siralıMaclar.forEach(mac => {
+                if (mac.gercekA !== "-") return; 
+                const macZamani = yerelTarihParse(mac.zaman); const kilitliMi = simdikiZaman >= macZamani;
+                if (simdikiZaman >= new Date(macZamani.getTime() + (3 * 60 * 60 * 1000))) return;
+
+                const formatliZaman = macZamani.toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' });
+                const dahaOnceGirildiMi = mevcutTahminler[mac.id] !== undefined;
+                
+                let tA = ""; let tB = ""; let yildizChecked = false;
+                if (dahaOnceGirildiMi && mevcutTahminler[mac.id].a !== undefined) {
+                    tA = mevcutTahminler[mac.id].a; tB = mevcutTahminler[mac.id].b;
+                    yildizChecked = mevcutTahminler[mac.id].yildiz === true;
+                }
+
+                let durumMetni = kilitliMi ? `🔒 Kilitlendi ${yildizChecked ? '(⭐)' : ''}` : `🔓 Tahmin Girişi Açık`;
+                let disabledAttr = kilitliMi ? "disabled" : "";
+
+                container.innerHTML += `
+                    <div class="match-card ${kilitliMi ? 'locked' : ''}">
+                        <div class="match-header"><span>${mac.grup} • Maç ${mac.id}</span><span>${formatliZaman}</span></div>
+                        <div class="match-body">
+                            <div class="team"><span class="team-name">${mac.takimA}</span></div>
+                            <div class="prediction-inputs">
+                                <input type="number" id="tahminA_${mac.id}" class="score-input" min="0" ${disabledAttr} value="${tA}"> : 
+                                <input type="number" id="tahminB_${mac.id}" class="score-input" min="0" ${disabledAttr} value="${tB}">
+                            </div>
+                            <div class="team"><span class="team-name">${mac.takimB}</span></div>
+                        </div>
+                        <div class="star-checkbox-container ${yildizChecked ? 'active-star' : ''}">
+                            <input type="checkbox" id="star_${mac.id}" ${disabledAttr} ${yildizChecked ? 'checked' : ''} onchange="this.parentElement.classList.toggle('active-star', this.checked)">
+                            <label for="star_${mac.id}">⭐ Yıldızla ve 2 Kat Puan Kazan</label>
+                        </div>
+                        <div class="match-footer">
+                            <span class="status-text">${durumMetni}</span>
+                            <button id="btn_${mac.id}" class="save-btn" ${disabledAttr} onclick="savePredictionWithStar(${mac.id})">Kaydet</button>
+                        </div>
+                    </div>`;
+            });
+            if (container.innerHTML === "") container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Aktif canlı maç bulunmuyor.</p>";
+        }
+
+        function savePredictionWithStar(mId) {
+            const skorA = document.getElementById(`tahminA_${mId}`).value; const skorB = document.getElementById(`tahminB_${mId}`).value;
+            const yildizIstegi = document.getElementById(`star_${mId}`).checked;
+            if(skorA === "" || skorB === "") return;
+
+            let yildizSayisi = 0;
+            for (let k in mevcutTahminler) { if(k.toString() !== mId.toString() && mevcutTahminler[k].yildiz === true) yildizSayisi++; }
+            if(yildizIstegi) yildizSayisi++;
+
+            if(yildizSayisi > 5) { alert("🔴 Hata: 5 yıldızlı joker limitiniz doldu!"); document.getElementById(`star_${mId}`).checked = false; return; }
+
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "savePrediction", username: aktifKullanici, matchId: mId, scoreA: skorA, scoreB: skorB, yildiz: yildizIstegi }) })
+            .then(() => { 
+                mevcutTahminler[mId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; 
+                alert("⚽ Tahmininiz başarıyla kaydedildi!"); 
+                tazeleVeYukle(); 
+            });
+        }
+
+        // ENTEGRASYON: Gerçek maç skoru girerken doldurulan admin dropdown menüleri
+        function adminSecimListeleriniDoldur() {
+            const selectGiris = document.getElementById('adminMatchSelect');
+            const selectSifirla = document.getElementById('adminResetMatchSelect');
+            if(!selectGiris || !selectSifirla || maclar.length === 0) return;
+
+            selectGiris.innerHTML = '<option value="" disabled selected>Sonucu girilecek maçı seçin...</option>';
+            selectSifirla.innerHTML = '<option value="" disabled selected>Sıfırlanacak maçı seçin...</option>';
+
+            maclar.forEach(mac => {
+                const metin = `Maç ${mac.id} | ${mac.takimA} - ${mac.takimB} (${mac.grup})`;
+                if (mac.gercekA === "-") {
+                    const opt = document.createElement('option'); opt.value = mac.id; opt.innerText = metin; selectGiris.appendChild(opt);
+                }
+                const optSifirla = document.createElement('option'); optSifirla.value = mac.id; optSifirla.innerText = metin + (mac.gercekA !== "-" ? ` [Sonuç: ${mac.gercekA}-${mac.gercekB}]` : "");
+                selectSifirla.appendChild(optSifirla);
+            });
+        }
+
+        function saveRealMatchResult() {
+            const mId = document.getElementById('adminMatchSelect').value; 
+            const scA = document.getElementById('adminScoreA').value.trim(); 
+            const scB = document.getElementById('adminScoreB').value.trim();
+            if(!mId || scA === "" || scB === "") { alert("Lütfen maç seçin ve skorları eksiksiz girin!"); return; }
+            
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveMatchResult", matchId: mId, gercekA: scA, gercekB: scB }) })
+            .then(() => { 
+                alert("🏆 Skor başarıyla işlendi ve puanlar dağıtıldı!"); 
+                document.getElementById('adminScoreA').value = ""; document.getElementById('adminScoreB').value = "";
+                guvenliFetch(SCRIPT_URL).then(data => { maclar = data; tazeleVeYukle(); }); 
+            });
+        }
+
+        function triggerMatchReset() {
+            const mId = document.getElementById('adminResetMatchSelect').value; 
+            if(!mId) { alert("Lütfen sıfırlanacak maçı seçin!"); return; }
+            if(!confirm("Seçilen maçın tüm verileri ve tahminleri silinecektir. Emin misiniz?")) return;
+            
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "resetMatchData", matchId: mId }) })
+            .then(() => { alert("Maç verileri başarıyla sıfırlandı!"); guvenliFetch(SCRIPT_URL).then(data => { maclar = data; tazeleVeYukle(); }); });
+        }
+
+        function getUserHistoryDataUI(historyArray) {
+            if (!isDataFetchedFromServer) return; 
+            const container = document.getElementById('userHistoryContainer'); if(!container) return;
+            container.innerHTML = ""; let reversedHistory = [...historyArray].reverse();
+            
+            reversedHistory.forEach((item, idx) => {
+                let isJoker = item.tahmin.includes("⭐");
+                let badgeClass = "puan-zero";
+                if (item.puan === 10 || item.puan === 5) badgeClass = isJoker ? "puan-plus10" : "puan-plus5";
+                else if (item.puan === 6 || item.puan === 3) badgeClass = isJoker ? "puan-plus6" : "puan-plus3";
+                else if (item.puan === 4 || item.puan === 2) badgeClass = isJoker ? "puan-plus4" : "puan-plus2";
+                else if (item.puan < 0) badgeClass = "puan-neg";
+                
+                let herkesTabloSatirlari = ""; 
+                (item.herkes || []).forEach(h => { 
+                    let innerJoker = h.skor.includes("⭐");
+                    let innerBadge = "puan-zero";
+                    if (h.puan === 10 || h.puan === 5) innerBadge = innerJoker ? "puan-plus10" : "puan-plus5";
+                    else if (h.puan === 6 || h.puan === 3) innerBadge = innerJoker ? "puan-plus6" : "puan-plus3";
+                    else if (h.puan === 4 || h.puan === 2) innerBadge = innerJoker ? "puan-plus4" : "puan-plus2";
+                    
+                    let rowStyle = innerJoker ? "font-weight: 800; color: var(--gold);" : "";
+                    herkesTabloSatirlari += `<tr style="${rowStyle}"><td><strong>${h.isim}</strong></td><td>${h.skor}</td><td style="text-align:right;"><span class="puan-text-badge ${innerBadge}">${h.puan} P</span></td></tr>`; 
+                });
+                
+                let isOpened = (activeOpenedHistoryIdx === idx);
+                container.innerHTML += `
+                    <div class="history-row" onclick="toggleHistoryDropdown(${idx})">
+                        <div class="history-main-info" style="${isJoker ? 'border-left: 3px solid var(--gold); padding-left: 8px;' : ''}">
+                            <div class="history-teams">${item.takimA} - ${item.takimB}</div>
+                            <div class="history-scores">
+                                <span>Tahmin: <strong style="${isJoker ? 'color: var(--gold);' : ''}">${item.tahmin}</strong></span>
+                                <span>Sonuç: <strong>${item.gercekSkor}</strong></span>
+                            </div>
+                            <div class="history-puan-badge ${badgeClass}">${item.puan >= 0 ? '+' : ''}${item.puan} P</div>
+                        </div>
+                        <div id="history_drop_${idx}" class="history-details-dropdown" style="display: ${isOpened ? 'block' : 'none'}" onclick="event.stopPropagation()">
+                            <table class="details-table">
+                                <thead><tr><th>Oyuncu</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr></thead>
+                                <tbody>${herkesTabloSatirlari}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function toggleHistoryDropdown(index) {
+            const drop = document.getElementById(`history_drop_${index}`); if(!drop) return; 
+            if(drop.style.display === "block") { drop.style.display = "none"; activeOpenedHistoryIdx = null; } 
+            else { drop.style.display = "block"; activeOpenedHistoryIdx = index; } 
+        }
+
+        function getLeaderboardData() { 
+            guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => { 
+                if(users && users.length > 0) { globalCachedLeaderboard = users; renderLeaderboardTable(users); } 
+            }); 
+        }
+
+        function renderLeaderboardTable(usersList) { 
+            const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; 
+            usersList.forEach((oyuncu, index) => { 
+                let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, ''); 
+                let isOpened = (activeOpenedLeaderboardId === safeId); 
+                
+                tbody.innerHTML += `
+                    <tr class="player-row" id="leader_row_trigger_${safeId}">
+                        <td class="rank-col">#${index + 1}</td>
+                        <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
+                        <td class="total-col">${oyuncu.toplamPuan} P</td>
+                    </tr>
+                    <tr id="leader_drop_${safeId}" class="player-detail-drop-row" style="display: ${isOpened ? 'table-row' : 'none'}">
+                        <td colspan="3">
+                            <div class="player-detail-drop-container">
+                                <table class="details-table" id="leader_table_${safeId}">
+                                    <thead><tr><th>Maç</th><th>Tahmin</th><th style="text-align:right;">Puan</th></tr></thead>
+                                    <tbody><tr><td colspan="3" style="text-align:center; color:var(--text-muted);">Yükleniyor...</td></tr></tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>`; 
+                
+                setTimeout(() => {
+                    const rowBtn = document.getElementById(`leader_row_trigger_${safeId}`);
+                    if(rowBtn) {
+                        rowBtn.onclick = function() {
+                            const dropRow = document.getElementById(`leader_drop_${safeId}`); if(!dropRow) return;
+                            if(dropRow.style.display === "table-row") { dropRow.style.display = "none"; activeOpenedLeaderboardId = null; return; }
+                            document.querySelectorAll('.player-detail-drop-row').forEach(row => row.style.display = 'none');
+                            dropRow.style.display = "table-row"; activeOpenedLeaderboardId = safeId;
+                            fillLeaderboardTableDetails(safeId, oyuncu.isim.trim());
+                        };
+                    }
+                }, 10);
+
+                if(isOpened) { setTimeout(() => { fillLeaderboardTableDetails(safeId, oyuncu.isim.trim()); }, 20); }
+            }); 
+        }
+
+        function fillLeaderboardTableDetails(safeId, originalName) {
+            const tableBody = document.querySelector(`#leader_table_${safeId} tbody`); if(!tableBody) return; tableBody.innerHTML = "";
+            if(globalHistoryRawData.length === 0) { tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Veriler sunucudan eşitleniyor...</td></tr>"; return; }
+            let localHistorySorted = [...globalHistoryRawData].reverse(); let sayac = 0;
+            
+            localHistorySorted.forEach(match => {
+                let oyuncuListesi = match.herkes || [];
+                let pRecord = oyuncuListesi.find(h => h.isim.trim().localeCompare(originalName, 'tr', { sensitivity: 'base' }) === 0);
+                if(pRecord) {
+                    sayac++;
+                    let hasJoker = pRecord.skor.includes("⭐");
+                    let rowBadgeClass = "puan-zero";
+                    if (pRecord.puan === 10 || pRecord.puan === 5) rowBadgeClass = hasJoker ? "puan-plus10" : "puan-plus5";
+                    else if (pRecord.puan === 6 || pRecord.puan === 3) rowBadgeClass = hasJoker ? "puan-plus6" : "puan-plus3";
+                    else if (pRecord.puan === 4 || pRecord.puan === 2) rowBadgeClass = hasJoker ? "puan-plus4" : "puan-plus2";
+                    
+                    let rowStyle = hasJoker ? "font-weight: 800; color: var(--gold);" : "";
+                    tableBody.innerHTML += `<tr style="${rowStyle}"><td>${match.takimA} - ${match.takimB} <span style="font-size:0.7rem; color:var(--text-muted);">(${match.gercekSkor})</span></td><td><strong>${pRecord.skor}</strong></td><td style="text-align:right;"><span class="puan-text-badge ${rowBadgeClass}">${pRecord.puan} P</span></td></tr>`;
+                }
+            });
+            if(sayac === 0) tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:var(--text-muted);'>Maç kaydı bulunamadı.</td></tr>";
+        }
+
+        function lockChampionPrediction() {
+            const selectBox = document.getElementById('champion-select'); if(!selectBox.value) { alert("Lütfen listeden bir ülke seçin!"); return; }
+            if(!confirm(`${selectBox.value} ülkesini şampiyon olarak kilitlemek istediğinize emin misiniz?`)) return;
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value }) })
+            .then(() => { 
+                alert("🏆 Şampiyon tahmininiz başarıyla kilitlendi!"); 
+                tazeleVeYukle(); 
+            });
+        }
+
+        function dinamikSampiyonDropdownDoldur() {
+            const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
+            const saveBtn = document.getElementById('save-champion-btn'); const headerDisplay = document.getElementById('header-team-display');
+            
+            guvenliFetch(SCRIPT_URL).then(data => {
+                guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(status => {
+                    let aktifAsama = status.asama ? status.asama.trim().toLowerCase() : "turnuva başlangıcı";
+                    let eskiTahmin = status.currentPrediction ? status.currentPrediction.toString().trim() : "-";
+                    headerDisplay.innerText = (eskiTahmin !== "-" && eskiTahmin !== "") ? eskiTahmin.toUpperCase() : "GİRİLMEDİ";
+
+                    let hayattaKalanTakimlar = new Set();
+                    if(data && data.length > 0) { data.forEach(mac => { if (mac.gercekA === "-") { if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimA)); if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimB)); } }); }
+                    let temizEskiTahminKey = turkceKucukHarfCevir(eskiTahmin);
+
+                    if (eskiTahmin !== "-" && eskiTahmin !== "" && (hayattaKalanTakimlar.size === 0 || hayattaKalanTakimlar.has(temizEskiTahminKey))) {
+                        selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin}</option>`;
+                        selectBox.disabled = true; saveBtn.disabled = true; return;
+                    }
+                    selectBox.disabled = false; saveBtn.disabled = false;
+                });
+            });
+        }
+
+        function checkChampStatus() {
+            if(!aktifKullanici) return;
+            guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(data => { if(data && data.asama) document.getElementById('current-stage-badge').innerText = "Mevcut Aşama: " + data.asama; });
+        }
+
+        function rulesTabClick(e) { switchTab(e, 'rulesTab'); }
+
+        function switchTab(event, tabId) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if (event && event.currentTarget) event.currentTarget.classList.add('active'); if(tabId === 'leaderboard') getLeaderboardData(); if(tabId === 'historyTab') getUserHistoryDataUI(globalHistoryRawData); if(tabId === 'champion') { checkChampStatus(); dinamikSampiyonDropdownDoldur(); } }
+    </script>
+</body>
+</html>
+        .match-card.locked { opacity: 0.85; border-color: #3a3a3a; background-color: #171717; }
+        .match-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+        .match-body { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .team { flex: 2; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .team-name { font-size: 1rem; font-weight: 700; word-break: break-word; }
+        .prediction-inputs { display: flex; align-items: center; gap: 8px; justify-content: center; flex: 3; }
+        .score-input { width: 45px; height: 45px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); text-align: center; font-size: 1.2rem; font-weight: bold; }
+        .score-input:disabled { background-color: #222222; color: #888888; border-color: #333333; }
+        
+        .star-checkbox-container { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); cursor: pointer; }
+        .star-checkbox-container input { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; }
+        .star-checkbox-container.active-star { color: var(--gold); }
+
+        .match-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px; }
+        .status-text { font-size: 0.8rem; font-weight: 600; }
+        .status-open { color: var(--info-blue); }
+        .status-locked { color: var(--success-green); }
+        .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
+        
+        .current-prediction-header-box { background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 20px; }
+        .current-prediction-header-box span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px; }
+        .current-prediction-header-box strong { font-size: 1.3rem; color: var(--gold); font-weight: 900; letter-spacing: 0.5px; }
+
+        .announcement-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background-color: var(--card-bg); border: 2px solid var(--gold); border-radius: 20px; max-width: 420px; width: 100%; padding: 25px; text-align: center; box-shadow: 0 4px 25px rgba(241,196,15,0.3); animation: fadeIn 0.4s ease; }
+        .modal-header-star { font-size: 2.5rem; margin-bottom: 10px; }
+        .modal-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 15px; text-transform: uppercase; }
+        .modal-body-text { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 25px; text-align: center; }
+
+        .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
+        .leaderboard-table tr.player-row { cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .leaderboard-table tr.player-row:hover { background-color: #252525; }
+        .leaderboard-table td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+        .rank-col { font-weight: 800; width: 45px; text-align: center; color: var(--gold); }
+        .name-col { font-weight: 600; }
+        .total-col { font-weight: 800; color: var(--success-green); text-align: right; padding-right: 15px !important; }
+        .player-detail-drop-row { display: none; background-color: #171717; }
+        .player-detail-drop-container { padding: 10px 15px; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
+        
+        .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
+        .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
+        
+        .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
+        .history-row:hover { background-color: #2d2d2d; }
+        .history-main-info { display: flex; justify-content: space-between; align-items: center; }
+        .history-teams { font-size: 0.85rem; font-weight: bold; flex: 2; }
+        .history-scores { font-size: 0.75rem; color: var(--text-muted); flex: 2; text-align: center; display: flex; flex-direction: column; gap: 3px; }
+        .history-puan-badge { font-weight: 800; font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; min-width: 55px; text-align: center; }
+        
+        .puan-text-badge { font-weight: bold; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; display: inline-block; text-align: center; min-width: 45px; }
+        .puan-plus10 { background-color: rgba(241, 196, 15, 0.25); color: #fff; border: 2px solid var(--gold); box-shadow: 0 0 8px rgba(241, 196, 15, 0.4); }
+        .puan-plus6 { background-color: rgba(52, 152, 219, 0.25); color: #fff; border: 2px solid var(--info-blue); }
+        .puan-plus4 { background-color: rgba(46, 204, 113, 0.25); color: #fff; border: 2px solid var(--success-green); }
+        .puan-plus5 { background-color: rgba(46, 204, 113, 0.15); color: var(--success-green); border: 1px solid var(--success-green); }
+        .puan-plus3 { background-color: rgba(52, 152, 219, 0.15); color: var(--info-blue); border: 1px solid var(--info-blue); }
+        .puan-plus2 { background-color: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid var(--gold); }
+        .puan-zero { background-color: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #444; }
+        .puan-neg { background-color: rgba(229, 9, 20, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .history-details-dropdown { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; animation: fadeIn 0.3s ease; }
+        .details-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; }
+        .details-table th { color: var(--text-muted); padding: 5px; border-bottom: 1px solid #333; font-weight: bold; text-align: left; }
+        .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
+        select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
