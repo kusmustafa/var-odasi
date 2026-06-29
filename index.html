@@ -229,7 +229,9 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwp3jmY8VXu4ybY1ODzPFc_Qt91iM4qM9LOc2zHIOwFBlLGdfytufHo2b8Eo3vPrvIG/exec";
+        // CRITICAL REPAIR: Yeni Apps Script URL'ini buraya yapıştır Mustafa!
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMwMHx82k54IUrEitF8kk4w19GVMdOF1QZ8iivTvlrXNgBSKFesO0m0AiMb-uNtk2T/exec";
+        
         let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let activePuanFilter = null; let globalCachedLeaderboard = [];
         let activeOpenedHistoryIdx = null; let activeOpenedLeaderboardId = null; let isDataFetchedFromServer = false;
         let isScrolling = false; let startY = 0;
@@ -239,11 +241,16 @@
             return str.toString().replace(/İ/g, "i").replace(/I/g, "ı").replace(/Ş/g, "ş").replace(/Ğ/g, "ğ").replace(/Ç/g, "ç").replace(/Ö/g, "ö").replace(/Ü/g, "ü").toLowerCase().trim();
         }
 
-        function guvenliFetch(url) { return fetch(url).then(res => res.json()); }
+        function guvenliFetch(url) { return fetch(url).then(res => res.json()).catch(e => { return []; }); }
         function yerelTarihParse(tarihStr) { if(!tarihStr) return new Date(); return new Date(tarihStr.replace(" ", "T")); }
 
         window.onload = function() { 
-            guvenliFetch(SCRIPT_URL).then(data => { maclar = data; dinamikSampiyonDropdownDoldur(); });
+            // FIX COUPLING: Maçların listelenmesini asenkron motorlara bağlamadan doğrudan tetikliyoruz
+            if(SCRIPT_URL.includes("BURAYA_YENI")) {
+                document.getElementById('matches-list-container').innerHTML = "<div style='color:var(--accent-red); padding:20px; font-weight:bold; text-align:center;'>⚠️ Hata: Lütfen index.html kodundaki SCRIPT_URL alanına yeni Apps Script linkini yapıştırın!</div>";
+                return;
+            }
+            guvenliFetch(SCRIPT_URL).then(data => { maclar = data; maclariListele(); dinamikSampiyonDropdownDoldur(); });
             window.addEventListener('touchstart', function(e) { startY = e.touches[0].pageY; isScrolling = false; }, {passive: true});
             window.addEventListener('touchmove', function(e) { if (Math.abs(e.touches[0].pageY - startY) > 6) isScrolling = true; }, {passive: true});
             
@@ -252,13 +259,13 @@
         };
 
         function checkAnnouncementModal() {
-            if (!localStorage.getItem("var_star_announcement_viewed_v42")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v43")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed_v42", "true");
+            localStorage.setItem("var_star_announcement_viewed_v43", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -292,11 +299,13 @@
                     maclariListele(); 
                     guvenliFetch(`${SCRIPT_URL}?action=getUserHistory&username=${encodeURIComponent(aktifKullanici)}`)
                         .then(res => {
-                            globalHistoryRawData = [...res.history];
-                            document.getElementById('userTotalPoints').innerText = res.total;
-                            isDataFetchedFromServer = true; 
-                            getLeaderboardData(); 
-                            getUserHistoryDataUI(res.history); 
+                            if(res && res.history) {
+                                globalHistoryRawData = [...res.history];
+                                document.getElementById('userTotalPoints').innerText = res.total;
+                                isDataFetchedFromServer = true; 
+                                getLeaderboardData(); 
+                                getUserHistoryDataUI(res.history); 
+                            }
                         });
                     checkChampStatus();
                     dinamikSampiyonDropdownDoldur();
@@ -346,6 +355,7 @@
                         </div>
                     </div>`;
             });
+            if (container.innerHTML === "") container.innerHTML = "<p style='text-align:center;color:var(--text-muted);padding:20px;'>Aktif canlı maç bulunmuyor.</p>";
         }
 
         function savePredictionWithStar(matchId) {
@@ -363,7 +373,7 @@
             .then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
         }
 
-        // GÜNCELLEME: TEKİL YAŞAYAN TAHMİNİ LİSTELEYEN VE KİLİTLEYEN YENİ NESİL MOTOR
+        // FIX COUPLING RENDERER: En son şampiyon adayını süzüp mühürleyen kusursuz kilit motoru
         function dinamikSampiyonDropdownDoldur() {
             const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
             const saveBtn = document.getElementById('save-champion-btn');
@@ -375,26 +385,26 @@
                     let aktifAsama = status.asama ? status.asama.trim().toLowerCase() : "turnuva başlangıcı";
                     let eskiTahmin = status.currentPrediction ? status.currentPrediction.toString().trim() : "-";
 
-                    // En üst paneli hangi aşama olursa olsun doldur
                     if(eskiTahmin !== "-" && eskiTahmin !== "") {
                         headerDisplay.innerText = eskiTahmin.toUpperCase();
                     } else {
                         headerDisplay.innerText = "GİRİLMEDİ";
                     }
 
-                    // Fikstür sayfasındaki canlı/hayatta kalan aktif takımları Set'e alıyoruz
                     let hayattaKalanTakimlar = new Set();
-                    data.forEach(mac => {
-                        if (mac.gercekA === "-") {
-                            if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimA));
-                            if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimB));
-                        }
-                    });
+                    if(data && data.length > 0) {
+                        data.forEach(mac => {
+                            if (mac.gercekA === "-") {
+                                if(mac.takimA && mac.takimA.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimA));
+                                if(mac.takimB && mac.takimB.length > 3) hayattaKalanTakimlar.add(turkceKucukHarfCevir(mac.takimB));
+                            }
+                        });
+                    }
 
                     let temizEskiTahminKey = turkceKucukHarfCevir(eskiTahmin);
 
-                    // TAM FIX KİLİT: Eğer adayınız (örn: Portekiz) fikstür havuzunda canlıysa seçtirme, kilitle!
-                    if (eskiTahmin !== "-" && eskiTahmin !== "" && hayattaKalanTakimlar.has(temizEskiTahminKey)) {
+                    // TAM FIX KİLİT SİSTEMİ: Portekiz veya girilen takım hayattaysa listeyi ve butonu kilitle!
+                    if (eskiTahmin !== "-" && eskiTahmin !== "" && (hayattaKalanTakimlar.size === 0 || hayattaKalanTakimlar.has(temizEskiTahminKey))) {
                         selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Turnuvada Devam Ediyor)</option>`;
                         selectBox.disabled = true;
                         saveBtn.disabled = true;
@@ -403,25 +413,20 @@
                         return;
                     }
 
-                    // Aday elendiyse dropdown'ı aç ve sadece hayatta kalan aktif takımları dök
                     selectBox.disabled = false; saveBtn.disabled = false;
                     saveBtn.innerText = "Yenilenen Tahmini Kilitle";
                     saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000";
                     
                     selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
                     
-                    if (aktifAsama === "turnuva başlangıcı" || data.length === 0) {
-                        tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
-                    } else {
-                        let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => {
-                            return tumTakimlar.find(orig => turkceKucukHarfCevir(orig) === t);
-                        }).filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr'));
+                    let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => {
+                        return tumTakimlar.find(orig => turkceKucukHarfCevir(orig) === t);
+                    }).filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr'));
 
-                        if(siralıAktifler.length > 0) {
-                            siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
-                        } else {
-                            tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
-                        }
+                    if(siralıAktifler.length > 0) {
+                        siralıAktifler.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
+                    } else {
+                        tumTakimlar.forEach(t => { let opt = document.createElement('option'); opt.value = t; opt.innerText = t; selectBox.appendChild(opt); });
                     }
                 });
             });
@@ -440,7 +445,7 @@
         }
 
         function getUserHistoryDataUI(historyArray) {
-            if (!isDataFetchedFromServer) return; const container = document.getElementById('userHistoryContainer'); if(!container) return;
+            const container = document.getElementById('userHistoryContainer'); if(!container) return;
             container.innerHTML = ""; let reversedHistory = [...historyArray].reverse();
             reversedHistory.forEach((item, idx) => {
                 let badgeClass = item.puan === 10 || item.puan === 5 ? "puan-plus5" : (item.puan === 6 || item.puan === 3 ? "puan-plus3" : (item.puan === 4 || item.puan === 2 ? "puan-plus2" : "puan-zero"));
@@ -450,9 +455,9 @@
             });
         }
         function toggleHistoryDropdown(index) { const drop = document.getElementById(`history_drop_${index}`); if(!drop) return; if(drop.style.display === "block") { drop.style.display = "none"; activeOpenedHistoryIdx = null; } else { drop.style.display = "block"; activeOpenedHistoryIdx = index; } }
-        function getLeaderboardData() { guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => { globalCachedLeaderboard = users; renderLeaderboardTable(users); }); }
-        function renderLeaderboardTable(usersList) { const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; usersList.forEach((oyuncu, index) => { let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, ''); tbody.innerHTML += `<tr class="player-row" onclick="if(!isScrolling) { activeOpenedLeaderboardId = (activeOpenedLeaderboardId == '${safeId}' ? null : '${safeId}'); getLeaderboardData(); }"><td class="rank-col">#${index + 1}</td><td class="name-col">⚽ ${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`; }); }
-        function switchTab(event, tabId) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if (event && event.currentTarget) event.currentTarget.classList.add('active'); if(tabId === 'leaderboard') getLeaderboardData(); if(tabId === 'historyTab') getUserHistoryData(); if(tabId === 'champion') { checkChampStatus(); dinamikSampiyonDropdownDoldur(); } }
+        function getLeaderboardData() { guvenliFetch(`${SCRIPT_URL}?action=getLeaderboard`).then(users => { if(users && users.length > 0) { globalCachedLeaderboard = users; renderLeaderboardTable(users); } }); }
+        function renderLeaderboardTable(usersList) { const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; usersList.forEach((oyuncu, index) => { tbody.innerHTML += `<tr class="player-row"><td class="rank-col">#${index + 1}</td><td class="name-col">⚽ ${oyuncu.isim}</td><td class="total-col">${oyuncu.toplamPuan} P</td></tr>`; }); }
+        function switchTab(event, tabId) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(tabId).classList.add('active'); if (event && event.currentTarget) event.currentTarget.classList.add('active'); if(tabId === 'leaderboard') getLeaderboardData(); if(tabId === 'historyTab') getUserHistoryDataUI(globalHistoryRawData); if(tabId === 'champion') { checkChampStatus(); dinamikSampiyonDropdownDoldur(); } }
     </script>
 </body>
 </html>
