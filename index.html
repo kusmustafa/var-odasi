@@ -229,8 +229,8 @@
     </div>
 
     <script>
-        // CRITICAL REPAIR: Yeni Apps Script URL'ini buraya yapıştır Mustafa!
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMwMHx82k54IUrEitF8kk4w19GVMdOF1QZ8iivTvlrXNgBSKFesO0m0AiMb-uNtk2T/exec";
+        // CRITICAL: Buraya yeni deployment linkini yapıştır reis
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykgimcGpea0LYJJluZeH3XSuc4Fjs7eEyDA0xSpjlx_dUCE5OaW1kRcpCP_QXo0dZd/exec";
         
         let aktifKullanici = ""; let mevcutTahminler = {}; let maclar = []; let globalHistoryRawData = []; let activePuanFilter = null; let globalCachedLeaderboard = [];
         let activeOpenedHistoryIdx = null; let activeOpenedLeaderboardId = null; let isDataFetchedFromServer = false;
@@ -245,9 +245,8 @@
         function yerelTarihParse(tarihStr) { if(!tarihStr) return new Date(); return new Date(tarihStr.replace(" ", "T")); }
 
         window.onload = function() { 
-            // FIX COUPLING: Maçların listelenmesini asenkron motorlara bağlamadan doğrudan tetikliyoruz
             if(SCRIPT_URL.includes("BURAYA_YENI")) {
-                document.getElementById('matches-list-container').innerHTML = "<div style='color:var(--accent-red); padding:20px; font-weight:bold; text-align:center;'>⚠️ Hata: Lütfen index.html kodundaki SCRIPT_URL alanına yeni Apps Script linkini yapıştırın!</div>";
+                document.getElementById('matches-list-container').innerHTML = "<div style='color:var(--accent-red); padding:20px; font-weight:bold; text-align:center;'>⚠️ Hata: Lütfen SCRIPT_URL alanına yeni Apps Script linkini yapıştırın!</div>";
                 return;
             }
             guvenliFetch(SCRIPT_URL).then(data => { maclar = data; maclariListele(); dinamikSampiyonDropdownDoldur(); });
@@ -259,13 +258,13 @@
         };
 
         function checkAnnouncementModal() {
-            if (!localStorage.getItem("var_star_announcement_viewed_v43")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v43_1")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed_v43", "true");
+            localStorage.setItem("var_star_announcement_viewed_v43_1", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -373,7 +372,14 @@
             .then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
         }
 
-        // FIX COUPLING RENDERER: En son şampiyon adayını süzüp mühürleyen kusursuz kilit motoru
+        function lockChampionPrediction() {
+            const selectBox = document.getElementById('champion-select');
+            if(!selectBox.value) { alert("Lütfen listeden bir ülke seçin!"); return; }
+            if(!confirm(`${selectBox.value} ülkesini şampiyon olarak kilitlemek istediğinize emin misiniz?`)) return;
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify({ action: "saveChampion", username: aktifKullanici, team: selectBox.value }) })
+            .then(() => { alert("İşlem tamamlandı!"); tazeleVeYukle(); });
+        }
+
         function dinamikSampiyonDropdownDoldur() {
             const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
             const saveBtn = document.getElementById('save-champion-btn');
@@ -403,11 +409,9 @@
 
                     let temizEskiTahminKey = turkceKucukHarfCevir(eskiTahmin);
 
-                    // TAM FIX KİLİT SİSTEMİ: Portekiz veya girilen takım hayattaysa listeyi ve butonu kilitle!
                     if (eskiTahmin !== "-" && eskiTahmin !== "" && (hayattaKalanTakimlar.size === 0 || hayattaKalanTakimlar.has(temizEskiTahminKey))) {
                         selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Turnuvada Devam Ediyor)</option>`;
-                        selectBox.disabled = true;
-                        saveBtn.disabled = true;
+                        selectBox.disabled = true; saveBtn.disabled = true;
                         saveBtn.innerText = "🔒 Adayınız Turnuvada Devam Ediyor";
                         saveBtn.style.backgroundColor = "#333"; saveBtn.style.color = "#777";
                         return;
@@ -416,7 +420,6 @@
                     selectBox.disabled = false; saveBtn.disabled = false;
                     saveBtn.innerText = "Yenilenen Tahmini Kilitle";
                     saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000";
-                    
                     selectBox.innerHTML = '<option value="" disabled selected>Bir takım seçin...</option>';
                     
                     let siralıAktifler = Array.from(hayattaKalanTakimlar).map(t => {
