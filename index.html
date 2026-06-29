@@ -53,7 +53,6 @@
         .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         
-        /* GÜNCELLEME: ŞAMPİYON ADAYI GÖSTERGE ALANI CSS */
         .current-prediction-header-box { background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 20px; }
         .current-prediction-header-box span { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; display: block; margin-bottom: 4px; }
         .current-prediction-header-box strong { font-size: 1.3rem; color: var(--gold); font-weight: 900; letter-spacing: 0.5px; }
@@ -66,12 +65,6 @@
 
         .mini-dashboard { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
         .dash-card { flex: 1; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); cursor: pointer; transition: transform 0.15s, border-color 0.2s; -webkit-tap-highlight-color: transparent; }
-        .dash-card-title { font-size: 0.68rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; pointer-events: none; }
-        .dash-card-winner { font-size: 0.85rem; font-weight: bold; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; pointer-events: none; }
-        .dash-card-count { font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; margin-top: 2px; pointer-events: none; }
-        .dc-5 { border: 1px solid var(--success-green); color: var(--success-green); background-color: rgba(46, 204, 113, 0.05); }
-        .dc-3 { border: 1px solid var(--info-blue); color: var(--info-blue); background-color: rgba(52, 152, 219, 0.05); }
-        .dc-2 { border: 1px solid var(--gold); color: var(--gold); background-color: rgba(241, 196, 15, 0.05); }
         .leaderboard-container { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
         .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
         .leaderboard-table th { background-color: #252525; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 12px 10px; font-weight: 700; }
@@ -206,7 +199,6 @@
                     <select id="champion-select"><option value="" disabled selected>Yükleniyor...</option></select>
                     <button id="save-champion-btn" class="save-btn" style="width: 100%; padding: 12px; background-color: var(--gold); color: #000; font-weight:bold;" onclick="lockChampionPrediction()">Tahmini Kilitle</button>
                     <div id="locked-prediction-zone" class="locked-champion-box" style="display: none; margin-top: 15px; text-align: center;">
-                        <span style="color: var(--text-muted); font-size: 0.8rem;">Durum Durumu:</span>
                         <h3 id="locked-team-name" style="color: var(--gold); margin-top: 5px; font-size: 1.3rem;">-</h3>
                     </div>
                 </div>
@@ -243,7 +235,6 @@
         let activeOpenedHistoryIdx = null; let activeOpenedLeaderboardId = null; let isDataFetchedFromServer = false;
         let isScrolling = false; let startY = 0;
 
-        // Türkçe karakter güvenli küçük harf çevirici motor (MÜHÜR FIX)
         function turkceKucukHarfCevir(str) {
             if(!str) return "";
             return str.toString().replace(/İ/g, "i").replace(/I/g, "ı").replace(/Ş/g, "ş").replace(/Ğ/g, "ğ").replace(/Ç/g, "ç").replace(/Ö/g, "ö").replace(/Ü/g, "ü").toLowerCase().trim();
@@ -262,13 +253,13 @@
         };
 
         function checkAnnouncementModal() {
-            if (!localStorage.getItem("var_star_announcement_viewed_v40")) {
+            if (!localStorage.getItem("var_star_announcement_viewed_v41")) {
                 document.getElementById('announcementModal').style.display = 'flex';
             }
         }
 
         function closeAnnouncementModal() {
-            localStorage.setItem("var_star_announcement_viewed_v40", "true");
+            localStorage.setItem("var_star_announcement_viewed_v41", "true");
             document.getElementById('announcementModal').style.display = 'none';
         }
 
@@ -287,9 +278,7 @@
 
         function handleLogout() {
             if(!confirm("Oturumu kapatmak istediğinize emin misiniz?")) return;
-            localStorage.removeItem("var_username");
-            localStorage.removeItem("var_pin");
-            window.location.reload();
+            localStorage.removeItem("var_username"); localStorage.removeItem("var_pin"); window.location.reload();
         }
 
         function tazeleVeYukle() {
@@ -375,7 +364,7 @@
             .then(() => { mevcutTahminler[matchId] = { a: skorA, b: skorB, yildiz: yildizIstegi }; tazeleVeYukle(); });
         }
 
-        // GÜNCELLEME: TÜRKÇE HARF KORUMALI ÇİFT KİLİTLİ SEÇİM ENGELLEME MOTORU
+        // GÜNCELLEME: SÜTUN BAĞIMSIZ EN SON ADAYI BULAN VE GÜVENLİ KİLİTLEYEN LİSTE MOTORU
         function dinamikSampiyonDropdownDoldur() {
             const selectBox = document.getElementById('champion-select'); if(!selectBox) return;
             const saveBtn = document.getElementById('save-champion-btn');
@@ -387,14 +376,7 @@
                     let aktifAsama = status.asama ? status.asama.trim().toLowerCase() : "turnuva başlangıcı";
                     let eskiTahmin = status.currentPrediction ? status.currentPrediction.toString().trim() : "-";
 
-                    // Üst göstergeyi mühürle
-                    if(eskiTahmin !== "-" && eskiTahmin !== "") {
-                        headerDisplay.innerText = eskiTahmin.toUpperCase();
-                    } else {
-                        headerDisplay.innerText = "GİRİLMEDİ";
-                    }
-
-                    // Fikstür sayfasındaki canlı maç havuzunu Türkçe güvenli tarama
+                    // Fikstür sayfasındaki canlı/hayatta kalan takımları Set'e alıyoruz
                     let hayattaKalanTakimlar = new Set();
                     data.forEach(mac => {
                         if (mac.gercekA === "-") {
@@ -403,9 +385,16 @@
                         }
                     });
 
+                    // GÜNCELLEME: Üst başlık göstergesini nerede olursa olsun dolduruyoruz
+                    if(eskiTahmin !== "-" && eskiTahmin !== "") {
+                        headerDisplay.innerText = eskiTahmin.toUpperCase();
+                    } else {
+                        headerDisplay.innerText = "GİRİLMEDİ";
+                    }
+
                     let temizEskiTahminKey = turkceKucukHarfCevir(eskiTahmin);
 
-                    // TAM FIX KİLİT: Eğer adayınız (örn: Portekiz) fikstür havuzunda canlıysa seçtirme, kilitle!
+                    // TAM KİLİT: Eğer Portekiz hâlâ hayattaysa burası çalışır ve kutuyu mühürler!
                     if (eskiTahmin !== "-" && eskiTahmin !== "" && hayattaKalanTakimlar.has(temizEskiTahminKey)) {
                         selectBox.innerHTML = `<option value="${eskiTahmin}" selected>${eskiTahmin} (Turnuvada Devam Ediyor)</option>`;
                         selectBox.disabled = true;
@@ -415,9 +404,8 @@
                         return;
                     }
 
-                    // Aday elendiyse burası tetiklenir ve sadece canlı kalan 32 takımı selecte basar
-                    selectBox.disabled = false;
-                    saveBtn.disabled = false;
+                    // Aday elendiyse dropdown'ı aç ve sadece hayatta kalan aktif takımları dök
+                    selectBox.disabled = false; saveBtn.disabled = false;
                     saveBtn.innerText = "Yenilenen Tahmini Kilitle";
                     saveBtn.style.backgroundColor = "var(--gold)"; saveBtn.style.color = "#000";
                     
