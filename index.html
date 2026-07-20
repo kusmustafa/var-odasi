@@ -49,8 +49,6 @@
 
         .match-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px; }
         .status-text { font-size: 0.8rem; font-weight: 600; }
-        .status-open { color: var(--info-blue); }
-        .status-locked { color: var(--success-green); }
         .save-btn { background-color: var(--accent-red); color: var(--text-main); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
         
         .current-prediction-header-box { background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 12px; padding: 12px; text-align: center; margin-bottom: 20px; }
@@ -75,10 +73,14 @@
         .player-detail-drop-row { display: none; background-color: #171717; }
         .player-detail-drop-container { padding: 10px 15px; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; }
         
-        .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .score-card-header { background: linear-gradient(135deg, #e50914 0%, #b80710 100%); padding: 20px; border-radius: 16px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); border: 1px solid rgba(255,255,255,0.1); }
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
         
+        /* ENTEGRASYON: Şampiyonluk bonus bildirimi kartı */
+        .champ-bonus-card { display: none; background: rgba(241, 196, 15, 0.12); border: 1.5px solid var(--gold); border-radius: 12px; padding: 12px; margin-bottom: 20px; text-align: center; font-size: 0.85rem; color: #fff; box-shadow: 0 2px 10px rgba(241, 196, 15, 0.2); }
+        .champ-bonus-card strong { color: var(--gold); font-size: 0.95rem; }
+
         .history-row { background-color: #252525; padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; -webkit-tap-highlight-color: transparent; }
         .history-row:hover { background-color: #2d2d2d; }
         .history-main-info { display: flex; justify-content: space-between; align-items: center; }
@@ -101,8 +103,6 @@
         .details-table td { padding: 6px 5px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
         select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 1rem; font-weight: 600; margin-bottom: 15px; }
         .admin-select { width: 100%; padding: 12px; background-color: var(--bg-color); border: 2px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px; }
-        .admin-user-card { background-color: #252525; padding: 12px 18px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .approve-btn { background-color: var(--success-green); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
@@ -152,7 +152,6 @@
                 <button class="tab-btn" onclick="switchTab(event, 'leaderboard')">Sıralama</button>
                 <button class="tab-btn" onclick="switchTab(event, 'champion')">Şampiyon</button>
                 <button class="tab-btn" style="color:var(--info-blue);" onclick="rulesTabClick(event)">📋 Kurallar</button>
-                <!-- ENTEGRASYON: Geri getirilen Admin sekme butonu -->
                 <button id="adminTabBtn" class="tab-btn" style="display:none; color:var(--gold);" onclick="switchTab(event, 'adminPanel')">👑 Yönetici</button>
             </div>
 
@@ -165,6 +164,10 @@
                 <div class="score-card-header">
                     <div id="userTotalPoints" class="score-card-points">0</div>
                     <div class="score-card-label">Toplam VAR Odası Puanım</div>
+                </div>
+                <!-- ENTEGRASYON: Şampiyonluk Bonusu Gösterim Kartı -->
+                <div id="champBonusCard" class="champ-bonus-card">
+                    🏆 <strong>Şampiyonluk Bonusu:</strong> <span id="champBonusText">+0 Puan</span>
                 </div>
                 <h3 style="margin-bottom:15px; font-size:1rem; color:var(--gold);">🏁 Tamamlanan Maç Özetlerim</h3>
                 <div id="userHistoryContainer"></div>
@@ -217,7 +220,6 @@
                 </div>
             </div>
 
-            <!-- ENTEGRASYON: Geri getirilen Admin Panel İçerik Alanı -->
             <div id="adminPanel" class="tab-content">
                 <div class="champion-card">
                     <h2 style="color:var(--info-blue); margin-bottom:10px;">⚽ Gerçek Maç Sonucu Giriş Merkezi</h2>
@@ -283,7 +285,6 @@
                 document.getElementById('authScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
                 document.getElementById('logoutBtn').style.display = 'flex';
                 
-                // ENTEGRASYON: Giriş yapan admin ise üst başlığı ve yönetim sekmesini görünür kıl
                 if(user.toLowerCase() === "admin") {
                     document.getElementById('adminTabBtn').style.display = 'block';
                     document.getElementById('userWelcome').innerText = "👑 Yönetici: " + aktifKullanici;
@@ -395,7 +396,6 @@
             });
         }
 
-        // ENTEGRASYON: Gerçek maç skoru girerken doldurulan admin dropdown menüleri
         function adminSecimListeleriniDoldur() {
             const selectGiris = document.getElementById('adminMatchSelect');
             const selectSifirla = document.getElementById('adminResetMatchSelect');
@@ -442,6 +442,27 @@
             const container = document.getElementById('userHistoryContainer'); if(!container) return;
             container.innerHTML = ""; let reversedHistory = [...historyArray].reverse();
             
+            // ENTEGRASYON: Şampiyonluk bonus kartını hesapla ve üst alana bastır
+            let macPuanlariToplami = 0;
+            reversedHistory.forEach(item => { macPuanlariToplami += item.puan; });
+            let genelToplam = parseInt(document.getElementById('userTotalPoints').innerText, 10) || 0;
+            let bonusFark = genelToplam - macPuanlariToplami;
+
+            const bonusCard = document.getElementById('champBonusCard');
+            const bonusText = document.getElementById('champBonusText');
+
+            if (bonusFark > 0) {
+                // Şampiyon bilgisini çekip barda gösterelim
+                guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(status => {
+                    let takim = status.currentPrediction ? status.currentPrediction.toUpperCase() : "ŞAMPİYON";
+                    let asama = status.girisAsamasi ? status.girisAsamasi : "Turnuva";
+                    bonusText.innerText = `+${bonusFark} Puan (${takim} - ${asama})`;
+                    bonusCard.style.display = 'block';
+                });
+            } else {
+                bonusCard.style.display = 'none';
+            }
+
             reversedHistory.forEach((item, idx) => {
                 let isJoker = item.tahmin.includes("⭐");
                 let badgeClass = "puan-zero";
