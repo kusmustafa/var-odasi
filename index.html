@@ -77,7 +77,6 @@
         .score-card-points { font-size: 3rem; font-weight: 900; color: #fff; }
         .score-card-label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.8); font-weight: bold; margin-top: 5px; }
         
-        /* ENTEGRASYON: Şampiyonluk bonus bildirimi kartı */
         .champ-bonus-card { display: none; background: rgba(241, 196, 15, 0.12); border: 1.5px solid var(--gold); border-radius: 12px; padding: 12px; margin-bottom: 20px; text-align: center; font-size: 0.85rem; color: #fff; box-shadow: 0 2px 10px rgba(241, 196, 15, 0.2); }
         .champ-bonus-card strong { color: var(--gold); font-size: 0.95rem; }
 
@@ -165,7 +164,6 @@
                     <div id="userTotalPoints" class="score-card-points">0</div>
                     <div class="score-card-label">Toplam VAR Odası Puanım</div>
                 </div>
-                <!-- ENTEGRASYON: Şampiyonluk Bonusu Gösterim Kartı -->
                 <div id="champBonusCard" class="champ-bonus-card">
                     🏆 <strong>Şampiyonluk Bonusu:</strong> <span id="champBonusText">+0 Puan</span>
                 </div>
@@ -442,7 +440,6 @@
             const container = document.getElementById('userHistoryContainer'); if(!container) return;
             container.innerHTML = ""; let reversedHistory = [...historyArray].reverse();
             
-            // ENTEGRASYON: Şampiyonluk bonus kartını hesapla ve üst alana bastır
             let macPuanlariToplami = 0;
             reversedHistory.forEach(item => { macPuanlariToplami += item.puan; });
             let genelToplam = parseInt(document.getElementById('userTotalPoints').innerText, 10) || 0;
@@ -452,7 +449,6 @@
             const bonusText = document.getElementById('champBonusText');
 
             if (bonusFark > 0) {
-                // Şampiyon bilgisini çekip barda gösterelim
                 guvenliFetch(`${SCRIPT_URL}?action=getChampStatus&username=${encodeURIComponent(aktifKullanici)}`).then(status => {
                     let takim = status.currentPrediction ? status.currentPrediction.toUpperCase() : "ŞAMPİYON";
                     let asama = status.girisAsamasi ? status.girisAsamasi : "Turnuva";
@@ -516,15 +512,37 @@
             }); 
         }
 
+        // REVISE: Sıralama Tablosu - Eşit Puanlarda Alfabetik Sıralama ve Akıllı Derece (Rank) Mantığı
         function renderLeaderboardTable(usersList) { 
             const tbody = document.getElementById('leaderboard-tbody'); if(!tbody) return; tbody.innerHTML = ""; 
-            usersList.forEach((oyuncu, index) => { 
+            
+            // 1. Puanları Eşit Olanları Kendi Aralarında Türkçe Karakter Duyarlı Alfabetik Sırala
+            let sortedUsers = [...usersList].sort((a, b) => {
+                if (b.toplamPuan !== a.toplamPuan) {
+                    return b.toplamPuan - a.toplamPuan; // Önce yüksek puan
+                }
+                return a.isim.localeCompare(b.isim, 'tr', { sensitivity: 'base' }); // Eşitse A-Z alfabetik
+            });
+
+            let currentRank = 1;
+            
+            sortedUsers.forEach((oyuncu, index) => { 
                 let safeId = oyuncu.isim.replace(/[^a-zA-Z0-9]/g, ''); 
                 let isOpened = (activeOpenedLeaderboardId === safeId); 
+
+                // 2. Akıllı Sıra Numarası (Derece) Hesaplama
+                if (index > 0) {
+                    if (oyuncu.toplamPuan === sortedUsers[index - 1].toplamPuan) {
+                        // Bir önceki oyuncuyla puanı aynıysa derecesi değişmez
+                    } else {
+                        // Puan farklıysa gerçek sıra indeksine (index + 1) atlar
+                        currentRank = index + 1;
+                    }
+                }
                 
                 tbody.innerHTML += `
                     <tr class="player-row" id="leader_row_trigger_${safeId}">
-                        <td class="rank-col">#${index + 1}</td>
+                        <td class="rank-col">#${currentRank}</td>
                         <td class="name-col">⚽ ${oyuncu.isim} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(Gör)</span></td>
                         <td class="total-col">${oyuncu.toplamPuan} P</td>
                     </tr>
